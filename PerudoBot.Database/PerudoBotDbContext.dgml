@@ -1,0 +1,353 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="LeftToRight" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+<Node Id="IModel" Label="PerudoBotDbContext" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot" PropertyAccessMode="PropertyAccessMode.Default" ProductVersion="6.0.5" Annotations="BaseTypeDiscoveryConvention:DerivedTypes: System.Collections.Generic.Dictionary`2[System.Type,System.Collections.Generic.List`1[Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType]]
+RelationshipDiscoveryConvention:InverseNavigationCandidates: System.Collections.Generic.Dictionary`2[System.Type,System.Collections.Generic.SortedSet`1[System.Type]]" Category="Model" Group="Expanded" />
+<Node Id = "Achievement" Label="Achievement" Name="Achievement" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:TableName: Achievements
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "Action" Label="Action" Name="Action" BaseClass="" IsAbstract="True" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="DiscriminatorProperty: ActionType
+DiscriminatorValue: Action
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "Achievement.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "Achievement.Description" Label="Description" Name="Description" Category="Property Optional" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="False" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Achievement.Name" Label="Name" Name="Name" Category="Property Optional" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="False" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Achievement.Type" Label="Type" Name="Type" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Achievement.Users" Label="Users" Name="Users" Category="Property Optional" Type="ICollection&lt;User&gt;" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="False" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "BetAction" Label="BetAction" Name="BetAction" BaseClass="Action" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="DiscriminatorProperty:
+DiscriminatorValue: BetAction
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "Action.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "Action.ParentAction" Label="ParentAction (1)" Name="ParentAction" Category="Navigation Property" Type="Action"  Field="" Dependent="" Principal="Action" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Action.Player" Label="Player (1)" Name="Player" Category="Navigation Property" Type="Player"  Field="" Dependent="" Principal="Player" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Action.PlayerHand" Label="PlayerHand (1)" Name="PlayerHand" Category="Navigation Property" Type="PlayerHand"  Field="" Dependent="" Principal="PlayerHand" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Action.Round" Label="Round (1)" Name="Round" Category="Navigation Property" Type="Round"  Field="" Dependent="" Principal="Round" Inverse="Actions" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Action.ActionType" Label="ActionType" Name="ActionType" Category="Property Required" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="ValueGeneratorFactoryType: Microsoft.EntityFrameworkCore.ValueGeneration.DiscriminatorValueGeneratorFactory" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Action.DateCreated" Label="DateCreated" Name="DateCreated" Category="Property Required" Type="DateTime" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Action.ParentActionId" Label="ParentActionId" Name="ParentActionId" Category="Property Foreign" Type="int?" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="False" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Action.PlayerHandId" Label="PlayerHandId" Name="PlayerHandId" Category="Property Foreign" Type="int?" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="False" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Action.PlayerId" Label="PlayerId" Name="PlayerId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Action.RoundId" Label="RoundId" Name="RoundId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "BidAction" Label="BidAction" Name="BidAction" BaseClass="Action" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="DiscriminatorProperty:
+DiscriminatorValue: BidAction
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "BetAction.BetAmount" Label="BetAmount" Name="BetAmount" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "BetAction.TargetBid" Label="TargetBid (1)" Name="TargetBid" Category="Navigation Property" Type="BidAction"  Field="" Dependent="" Principal="BidAction" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "BetAction.BetAction" Label="BetAction (1)" Name="BetAction" Category="Navigation Property" Type="{&apos;TargetBidId&apos;}"  Field="" Dependent="" Principal="" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "BetAction.BetOdds" Label="BetOdds" Name="BetOdds" Category="Property Required" Type="double" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "BetAction.BetType" Label="BetType" Name="BetType" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "BetAction.IsSuccessful" Label="IsSuccessful" Name="IsSuccessful" Category="Property Required" Type="bool" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "BetAction.TargetBidId" Label="TargetBidId" Name="TargetBidId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "EloLog" Label="EloLog" Name="EloLog" BaseClass="UserLog" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="DiscriminatorProperty:
+DiscriminatorValue: EloLog
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "BidAction.Pips" Label="Pips" Name="Pips" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "BidAction.Quantity" Label="Quantity" Name="Quantity" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Game" Label="Game" Name="Game" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:TableName: Games
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "EloLog.EloChange" Label="EloChange" Name="EloChange" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "EloLog.Game" Label="Game (1)" Name="Game" Category="Navigation Property" Type="Game"  Field="" Dependent="" Principal="Game" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "EloLog.User" Label="User (1)" Name="User" Category="Navigation Property" Type="User"  Field="" Dependent="" Principal="User" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "EloLog.EloLog" Label="EloLog (1)" Name="EloLog" Category="Navigation Property" Type="{&apos;GameId&apos;}"  Field="" Dependent="" Principal="" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "EloLog.EloLog" Label="EloLog (1)" Name="EloLog" Category="Navigation Property" Type="{&apos;UserId&apos;}"  Field="" Dependent="" Principal="" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "LiarAction" Label="LiarAction" Name="LiarAction" BaseClass="Action" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="DiscriminatorProperty:
+DiscriminatorValue: LiarAction
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "Game.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "Game.Players" Label="Players (*)" Name="Players" Category="Navigation Collection" Type="ICollection&lt;Player&gt;"  Field="" Dependent="Player" Principal="" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Game.Rounds" Label="Rounds (*)" Name="Rounds" Category="Navigation Collection" Type="ICollection&lt;Round&gt;"  Field="" Dependent="Round" Principal="" Inverse="Game" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Game.Season" Label="Season (1)" Name="Season" Category="Navigation Property" Type="Season"  Field="" Dependent="" Principal="Season" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Game.DateCreated" Label="DateCreated" Name="DateCreated" Category="Property Required" Type="DateTime" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Game.DefaultRoundType" Label="DefaultRoundType" Name="DefaultRoundType" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Game.SeasonId" Label="SeasonId" Name="SeasonId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Game.State" Label="State" Name="State" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Game.WinningPlayerId" Label="WinningPlayerId" Name="WinningPlayerId" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Player" Label="Player" Name="Player" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:TableName: Players
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "LiarAction.ActualQuantity" Label="ActualQuantity" Name="ActualQuantity" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "LiarAction.LivesLost" Label="LivesLost" Name="LivesLost" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "LiarAction.LosingPlayerId" Label="LosingPlayerId" Name="LosingPlayerId" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "PlayerHand" Label="PlayerHand" Name="PlayerHand" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:TableName: PlayerHands
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "Player.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "Player.PlayerHands" Label="PlayerHands (*)" Name="PlayerHands" Category="Navigation Collection" Type="ICollection&lt;PlayerHand&gt;"  Field="" Dependent="PlayerHand" Principal="" Inverse="Player" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Player.User" Label="User (1)" Name="User" Category="Navigation Property" Type="User"  Field="" Dependent="" Principal="User" Inverse="Players" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Player.Rounds" Label="Rounds (1)" Name="Rounds" Category="Navigation Property" Type="ICollection&lt;Round&gt;"  Field="" Dependent="" Principal="" Inverse="Players" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Player.GameId" Label="GameId" Name="GameId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Player.Lives" Label="Lives" Name="Lives" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Player.RoundEliminated" Label="RoundEliminated" Name="RoundEliminated" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Player.TurnOrder" Label="TurnOrder" Name="TurnOrder" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Player.UserId" Label="UserId" Name="UserId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "PointsLog" Label="PointsLog" Name="PointsLog" BaseClass="UserLog" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="DiscriminatorProperty:
+DiscriminatorValue: PointsLog
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "PlayerHand.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "PlayerHand.Player" Label="Player (1)" Name="Player" Category="Navigation Property" Type="Player"  Field="" Dependent="" Principal="Player" Inverse="PlayerHands" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "PlayerHand.Round" Label="Round (1)" Name="Round" Category="Navigation Property" Type="Round"  Field="" Dependent="" Principal="Round" Inverse="PlayerHands" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "PlayerHand.Dice" Label="Dice" Name="Dice" Category="Property Optional" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="False" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "PlayerHand.PlayerId" Label="PlayerId" Name="PlayerId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "PlayerHand.RoundId" Label="RoundId" Name="RoundId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Round" Label="Round" Name="Round" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:TableName: Rounds
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "PointsLog.PointsChange" Label="PointsChange" Name="PointsChange" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "PointsLog.Game" Label="Game (1)" Name="Game" Category="Navigation Property" Type="Game"  Field="" Dependent="" Principal="Game" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "PointsLog.User" Label="User (1)" Name="User" Category="Navigation Property" Type="User"  Field="" Dependent="" Principal="User" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "PointsLog.PointsLog" Label="PointsLog (1)" Name="PointsLog" Category="Navigation Property" Type="{&apos;GameId&apos;}"  Field="" Dependent="" Principal="" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "PointsLog.PointsLog" Label="PointsLog (1)" Name="PointsLog" Category="Navigation Property" Type="{&apos;UserId&apos;}"  Field="" Dependent="" Principal="" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "PointsLog.PointsLogTypeId" Label="PointsLogTypeId" Name="PointsLogTypeId" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "RoundNote" Label="RoundNote" Name="RoundNote" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:TableName: Notes
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "Round.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "Round.Actions" Label="Actions (*)" Name="Actions" Category="Navigation Collection" Type="ICollection&lt;Action&gt;"  Field="" Dependent="Action" Principal="" Inverse="Round" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Round.Game" Label="Game (1)" Name="Game" Category="Navigation Property" Type="Game"  Field="" Dependent="" Principal="Game" Inverse="Rounds" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Round.PlayerHands" Label="PlayerHands (*)" Name="PlayerHands" Category="Navigation Collection" Type="ICollection&lt;PlayerHand&gt;"  Field="" Dependent="PlayerHand" Principal="" Inverse="Round" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Round.Players" Label="Players (1)" Name="Players" Category="Navigation Property" Type="ICollection&lt;Player&gt;"  Field="" Dependent="" Principal="" Inverse="Rounds" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Round.ActivePlayerId" Label="ActivePlayerId" Name="ActivePlayerId" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Round.GameId" Label="GameId" Name="GameId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Round.RoundNumber" Label="RoundNumber" Name="RoundNumber" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Round.RoundType" Label="RoundType" Name="RoundType" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Round.StartingPlayerId" Label="StartingPlayerId" Name="StartingPlayerId" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Season" Label="Season" Name="Season" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:TableName: Seasons
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "RoundNote.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "RoundNote.Round" Label="Round (1)" Name="Round" Category="Navigation Property" Type="Round"  Field="" Dependent="" Principal="Round" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "RoundNote.User" Label="User (1)" Name="User" Category="Navigation Property" Type="User"  Field="" Dependent="" Principal="User" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "RoundNote.RoundId" Label="RoundId" Name="RoundId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "RoundNote.Text" Label="Text" Name="Text" Category="Property Optional" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="False" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "RoundNote.UserId" Label="UserId" Name="UserId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "User" Label="User" Name="User" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:TableName: Users
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "Season.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "Season.Winner" Label="Winner (1)" Name="Winner" Category="Navigation Property" Type="User"  Field="" Dependent="" Principal="User" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "Season.EndDate" Label="EndDate" Name="EndDate" Category="Property Required" Type="DateTime" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Season.StartDate" Label="StartDate" Name="StartDate" Category="Property Required" Type="DateTime" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "Season.WinnerId" Label="WinnerId" Name="WinnerId" Category="Property Foreign" Type="int?" MaxLength="None" Field="nofield" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="False" IsIndexed="True" IsShadow="True" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserAchievement" Label="UserAchievement" Name="UserAchievement" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="Relational:TableName: UserAchievements
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "User.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "User.Players" Label="Players (*)" Name="Players" Category="Navigation Collection" Type="ICollection&lt;Player&gt;"  Field="" Dependent="Player" Principal="" Inverse="User" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "User.Achievements" Label="Achievements (1)" Name="Achievements" Category="Navigation Property" Type="ICollection&lt;Achievement&gt;"  Field="" Dependent="" Principal="" Inverse="Users" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "User.DiscordId" Label="DiscordId" Name="DiscordId" Category="Property Required" Type="ulong" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "User.Elo" Label="Elo" Name="Elo" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "User.Name" Label="Name" Name="Name" Category="Property Optional" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="False" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "User.Points" Label="Points" Name="Points" Category="Property Required" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserLog" Label="UserLog" Name="UserLog" BaseClass="" IsAbstract="True" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="DiscriminatorProperty: UserLogType
+DiscriminatorValue: UserLog
+RelationshipDiscoveryConvention:NavigationCandidates: System.Collections.Immutable.ImmutableSortedDictionary`2[System.Reflection.PropertyInfo,System.ValueTuple`2[System.Type,System.Nullable`1[System.Boolean]]]" Category="EntityType" Group="Expanded" />
+<Node Id = "UserAchievement.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "UserAchievement.Achievement" Label="Achievement (1)" Name="Achievement" Category="Navigation Property" Type="Achievement"  Field="" Dependent="" Principal="Achievement" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "UserAchievement.User" Label="User (1)" Name="User" Category="Navigation Property" Type="User"  Field="" Dependent="" Principal="User" Inverse="" PropertyAccessMode="PropertyAccessMode.Default" />
+<Node Id = "UserAchievement.AchievementId" Label="AchievementId" Name="AchievementId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserAchievement.DateCreated" Label="DateCreated" Name="DateCreated" Category="Property Required" Type="DateTime" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserAchievement.IsNew" Label="IsNew" Name="IsNew" Category="Property Required" Type="bool" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserAchievement.UserId" Label="UserId" Name="UserId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserLog" Label="UserLog" Name="UserLog" BaseClass="" IsAbstract="False" ChangeTrackingStrategy="ChangeTrackingStrategy.Snapshot"  Annotations="" Category="EntityType" Group="Expanded" />
+<Node Id = "UserLog.Id" Label="Id" Name="Id" Category="Property Primary" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="True" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="ValueGenerated.OnAdd" />
+<Node Id = "UserLog.DateCreated" Label="DateCreated" Name="DateCreated" Category="Property Required" Type="DateTime" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserLog.GameId" Label="GameId" Name="GameId" Category="Property Foreign" Type="int?" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="False" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserLog.UserId" Label="UserId" Name="UserId" Category="Property Foreign" Type="int" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="" IsPrimaryKey="False" IsForeignKey="True" IsRequired="True" IsIndexed="True" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+<Node Id = "UserLog.UserLogType" Label="UserLogType" Name="UserLogType" Category="Property Required" Type="string" MaxLength="None" Field="" PropertyAccessMode="PropertyAccessMode.Default" BeforeSaveBehavior="PropertySaveBehavior.Save" AfterSaveBehavior="PropertySaveBehavior.Save" Annotations="ValueGeneratorFactoryType: Microsoft.EntityFrameworkCore.ValueGeneration.DiscriminatorValueGeneratorFactory" IsPrimaryKey="False" IsForeignKey="False" IsRequired="True" IsIndexed="False" IsShadow="False" IsAlternateKey="False" IsConcurrencyToken="False" IsUnicode="True" ValueGenerated="None" />
+  </Nodes>
+  <Links>
+<Link Source = "IModel" Target="Achievement" Category="Contains" />
+<Link Source = "IModel" Target="Action" Category="Contains" />
+<Link Source = "Achievement" Target="Achievement.Id" Category="Contains" />
+<Link Source = "Achievement" Target="Achievement.Description" Category="Contains" />
+<Link Source = "Achievement" Target="Achievement.Name" Category="Contains" />
+<Link Source = "Achievement" Target="Achievement.Type" Category="Contains" />
+<Link Source = "Achievement" Target="Achievement.Users" Category="Contains" />
+<Link Source = "IModel" Target="BetAction" Category="Contains" />
+<Link Source = "Action" Target="Action.ParentAction" Category="Contains" />
+<Link Source = "Action" Target="Action.Player" Category="Contains" />
+<Link Source = "Action" Target="Action.PlayerHand" Category="Contains" />
+<Link Source = "Action" Target="Action.Round" Category="Contains" />
+<Link Source = "Action" Target="Action.Id" Category="Contains" />
+<Link Source="Action" Target="Action" From="Action.ParentActionId" To="Action.Id" Name="Action -> Action" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="Action" Target="PlayerHand" From="Action.PlayerHandId" To="PlayerHand.Id" Name="Action -> PlayerHand" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="Action" Target="Player" From="Action.PlayerId" To="Player.Id" Name="Action -> Player" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="Action" Target="Round" From="Action.RoundId" To="Round.Id" Name="Action -> Round" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "Action" Target="Action.ActionType" Category="Contains" />
+<Link Source = "Action" Target="Action.DateCreated" Category="Contains" />
+<Link Source = "Action" Target="Action.ParentActionId" Category="Contains" />
+<Link Source = "Action" Target="Action.PlayerHandId" Category="Contains" />
+<Link Source = "Action" Target="Action.PlayerId" Category="Contains" />
+<Link Source = "Action" Target="Action.RoundId" Category="Contains" />
+<Link Source = "IModel" Target="BidAction" Category="Contains" />
+<Link Source = "BetAction" Target="BetAction.TargetBid" Category="Contains" />
+<Link Source = "BetAction" Target="BetAction.BetAction" Category="Contains" />
+<Link Source = "BetAction" Target="BetAction.BetAmount" Category="Contains" />
+<Link Source="BetAction" Target="BidAction" From="BetAction.TargetBidId" To="BidAction.Id" Name="BetAction -> BidAction" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "BetAction" Target="BetAction.BetOdds" Category="Contains" />
+<Link Source = "BetAction" Target="BetAction.BetType" Category="Contains" />
+<Link Source = "BetAction" Target="BetAction.IsSuccessful" Category="Contains" />
+<Link Source = "BetAction" Target="BetAction.TargetBidId" Category="Contains" />
+<Link Source = "IModel" Target="EloLog" Category="Contains" />
+<Link Source = "BidAction" Target="BidAction.Pips" Category="Contains" />
+<Link Source = "BidAction" Target="BidAction.Quantity" Category="Contains" />
+<Link Source = "IModel" Target="Game" Category="Contains" />
+<Link Source = "EloLog" Target="EloLog.Game" Category="Contains" />
+<Link Source = "EloLog" Target="EloLog.User" Category="Contains" />
+<Link Source = "EloLog" Target="EloLog.EloLog" Category="Contains" />
+<Link Source = "EloLog" Target="EloLog.EloChange" Category="Contains" />
+<Link Source="EloLog" Target="Game" From="EloLog.GameId" To="Game.Id" Name="EloLog -> Game" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="EloLog" Target="User" From="EloLog.UserId" To="User.Id" Name="EloLog -> User" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "IModel" Target="LiarAction" Category="Contains" />
+<Link Source = "Game" Target="Game.Players" Category="Contains" />
+<Link Source = "Game" Target="Game.Rounds" Category="Contains" />
+<Link Source = "Game" Target="Game.Season" Category="Contains" />
+<Link Source = "Game" Target="Game.Id" Category="Contains" />
+<Link Source="Game" Target="Season" From="Game.SeasonId" To="Season.Id" Name="Game -> Season" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "Game" Target="Game.DateCreated" Category="Contains" />
+<Link Source = "Game" Target="Game.DefaultRoundType" Category="Contains" />
+<Link Source = "Game" Target="Game.SeasonId" Category="Contains" />
+<Link Source = "Game" Target="Game.State" Category="Contains" />
+<Link Source = "Game" Target="Game.WinningPlayerId" Category="Contains" />
+<Link Source = "IModel" Target="Player" Category="Contains" />
+<Link Source = "LiarAction" Target="LiarAction.ActualQuantity" Category="Contains" />
+<Link Source = "LiarAction" Target="LiarAction.LivesLost" Category="Contains" />
+<Link Source = "LiarAction" Target="LiarAction.LosingPlayerId" Category="Contains" />
+<Link Source = "IModel" Target="PlayerHand" Category="Contains" />
+<Link Source = "Player" Target="Player.PlayerHands" Category="Contains" />
+<Link Source = "Player" Target="Player.User" Category="Contains" />
+<Link Source = "Player" Target="Player.Rounds" Category="Contains" />
+<Link Source = "Player" Target="Player.Id" Category="Contains" />
+<Link Source="Player" Target="Game" From="Player.GameId" To="Game.Id" Name="Player -> Game" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="Player" Target="User" From="Player.UserId" To="User.Id" Name="Player -> User" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "Player" Target="Player.GameId" Category="Contains" />
+<Link Source = "Player" Target="Player.Lives" Category="Contains" />
+<Link Source = "Player" Target="Player.RoundEliminated" Category="Contains" />
+<Link Source = "Player" Target="Player.TurnOrder" Category="Contains" />
+<Link Source = "Player" Target="Player.UserId" Category="Contains" />
+<Link Source = "IModel" Target="PointsLog" Category="Contains" />
+<Link Source = "PlayerHand" Target="PlayerHand.Player" Category="Contains" />
+<Link Source = "PlayerHand" Target="PlayerHand.Round" Category="Contains" />
+<Link Source = "PlayerHand" Target="PlayerHand.Id" Category="Contains" />
+<Link Source="PlayerHand" Target="Player" From="PlayerHand.PlayerId" To="Player.Id" Name="PlayerHand -> Player" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="PlayerHand" Target="Round" From="PlayerHand.RoundId" To="Round.Id" Name="PlayerHand -> Round" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "PlayerHand" Target="PlayerHand.Dice" Category="Contains" />
+<Link Source = "PlayerHand" Target="PlayerHand.PlayerId" Category="Contains" />
+<Link Source = "PlayerHand" Target="PlayerHand.RoundId" Category="Contains" />
+<Link Source = "IModel" Target="Round" Category="Contains" />
+<Link Source = "PointsLog" Target="PointsLog.Game" Category="Contains" />
+<Link Source = "PointsLog" Target="PointsLog.User" Category="Contains" />
+<Link Source = "PointsLog" Target="PointsLog.PointsLog" Category="Contains" />
+<Link Source = "PointsLog" Target="PointsLog.PointsChange" Category="Contains" />
+<Link Source="PointsLog" Target="Game" From="PointsLog.GameId" To="Game.Id" Name="PointsLog -> Game" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="PointsLog" Target="User" From="PointsLog.UserId" To="User.Id" Name="PointsLog -> User" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "PointsLog" Target="PointsLog.PointsLogTypeId" Category="Contains" />
+<Link Source = "IModel" Target="RoundNote" Category="Contains" />
+<Link Source = "Round" Target="Round.Actions" Category="Contains" />
+<Link Source = "Round" Target="Round.Game" Category="Contains" />
+<Link Source = "Round" Target="Round.PlayerHands" Category="Contains" />
+<Link Source = "Round" Target="Round.Players" Category="Contains" />
+<Link Source = "Round" Target="Round.Id" Category="Contains" />
+<Link Source="Round" Target="Game" From="Round.GameId" To="Game.Id" Name="Round -> Game" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "Round" Target="Round.ActivePlayerId" Category="Contains" />
+<Link Source = "Round" Target="Round.GameId" Category="Contains" />
+<Link Source = "Round" Target="Round.RoundNumber" Category="Contains" />
+<Link Source = "Round" Target="Round.RoundType" Category="Contains" />
+<Link Source = "Round" Target="Round.StartingPlayerId" Category="Contains" />
+<Link Source = "IModel" Target="Season" Category="Contains" />
+<Link Source = "RoundNote" Target="RoundNote.Round" Category="Contains" />
+<Link Source = "RoundNote" Target="RoundNote.User" Category="Contains" />
+<Link Source = "RoundNote" Target="RoundNote.Id" Category="Contains" />
+<Link Source="RoundNote" Target="Round" From="RoundNote.RoundId" To="Round.Id" Name="RoundNote -> Round" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="RoundNote" Target="User" From="RoundNote.UserId" To="User.Id" Name="RoundNote -> User" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "RoundNote" Target="RoundNote.RoundId" Category="Contains" />
+<Link Source = "RoundNote" Target="RoundNote.Text" Category="Contains" />
+<Link Source = "RoundNote" Target="RoundNote.UserId" Category="Contains" />
+<Link Source = "IModel" Target="User" Category="Contains" />
+<Link Source = "Season" Target="Season.Winner" Category="Contains" />
+<Link Source = "Season" Target="Season.Id" Category="Contains" />
+<Link Source="Season" Target="User" From="Season.WinnerId" To="User.Id" Name="Season -> User" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "Season" Target="Season.EndDate" Category="Contains" />
+<Link Source = "Season" Target="Season.StartDate" Category="Contains" />
+<Link Source = "Season" Target="Season.WinnerId" Category="Contains" />
+<Link Source = "IModel" Target="UserAchievement" Category="Contains" />
+<Link Source = "User" Target="User.Players" Category="Contains" />
+<Link Source = "User" Target="User.Achievements" Category="Contains" />
+<Link Source = "User" Target="User.Id" Category="Contains" />
+<Link Source = "User" Target="User.DiscordId" Category="Contains" />
+<Link Source = "User" Target="User.Elo" Category="Contains" />
+<Link Source = "User" Target="User.Name" Category="Contains" />
+<Link Source = "User" Target="User.Points" Category="Contains" />
+<Link Source = "IModel" Target="UserLog" Category="Contains" />
+<Link Source = "UserAchievement" Target="UserAchievement.Achievement" Category="Contains" />
+<Link Source = "UserAchievement" Target="UserAchievement.User" Category="Contains" />
+<Link Source = "UserAchievement" Target="UserAchievement.Id" Category="Contains" />
+<Link Source="UserAchievement" Target="Achievement" From="UserAchievement.AchievementId" To="Achievement.Id" Name="UserAchievement -> Achievement" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source="UserAchievement" Target="User" From="UserAchievement.UserId" To="User.Id" Name="UserAchievement -> User" Annotations="" IsUnique="False" Label="1:*" Category="Foreign Key" />
+<Link Source = "UserAchievement" Target="UserAchievement.AchievementId" Category="Contains" />
+<Link Source = "UserAchievement" Target="UserAchievement.DateCreated" Category="Contains" />
+<Link Source = "UserAchievement" Target="UserAchievement.IsNew" Category="Contains" />
+<Link Source = "UserAchievement" Target="UserAchievement.UserId" Category="Contains" />
+<Link Source = "IModel" Target="UserLog" Category="Contains" />
+<Link Source = "UserLog" Target="UserLog.Id" Category="Contains" />
+<Link Source = "UserLog" Target="UserLog.DateCreated" Category="Contains" />
+<Link Source = "UserLog" Target="UserLog.GameId" Category="Contains" />
+<Link Source = "UserLog" Target="UserLog.UserId" Category="Contains" />
+<Link Source = "UserLog" Target="UserLog.UserLogType" Category="Contains" />
+  </Links>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="EntityType" ValueLabel="True">
+      <Condition Expression="HasCategory('EntityType')" />
+      <Setter Property="Background" Value="#FFC0C0C0" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Property Primary" ValueLabel="True">
+      <Condition Expression="HasCategory('Property Primary')" />
+      <Setter Property="Background" Value="#FF008000" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Property Optional" ValueLabel="True">
+      <Condition Expression="HasCategory('Property Optional')" />
+      <Setter Property="Background" Value="#FF808040" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Property Foreign" ValueLabel="True">
+      <Condition Expression="HasCategory('Property Foreign')" />
+      <Setter Property="Background" Value="#FF8080FF" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Property Required" ValueLabel="True">
+      <Condition Expression="HasCategory('Property Required')" />
+      <Setter Property="Background" Value="#FFC0A000" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Navigation Property" ValueLabel="True">
+      <Condition Expression="HasCategory('Navigation Property')" />
+      <Setter Property="Background" Value="#FF990000" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Navigation Collection" ValueLabel="True">
+      <Condition Expression="HasCategory('Navigation Collection')" />
+      <Setter Property="Background" Value="#FFFF3232" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="Model" ValueLabel="True">
+      <Condition Expression="HasCategory('Model')" />
+      <Setter Property="Background" Value="#FFFFFFFF" />
+    </Style>
+  </Styles>
+  <Properties>
+    <Property Id="Name" Group="Model Properties" DataType="System.String" />
+    <Property Id="Field"  Description="Backing field" Group="Model Properties" DataType="System.String" />
+    <Property Id="Type"  Description="CLR data type" Group="Model Properties" DataType="System.String" />
+    <Property Id="To" Description="Source property" Group="Model Properties" DataType="System.String" />
+    <Property Id="From" Description="Target property" Group="Model Properties" DataType="System.String" />
+    <Property Id="Dependent" Description="Dependent entity" Group="Model Properties" DataType="System.String" />
+    <Property Id="Inverse" Description="Inverse entity" Group="Model Properties" DataType="System.String" />
+    <Property Id="Principal" Description="Principal entity" Group="Model Properties" DataType="System.String" />    
+    <Property Id="Annotations" Description="Annotations" Group="Model Properties" DataType="System.String" />
+    <Property Id="BaseClass"  Description="Base class" Group="Model Properties" DataType="System.String" />
+    <Property Id="ChangeTrackingStrategy" Description="Change tracking strategy" Group="Model Properties" DataType="System.String" />
+    <Property Id="IsUnique" Group="Model Properties" DataType="System.Boolean" />
+    <Property Id="IsAbstract" Group="Model Properties" DataType="System.Boolean" />
+    <Property Id="ProductVersion" Label="Product Version" Description="EF Core product version" Group="Model Properties" DataType="System.String" />
+    <Property Id="IsIndexed" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsRequired" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsPrimaryKey" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsForeignKey" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsShadow" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsAlternateKey" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsConcurrencyToken" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsIndexed" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="IsUnicode" Group="Property Flags" DataType="System.Boolean" />
+    <Property Id="ValueGenerated" Group="Property Flags" DataType="System.String" />
+    <Property Id="BeforeSaveBehavior" Group="Property Flags" DataType="System.String" />
+    <Property Id="AfterSaveBehavior" Group="Property Flags" DataType="System.String" />
+    <Property Id="PropertyAccessMode" Group="Property Flags" DataType="System.String" />
+  </Properties>
+</DirectedGraph>

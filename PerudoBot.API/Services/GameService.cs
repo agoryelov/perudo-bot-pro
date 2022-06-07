@@ -328,7 +328,7 @@ namespace PerudoBot.API.Services
                     .Select(player => player.
                         ToPlayerPointsChange(_userService
                             .GetPointsChangeForGame(player.User, _activeGame.Id, PointsLogType.Gambling)))
-                    .Where(x => x.PointsChange > 0)
+                    .Where(x => x.PointsChange != 0)
                     .OrderByDescending(x => x.PointsChange)
                     .ToList(),
                 EloChanges = _activeGame.Players

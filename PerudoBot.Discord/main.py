@@ -1,12 +1,17 @@
 import asyncio
 import discord
 from discord.ext import commands
-from discord.ext.commands import MissingPermissions, CommandNotFound
+from dotenv import load_dotenv
+from os import getenv
 
-MY_GUILD = discord.Object(id=689504722163335196)
+load_dotenv()
+
+DISCORD_TOKEN = getenv('DISCORD_TOKEN')
+OWENER_ID = getenv('OWNER_ID')
+MY_GUILD = discord.Object(id=getenv('GUILD_ID'))
 
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
-bot.owner_id = 153573546751164416
+bot.owner_id = OWENER_ID
 
 @bot.command(name='sync_guild', help='To sync application commands for current guild.', hidden=True)
 # Command to sync application commands for current guild.
@@ -56,6 +61,6 @@ async def load():
 async def main():
     async with bot:
         await bot.loop.create_task(load())
-        await bot.start('OTc5OTQ5MjAxNjk1ODU0NjMz.G1-dsB.gBh27vg_Yb6xPqYsuPtP6FGrSb22ApQNgjxSd8')
+        await bot.start(DISCORD_TOKEN)
 
 asyncio.run(main())

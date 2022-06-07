@@ -1,14 +1,10 @@
 import asyncio
-import time
 from typing import Literal
-from urllib import response
-from discord import app_commands
 from discord.ext import commands
 from cogs.models.game import GameSummary
 from cogs.models.round import Round, RoundSummary
 from cogs.models.setup import GameSetup
 from cogs.utils.client import GameClient
-from cogs.utils.constants import GameState
 from cogs.utils.helpers import get_emoji, get_mention
 from cogs.views.game_setup import GameSetupEmbed, GameSetupView
 from cogs.views.game_summary import GameSummaryEmbed
@@ -51,7 +47,7 @@ class Perudo(commands.Cog):
         game_client.start_game()
         await self.start_round(ctx, game_client, is_slash)
 
-    @commands.hybrid_command(name="bid", description="Place a bid", help="Place a bid")
+    @commands.hybrid_command(name="bid", description="Place a bid", help="Place a bid", aliases=['b'])
     async def bid(self, ctx: commands.Context, quantity: int, pips: Literal[1, 2, 3, 4, 5, 6]):
         is_slash = ctx.interaction is not None
         

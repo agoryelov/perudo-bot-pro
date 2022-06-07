@@ -60,7 +60,7 @@ namespace PerudoBot.API.Services
             foreach(var bet in bets)
             {
                 var pointsGained = (int)Math.Round(bet.BetAmount * bet.BetOdds);
-                _userService.AddBetPoints(bet.Player.User, pointsGained);
+                _userService.AddBetPoints(bet.Player.User, pointsGained, round.Game);
             }
 
             return Responses.OK();

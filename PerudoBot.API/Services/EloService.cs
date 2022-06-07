@@ -1,4 +1,5 @@
-﻿using PerudoBot.Database.Data;
+﻿using PerudoBot.API.Constants;
+using PerudoBot.Database.Data;
 
 namespace PerudoBot.API.Services
 {
@@ -26,6 +27,11 @@ namespace PerudoBot.API.Services
         // Source: https://github.com/FigBug/Multiplayer-ELO/blob/master/csharp/elo.cs
         public void UpdateElo(Game completedGame, double startingK = 10)
         {
+            if (completedGame.DefaultRoundType == (int)RoundType.SuddenDeath)
+            {
+                startingK *= 0.5;
+            }
+
             var playerRanking = completedGame.Players
                 .OrderByDescending(p => p.RoundEliminated)
                 .Select(p => new UserEloChange

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using PerudoBot.API;
 using PerudoBot.API.Services;
 using PerudoBot.Database.Data;
 
@@ -25,8 +24,6 @@ using (var scope = app.Services.CreateScope())
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
-
-//app.UseMiddleware<GameServiceMiddleware>();
 
 app.MapControllers();
 

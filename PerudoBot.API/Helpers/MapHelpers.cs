@@ -1,4 +1,5 @@
 ﻿using PerudoBot.API.Achievements;
+using PerudoBot.API.Constants;
 using PerudoBot.API.DTOs;
 using PerudoBot.Database.Data;
 
@@ -144,6 +145,17 @@ namespace PerudoBot.API.Helpers
                 AchievementDescription = achievement.Achievement.Description,
                 AchievementName = achievement.Achievement.Name,
                 UserName = achievement.User.Name
+            };
+        }
+
+        public static LadderEntryDto ToLadderEntryDto(this User user)
+        {
+            return new LadderEntryDto
+            {
+                Name = user.Name,
+                Elo = user.Elo,
+                Points = user.Points,
+                GamesPlayed = user.Players.Count(x => x.Game.State == (int)GameState.Ended)
             };
         }
     }

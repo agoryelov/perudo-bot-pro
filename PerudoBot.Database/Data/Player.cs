@@ -10,6 +10,9 @@ namespace PerudoBot.Database.Data
         public int TurnOrder { get; set; }
         public ICollection<PlayerHand> PlayerHands { get; set; }
         public ICollection<Round> Rounds { get; set; }
+
+        [ForeignKey("GameId")]
+        public Game Game { get; set; }
         public int GameId { get; set; }
         
         [ForeignKey("UserId")]

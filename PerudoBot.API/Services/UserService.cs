@@ -1,6 +1,8 @@
 ﻿using PerudoBot.API.Constants;
 using PerudoBot.API.DTOs;
 using PerudoBot.Database.Data;
+using Microsoft.EntityFrameworkCore;
+using PerudoBot.API.Helpers;
 
 namespace PerudoBot.API.Services
 {
@@ -104,6 +106,21 @@ namespace PerudoBot.API.Services
             }
 
             return pointsChanges.Sum(x => x.PointsChange);
+        }
+
+        public LadderInfoDto GetLadderInfo()
+        {
+            var ladderEntries = _db.Users
+                .Include(x => x.Players)
+                    .ThenInclude(x => x.Game)
+                .OrderByDescending(x => x.Elo)
+                .Select(x => x.ToLadderEntryDto())
+                .ToList();
+
+            return new LadderInfoDto
+            {
+                LadderEntries = ladderEntries
+            };
         }
     }
 }

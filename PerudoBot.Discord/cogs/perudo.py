@@ -2,12 +2,14 @@ import asyncio
 from typing import Literal
 from discord.ext import commands
 from cogs.models.game import GameSummary
+from cogs.models.ladder_info import LadderInfo
 from cogs.models.round import Round, RoundSummary
 from cogs.models.setup import GameSetup
 from cogs.utils.client import GameClient
 from cogs.utils.helpers import get_emoji, get_mention
 from cogs.views.game_setup import GameSetupEmbed, GameSetupView
 from cogs.views.game_summary import GameSummaryEmbed
+from cogs.views.ladder_info import LadderInfoEmbed
 from cogs.views.round_status import RoundEmbed
 from cogs.views.round_summary import RoundSummaryEmbed
 
@@ -161,6 +163,16 @@ class Perudo(commands.Cog):
             return
         
         await ctx.send(f'Added note: `{note_text}`', ephemeral=False)
+
+    @commands.hybrid_command(name="ladder", description="Show current ladder standings", help="Show current ladder standings")
+    async def ladder(self, ctx: commands.Context):        
+        response = GameClient.get_ladder_info()
+        if not response.is_success:
+            await ctx.reply(response.error_message, ephemeral=True)
+            return
+
+        ladder_info = LadderInfo(response.data)
+        await ctx.send(embed=LadderInfoEmbed(ladder_info))
 
 
     async def end_game(self, ctx: commands.Context, game_client: GameClient):

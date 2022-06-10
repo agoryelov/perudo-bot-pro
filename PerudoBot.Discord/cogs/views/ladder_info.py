@@ -18,9 +18,11 @@ class LadderInfoEmbed(discord.Embed):
     
     def get_standings(self):
         x = PrettyTable()
-        x.field_names = ["Name", "Elo", "Points", "GP"]
+        x.field_names = ["Name", "Elo", "Points"]
         for entry in self.ladder_info.entries:
-            x.add_row([entry.name, entry.elo, entry.points, entry.games_played])
+            x.add_row([entry.name, entry.elo, entry.points])
         
         x.align["Name"] = "l"
-        return f'```\n{x.get_string(border=False, preserve_internal_border=True)}\n```'
+        x.align["Elo"] = "l"
+        x.align["Points"] = "l"
+        return f'```\n{x.get_string(border=False)}\n```'

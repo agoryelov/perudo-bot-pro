@@ -6,8 +6,8 @@ from cogs.models.ladder_info import LadderInfo
 from cogs.models.round import Round, RoundSummary
 from cogs.models.setup import GameSetup
 from cogs.utils.client import GameClient
+from cogs.utils.helpers import get_emoji, get_mention, parse_bid
 from cogs.utils.crypto import encrypt_dice
-from cogs.utils.helpers import get_emoji, get_mention
 from cogs.views.game_setup import GameSetupEmbed, GameSetupView
 from cogs.views.game_summary import GameSummaryEmbed
 from cogs.views.ladder_info import LadderInfoEmbed
@@ -54,8 +54,15 @@ class Perudo(commands.Cog):
         await self.start_round(ctx, game_client, is_slash)
 
     @commands.hybrid_command(name="bid", description="Place a bid", help="Place a bid", aliases=['b'])
-    async def bid(self, ctx: commands.Context, quantity: int, pips: Literal[1, 2, 3, 4, 5, 6]):
+    async def bid(self, ctx: commands.Context, *, bid_text: str):
         is_slash = ctx.interaction is not None
+        
+        bid_text = parse_bid(bid_text)
+        if bid_text is None:
+            await ctx.reply("Invalid bid input", ephemeral=True)
+            return
+        else:
+            quantity, pips = bid_text
         
         game_client = self.game_channels.get(ctx.channel.id)
         if game_client is None or not game_client.game_in_progress():
@@ -117,6 +124,7 @@ class Perudo(commands.Cog):
         await ctx.channel.send(embed=RoundSummaryEmbed(round_summary))
 
         if round_state.is_final:
+            await asyncio.sleep(1)
             await self.end_game(ctx, game_client)
         else:
             await self.start_round(ctx, game_client, is_slash)

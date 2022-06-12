@@ -1,5 +1,5 @@
 
-from cogs.models.shared import parse_achievements
+from utils.parsers import parse_achievements
 
 class GameSummary():
     def __init__(self, json: dict) -> None:

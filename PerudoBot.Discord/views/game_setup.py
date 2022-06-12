@@ -1,7 +1,7 @@
 import discord
-from cogs.models.round import Round
-from cogs.models.setup import GameSetup
-from cogs.utils.client import GameClient
+from models.round import Round
+from models.setup import GameSetup
+from utils.client import GameClient
 
 
 class GameSetupView(discord.ui.View):
@@ -63,11 +63,16 @@ class GameSetupView(discord.ui.View):
         bot_user = await interaction.guild.fetch_member('743151009689501818')
         response = self.game_client.add_player(bot_user.id, bot_user.display_name, is_bot=bot_user.bot)
         
+        if not response.is_success:
+            await interaction.response.send_message(response.error_message, ephemeral=True)
+            return
+        
         game_setup = GameSetup(response.data)
         self.player_count += 1
+        button.disabled = True
 
         if interaction.channel.last_message_id == interaction.message.id:
-            await interaction.response.edit_message(embed=GameSetupEmbed(game_setup))
+            await interaction.response.edit_message(view=self, embed=GameSetupEmbed(game_setup))
         else:
             await interaction.message.delete()
             await interaction.channel.send(view=self, embed=GameSetupEmbed(game_setup))

@@ -1,18 +1,18 @@
 import asyncio
 from typing import Literal
 from discord.ext import commands
-from cogs.models.game import GameSummary
-from cogs.models.ladder_info import LadderInfo
-from cogs.models.round import Round, RoundSummary
-from cogs.models.setup import GameSetup
-from cogs.utils.client import GameClient
-from cogs.utils.helpers import get_emoji, get_mention, parse_bid
-from cogs.utils.crypto import encrypt_dice
-from cogs.views.game_setup import GameSetupEmbed, GameSetupView
-from cogs.views.game_summary import GameSummaryEmbed
-from cogs.views.ladder_info import LadderInfoEmbed
-from cogs.views.round_status import RoundEmbed
-from cogs.views.round_summary import RoundSummaryEmbed
+from models.game import GameSummary
+from models.ladder_info import LadderInfo
+from models.round import Round, RoundSummary
+from models.setup import GameSetup
+from utils.client import GameClient
+from utils.helpers import get_emoji, get_mention, parse_bid
+from utils.crypto import encrypt_dice
+from views.game_setup import GameSetupEmbed, GameSetupView
+from views.game_summary import GameSummaryEmbed
+from views.ladder_info import LadderInfoEmbed
+from views.round_status import RoundEmbed
+from views.round_summary import RoundSummaryEmbed
 
 class Perudo(commands.Cog):
     def __init__(self, bot):

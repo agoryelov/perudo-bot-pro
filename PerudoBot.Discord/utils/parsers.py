@@ -1,6 +1,6 @@
-from cogs.models.achievement import Achievement
-from cogs.models.action import Action, Bet
-from cogs.models.player import Player
+from models.achievement import Achievement
+from models.action import Action, Bet
+from models.player import Player
 
 def parse_players(json) -> dict[int, Player]:
     players = {}

@@ -1,6 +1,6 @@
 import discord
 from discord import File
-from cogs.models.ladder_info import LadderInfo
+from models.ladder_info import LadderInfo
 from prettytable import PrettyTable
 from easy_pil import Editor, Canvas
 

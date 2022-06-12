@@ -1,8 +1,8 @@
 import json
-from cogs.models.action import Bet, Bid, Liar
-from cogs.models.player import Player
-from cogs.models.shared import parse_achievements, parse_bets, parse_players
-from cogs.utils.helpers import bid_to_action_index
+from models.action import Bet, Bid, Liar
+from models.player import Player
+from utils.parsers import parse_achievements, parse_bets, parse_players
+from utils.helpers import bid_to_action_index
 
 class Round():
     def __init__(self, json: dict):

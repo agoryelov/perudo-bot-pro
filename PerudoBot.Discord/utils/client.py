@@ -1,8 +1,8 @@
 from discord import Message
 import requests
-from cogs.models.player import Player
-from cogs.models.shared import parse_discord_players
-from cogs.utils.constants import GameState
+from models.player import Player
+from utils.parsers import parse_discord_players
+from utils.constants import GameState
 
 import urllib3
 urllib3.disable_warnings()

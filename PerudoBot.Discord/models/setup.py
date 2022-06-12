@@ -1,5 +1,5 @@
-from cogs.models.player import Player
-from cogs.models.shared import parse_players, parse_round_type
+from models.player import Player
+from utils.parsers import parse_players, parse_round_type
 
 class GameSetup():
     def __init__(self, json: dict):

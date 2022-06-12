@@ -1,18 +1,11 @@
 import asyncio
 from typing import Literal
 from discord.ext import commands
-from cogs.models.game import GameSummary
-from cogs.models.ladder_info import LadderInfo
-from cogs.models.round import Round, RoundSummary
-from cogs.models.setup import GameSetup
-from cogs.utils.client import GameClient
-from cogs.utils.helpers import get_emoji, get_mention, parse_bid
-from cogs.utils.crypto import encrypt_dice
-from cogs.views.game_setup import GameSetupEmbed, GameSetupView
-from cogs.views.game_summary import GameSummaryEmbed
-from cogs.views.ladder_info import LadderInfoEmbed
-from cogs.views.round_status import RoundEmbed
-from cogs.views.round_summary import RoundSummaryEmbed
+
+from utils import GameClient, parse_bid, get_emoji, get_mention, encrypt_dice
+from models import GameSetup, Round, RoundSummary, LadderInfo, GameSummary
+from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, RoundEmbed, LadderInfoEmbed, GameSummaryEmbed
+
 
 class Perudo(commands.Cog):
     def __init__(self, bot):
@@ -40,8 +33,12 @@ class Perudo(commands.Cog):
         self.game_channels[ctx.channel.id] = game_client
         game_setup_view = GameSetupView(game_client)
 
-        await ctx.send(view=game_setup_view, embed=GameSetupEmbed(game_setup))
+        game_setup_message = await ctx.send(view=game_setup_view, embed=GameSetupEmbed(game_setup))
         await game_setup_view.wait()
+
+        if game_setup_view.timed_out:
+            await game_setup_message.edit(content='Setup timed out', view=None, embed=None)
+            return
 
         if game_client.has_bots:
             game_client.bot_message = await ctx.channel.send(content="||`{}`||")

@@ -1,6 +1,6 @@
 import discord
-from cogs.models.round import Round, RoundSummary
-from cogs.utils.helpers import get_emoji
+from models import RoundSummary
+from utils import get_emoji
 
 class RoundSummaryEmbed(discord.Embed):
     def __init__(self, round_summary: RoundSummary):

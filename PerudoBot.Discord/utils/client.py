@@ -1,8 +1,8 @@
-from discord import Message
 import requests
-from cogs.models.player import Player
-from cogs.models.shared import parse_discord_players
-from cogs.utils.constants import GameState
+
+from discord import Message
+from .constants import GameState
+from .parsers import parse_discord_players
 
 import urllib3
 urllib3.disable_warnings()
@@ -29,7 +29,7 @@ class ServerResponse:
     
 class GameClient():
     def __init__(self) -> None:
-        self.players : dict[int, Player] = None
+        self.players = None
         self.game_id : int = None
         self.round_message : Message = None
         self.game_state = GameState.Terminated

@@ -1,13 +1,12 @@
 import json
-from cogs.models.action import Bet, Bid, Liar
-from cogs.models.player import Player
-from cogs.models.shared import parse_achievements, parse_bets, parse_players
-from cogs.utils.helpers import bid_to_action_index
+from .player import Player
+from .action import Bet, Bid, Liar
+import utils
 
 class Round():
     def __init__(self, json: dict):
-        self.players : dict[int, Player] = parse_players(json.get('players'))
-        self.bets : list[Bet] = parse_bets(json.get('bets'))
+        self.players : dict[int, Player] = utils.parse_players(json.get('players'))
+        self.bets : list[Bet] = utils.parse_bets(json.get('bets'))
         self.action_player_id : int = json.get('activePlayerId')
         self.round_number : int = json.get('roundNumber')
         self.round_type : str = json.get('roundType')
@@ -39,12 +38,12 @@ class Round():
         current_player = self.players[self.latest_bid.player_id]
         message['currentPlayer'] = current_player.discord_id
         message['playerDice'] = len(current_player.dice)
-        message['action'] = bid_to_action_index(self.latest_bid.quantity, self.latest_bid.pips)
+        message['action'] = utils.bid_to_action_index(self.latest_bid.quantity, self.latest_bid.pips)
 
         return json.dumps(message)
 
 class RoundSummary():
     def __init__(self, json: dict):
         self.round = Round(json.get('round'))
-        self.achievements = parse_achievements(json.get('achievements'))
+        self.achievements = utils.parse_achievements(json.get('achievements'))
         

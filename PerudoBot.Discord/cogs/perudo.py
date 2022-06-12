@@ -6,6 +6,7 @@ from cogs.models.ladder_info import LadderInfo
 from cogs.models.round import Round, RoundSummary
 from cogs.models.setup import GameSetup
 from cogs.utils.client import GameClient
+from cogs.utils.crypto import encrypt_dice
 from cogs.utils.helpers import get_emoji, get_mention
 from cogs.views.game_setup import GameSetupEmbed, GameSetupView
 from cogs.views.game_summary import GameSummaryEmbed
@@ -42,6 +43,9 @@ class Perudo(commands.Cog):
         await ctx.send(view=game_setup_view, embed=GameSetupEmbed(game_setup))
         await game_setup_view.wait()
 
+        if game_client.has_bots:
+            game_client.bot_message = await ctx.channel.send(content="||`{}`||")
+        
         game_client.round_message = await ctx.channel.send(content="Starting game...")
         
         await asyncio.sleep(0.5)
@@ -65,10 +69,14 @@ class Perudo(commands.Cog):
         
         round_state = Round(response.data)
         player = game_client.get_player(ctx.author.id)
+        
+        if game_client.has_bots:
+            await game_client.bot_message.edit(content=f'||`{round_state.bot_message()}`||')
 
         if not is_slash: await ctx.message.delete()
         next_player = f'<@!{round_state.players[round_state.action_player_id].discord_id}>'
-        await ctx.send(f'{player.name} bids `{quantity}` ˣ {get_emoji(pips)}. {next_player} is up.')
+        bot_update = f' ||`@bots update {game_client.bot_message.id}`||' if game_client.has_bots else ''
+        await ctx.send(f'{player.name} bids `{quantity}` ˣ {get_emoji(pips)}. {next_player} is up.{bot_update}')
     
     @commands.hybrid_command(name="liar", description="Call liar", help="Call liar")
     async def liar(self, ctx: commands.Context):
@@ -199,11 +207,16 @@ class Perudo(commands.Cog):
             return
         
         round_state = Round(response.data)
+
+        if game_client.has_bots:
+            await game_client.bot_message.edit(content=f'||{round_state.bot_message()}||')
+        
         await game_client.round_message.edit(content="", embed=RoundEmbed(round_state))
         await self.send_out_dice(ctx)
 
         next_player = f'<@!{round_state.players[round_state.action_player_id].discord_id}>'
-        await ctx.channel.send(f'A new round has begun. {next_player} goes first.')
+        bot_update = f' ||`@bots update {game_client.bot_message.id}`||' if game_client.has_bots else ''
+        await ctx.channel.send(f'A new round has begun. {next_player} goes first.{bot_update}')
     
     async def send_out_dice(self, ctx: commands.Context):
         game_client = self.game_channels.get(ctx.channel.id)
@@ -216,7 +229,10 @@ class Perudo(commands.Cog):
         for discord_id, player in game_client.players.items():
             if len(player.dice) > 0:
                 member = ctx.guild.get_member(discord_id)
-                await member.send(f'Your dice: {" ".join(get_emoji(x) for x in player.dice)}')
+                if member.bot:
+                    await ctx.channel.send(f'{member.mention} ||deal {encrypt_dice(member.name, player.dice)}||')
+                else:
+                    await member.send(f'Your dice: {" ".join(get_emoji(x) for x in player.dice)}')
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Perudo(bot))

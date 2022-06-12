@@ -33,6 +33,9 @@ class GameClient():
         self.game_id : int = None
         self.round_message : Message = None
         self.game_state = GameState.Terminated
+
+        self.has_bots = False
+        self.bot_message : Message = None
     
     @staticmethod
     def get_ladder_info() -> ServerResponse:
@@ -68,10 +71,12 @@ class GameClient():
             self.game_state = GameState.Ended
         return response
 
-    def add_player(self, discord_id, name) -> ServerResponse:
+    def add_player(self, discord_id, name, is_bot = False) -> ServerResponse:
         headers = { 'GAME_ID': str(self.game_id) }
         payload = { 'DiscordId': discord_id, 'Name': name }
         response = GameClient._post(f'{SERVER_PATH}/game/addplayer', headers=headers, payload=payload)
+        if response.is_success and is_bot:
+            self.has_bots = is_bot
         return response
     
     def start_game(self) -> ServerResponse:

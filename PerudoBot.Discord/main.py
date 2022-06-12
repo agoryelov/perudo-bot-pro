@@ -49,6 +49,11 @@ async def setup_hook():
     await bot.tree.sync(guild=MY_GUILD)
 
 @bot.event
+async def on_message(message):
+    ctx = await bot.get_context(message)
+    await bot.invoke(ctx)
+    
+@bot.event
 async def on_command_error(ctx: commands.Context, error: commands.CommandError):
     print(type(error))
     print(error)

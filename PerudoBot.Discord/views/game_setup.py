@@ -6,10 +6,11 @@ from utils.client import GameClient
 
 class GameSetupView(discord.ui.View):
     def __init__(self, game_client):
-        super().__init__()
+        super().__init__(timeout=600)
         self.game_client : GameClient = game_client
         self.player_count = 0
         self.first_round : Round = None
+        self.timed_out = True
 
     @discord.ui.button(label='Join', style=discord.ButtonStyle.gray)
     async def add(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -54,6 +55,7 @@ class GameSetupView(discord.ui.View):
         if self.player_count < 2:
             await interaction.response.send_message("Need at least two players to start", ephemeral=True)
         else:
+            self.timed_out = False
             self.clear_items()
             await interaction.response.edit_message(view=self)
             self.stop()

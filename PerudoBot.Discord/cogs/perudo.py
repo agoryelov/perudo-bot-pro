@@ -40,8 +40,12 @@ class Perudo(commands.Cog):
         self.game_channels[ctx.channel.id] = game_client
         game_setup_view = GameSetupView(game_client)
 
-        await ctx.send(view=game_setup_view, embed=GameSetupEmbed(game_setup))
+        game_setup_message = await ctx.send(view=game_setup_view, embed=GameSetupEmbed(game_setup))
         await game_setup_view.wait()
+
+        if game_setup_view.timed_out:
+            await game_setup_message.edit(content='Setup timed out', view=None, embed=None)
+            return
 
         if game_client.has_bots:
             game_client.bot_message = await ctx.channel.send(content="||`{}`||")

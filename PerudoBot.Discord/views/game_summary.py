@@ -1,5 +1,5 @@
 import discord
-from models.game import GameSummary
+from models import GameSummary
 
 class GameSummaryEmbed(discord.Embed):
     def __init__(self, game_summary: GameSummary):

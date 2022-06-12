@@ -1,8 +1,9 @@
 import discord
 from discord import File
-from models.ladder_info import LadderInfo
 from prettytable import PrettyTable
 from easy_pil import Editor, Canvas
+
+from models import LadderInfo
 
 class LadderInfoEmbed(discord.Embed):
     def __init__(self, ladder_info: LadderInfo):

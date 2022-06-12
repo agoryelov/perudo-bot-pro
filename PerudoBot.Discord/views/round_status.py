@@ -1,6 +1,6 @@
 import discord
-from models.round import Round
-from utils.helpers import get_emoji
+from models import Round
+from utils import get_emoji
 
 class RoundEmbed(discord.Embed):
     def __init__(self, round_data: Round):

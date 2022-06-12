@@ -1,8 +1,6 @@
 import discord
-from models.round import Round
-from models.setup import GameSetup
-from utils.client import GameClient
-
+from models import Round, GameSetup
+from utils import GameClient
 
 class GameSetupView(discord.ui.View):
     def __init__(self, game_client):

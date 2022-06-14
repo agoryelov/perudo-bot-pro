@@ -15,7 +15,7 @@ namespace PerudoBot.API.Services
         private readonly EloService _eloService;
         private readonly UserService _userService;
         private readonly AchievementService _achievementService;
-         
+
         public GameService(PerudoBotDbContext context, EloService eloService, UserService userService, AchievementService achievementService)
         {
             _db = context;
@@ -90,6 +90,7 @@ namespace PerudoBot.API.Services
                 return Responses.Error("Need at least 2 players");
             }
 
+            _activeGame.Players = _activeGame.Players.Shuffle();
             _activeGame.State = (int)GameState.InProgress;
             _db.SaveChanges();
 
@@ -107,12 +108,12 @@ namespace PerudoBot.API.Services
 
             if (_activeGame.Rounds.Count > 0)
             {
-                round.StartingPlayerId = _activeGame.Players
+                round.StartingPlayerId = _activeGame.ActivePlayers
                     .GetStartingPlayerId(_activeGame.LatestRound.Liar.LosingPlayerId);
             }
             else
             {
-                round.StartingPlayerId = _activeGame.Players.GetStartingPlayerId();
+                round.StartingPlayerId = _activeGame.ActivePlayers.GetStartingPlayerId();
             }
 
             round.ActivePlayerId = round.StartingPlayerId;
@@ -211,6 +212,11 @@ namespace PerudoBot.API.Services
         public Response AddLiarAction()
         {
             var currentRound = _activeGame.LatestRound;
+
+            if (!currentRound.Players.Any(x => x.Id == _activePlayer.Id))
+            {
+                return Responses.Error("Player not in this round");
+            }
 
             if (currentRound.IsCompleted)
             {

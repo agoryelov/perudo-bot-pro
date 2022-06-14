@@ -30,6 +30,11 @@ namespace PerudoBot.API.Services
 
             var currentRound = game.LatestRound;
 
+            if (currentRound.IsCompleted)
+            {
+                return new RoundDto { RequestSuccess = false, ErrorMessage = "Round is completed" };
+            }
+
             if (currentRound.Actions.OfType<BetAction>().Any(x => x.PlayerId == player.Id))
             {
                 return new RoundDto { RequestSuccess = false, ErrorMessage = "You can only bet once per round" };

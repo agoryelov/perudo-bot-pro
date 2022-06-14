@@ -5,6 +5,8 @@ namespace PerudoBot.API.Helpers
 {
     public static class GameHelpers
     {
+        private static Random _random = new Random();
+
         public static PlayerHand DealHand(this Player player, Round round)
         {
             var numDice = player.Lives;
@@ -96,6 +98,19 @@ namespace PerudoBot.API.Helpers
             if (previousQuantity > followUpQuantity) return false;
             if (previousQuantity == followUpQuantity && previousBid.Pips >= pips) return false;
             return true;
+        }
+
+        public static ICollection<Player> Shuffle(this ICollection<Player> players)
+        {
+            var shuffledPlayers = players.OrderBy(x => _random.Next()).ToList();
+            var turnOrder = 0;
+            foreach (var gamePlayer in shuffledPlayers)
+            {
+                gamePlayer.TurnOrder = turnOrder;
+                turnOrder += 1;
+            }
+
+            return shuffledPlayers;
         }
     }
 }

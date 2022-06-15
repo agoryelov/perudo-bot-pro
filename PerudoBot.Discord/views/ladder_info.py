@@ -1,29 +1,45 @@
 import discord
-from discord import File
 from prettytable import PrettyTable
-from easy_pil import Editor, Canvas
 
-from models import LadderInfo
+from models import LadderEntry
+
+class LadderInfoView(discord.ui.View):
+    def __init__(self, ladder_entries: list[LadderEntry]):
+        super().__init__()
+        self.entries = ladder_entries
+    
+    @discord.ui.select(placeholder="Sort by...", options=[
+        discord.SelectOption(label='Points', value='Points'),
+        discord.SelectOption(label='Elo Rating', value='Elo Rating')
+    ])
+    async def sort(self, interaction: discord.Interaction, select: discord.ui.Select):
+
+        if select.values[0] == 'Points':
+            sorted_list: list[LadderEntry] = sorted(self.entries, key=lambda x: x.points, reverse=True)
+        else:
+            sorted_list: list[LadderEntry] = sorted(self.entries, key=lambda x: x.elo, reverse=True)
+        
+        await interaction.response.edit_message(view=self, embed=LadderInfoEmbed(sorted_list))
+    
+    async def on_timeout(self) -> None:
+        for item in self.children:
+            item.disabled = True
+
+        await self.message.edit(view=self)
 
 class LadderInfoEmbed(discord.Embed):
-    def __init__(self, ladder_info: LadderInfo):
+    def __init__(self, ladder_entries: list[LadderEntry]):
         super().__init__(title=f'Ladder')
-        self.ladder_info = ladder_info
+        self.entries = ladder_entries
         self.add_field(name='Standings', value=self.get_standings())
 
-        board = Canvas(width=500, height=500)
-        editor = Editor(board)
-        editor.text((10, 10), "Hello World")
-        self.test_filename = 'test_image.png'
-        self.test_file = File(fp=editor.image_bytes, filename=self.test_filename)
-    
     def get_standings(self):
-        x = PrettyTable()
-        x.field_names = ["Name", "Elo", "Points"]
-        for entry in self.ladder_info.entries:
-            x.add_row([entry.name, entry.elo, entry.points])
+        table = PrettyTable()
+        table.field_names = ["Name", "Elo", "Points"]
+        for entry in self.entries:
+            table.add_row([entry.name, entry.elo, entry.points])
         
-        x.align["Name"] = "l"
-        x.align["Elo"] = "l"
-        x.align["Points"] = "l"
-        return f'```\n{x.get_string(border=False)}\n```'
+        table.align["Name"] = "l"
+        table.align["Elo"] = "l"
+        table.align["Points"] = "l"
+        return f'```\n{table.get_string(border=False)}\n```'

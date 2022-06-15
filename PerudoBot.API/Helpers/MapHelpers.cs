@@ -38,7 +38,7 @@ namespace PerudoBot.API.Helpers
                 Bets = round.Actions.OfType<BetAction>().Select(x => x.ToBetDto()).ToList(),
                 LatestBid = round.LatestBid?.ToBidDto(),
                 Liar = round.Liar?.ToLiarDto(),
-                Players = round.Game.Players.Select(x => x.ToPlayerDto(round.Id)).ToList()
+                Players = round.Game.Players.OrderBy(x => x.TurnOrder).Select(x => x.ToPlayerDto(round.Id)).ToList()
             };
             roundState.TotalDiceCount = roundState.Players.Sum(x => x.Dice.Count);
             roundState.ActivePlayerCount = roundState.Players.Count(x => x.Lives > 0);

@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from utils import GameClient, parse_bid, get_emoji, get_mention, encrypt_dice
 from models import GameSetup, Round, RoundSummary, LadderInfo, GameSummary
-from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, RoundEmbed, LadderInfoEmbed, GameSummaryEmbed
+from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, RoundEmbed, LadderInfoEmbed, GameSummaryEmbed, LadderInfoView
 
 
 class Perudo(commands.Cog):
@@ -182,11 +182,11 @@ class Perudo(commands.Cog):
         response = GameClient.get_ladder_info()
         if not response.is_success:
             await ctx.reply(response.error_message, ephemeral=True)
-            return
-
+            return  
+        
         ladder_info = LadderInfo(response.data)
-        await ctx.send(embed=LadderInfoEmbed(ladder_info))
-
+        ladder_view = LadderInfoView(ladder_info.entries)
+        ladder_view.message = await ctx.send(view=ladder_view, embed=LadderInfoEmbed(ladder_info.entries))
 
     async def end_game(self, ctx: commands.Context, game_client: GameClient):
         response = game_client.end_game()

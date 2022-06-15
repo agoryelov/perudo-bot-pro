@@ -108,12 +108,12 @@ namespace PerudoBot.API.Services
 
             if (_activeGame.Rounds.Count > 0)
             {
-                round.StartingPlayerId = _activeGame.ActivePlayers
+                round.StartingPlayerId = _activeGame.Players
                     .GetStartingPlayerId(_activeGame.LatestRound.Liar.LosingPlayerId);
             }
             else
             {
-                round.StartingPlayerId = _activeGame.ActivePlayers.GetStartingPlayerId();
+                round.StartingPlayerId = _activeGame.Players.GetStartingPlayerId();
             }
 
             round.ActivePlayerId = round.StartingPlayerId;

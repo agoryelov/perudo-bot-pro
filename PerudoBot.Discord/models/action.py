@@ -1,3 +1,5 @@
+import utils
+
 class Action():
     def __init__(self, json: dict):
         if json is None: return
@@ -9,6 +11,7 @@ class Bid(Action):
         super().__init__(json)
         self.quantity = json.get('quantity')
         self.pips = json.get('pips')
+        self.date_created = utils.parse_date(json.get('dateCreated'))
 
 class Liar(Action):
     def __init__(self, json: dict):

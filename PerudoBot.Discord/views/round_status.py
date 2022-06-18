@@ -13,6 +13,9 @@ class RoundEmbed(discord.Embed):
 
         if self.round.any_bets:
             self.add_field(name="Bets", value=self.get_bets_field(), inline=False)
+
+        if self.round.any_bids:
+            self.add_field(name="Game Log", value=self.get_gamelog_field(), inline=False)
         
         self.set_footer(text=f"Quick maths: {round_data.total_dice}/3 = {round(round_data.total_dice / 3.0, 2)}")
 
@@ -39,3 +42,12 @@ class RoundEmbed(discord.Embed):
             bets.append(f':dollar: {bet_player.name} bets {bet.bet_amount} that `{bet.target_bid.quantity}` ˣ {get_emoji(bet.target_bid.pips)} is {bet_type_text}')
         if len(bets) == 0: return 'None'
         return '\n'.join(bets)
+
+    def get_gamelog_field(self):
+        logs = []
+        for bid in self.round.bids:
+            time = bid.date_created.strftime('%H:%M')
+            player = self.round.players[bid.player_id]
+            logs.append(f'`{time}`: {player.name} bids `{bid.quantity}` ˣ {get_emoji(bid.pips)}')
+        if len(logs) == 0: return 'None'
+        return '\n'.join(logs)

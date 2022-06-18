@@ -10,6 +10,7 @@
     {
         public int Quantity { get; set; }
         public int Pips { get; set; }
+        public string DateCreated { get; set; }
     }
 
     public class LiarDto : ActionDto

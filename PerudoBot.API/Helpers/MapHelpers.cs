@@ -13,6 +13,7 @@ namespace PerudoBot.API.Helpers
             {
                 PlayerId = player.Id,
                 DiscordId = player.User.DiscordId,
+                IsBot = player.User.IsBot,
                 Points = player.User.Points,
                 Name = player.User.Name,
                 Lives = player.Lives,
@@ -36,6 +37,7 @@ namespace PerudoBot.API.Helpers
                 RoundNumber = round.RoundNumber,
                 RoundType = round.RoundType,
                 Bets = round.Actions.OfType<BetAction>().Select(x => x.ToBetDto()).ToList(),
+                Bids = round.Actions.OfType<BidAction>().Select(x => x.ToBidDto()).ToList(),
                 LatestBid = round.LatestBid?.ToBidDto(),
                 Liar = round.Liar?.ToLiarDto(),
                 Players = round.Game.Players.Select(x => x.ToPlayerDto(round.Id)).ToList()
@@ -63,7 +65,8 @@ namespace PerudoBot.API.Helpers
                 ActionType = bid.ActionType,
                 Pips = bid.Pips,
                 Quantity = bid.Quantity,
-                PlayerId = bid.PlayerId
+                PlayerId = bid.PlayerId,
+                DateCreated = bid.DateCreated.ToString("yyyy-MM-ddTHH:mm:sszzz")
             };
         }
 

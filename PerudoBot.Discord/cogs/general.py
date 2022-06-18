@@ -2,6 +2,11 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
+from game import GameClient
+from models.ladder_info import LadderInfo
+from utils.exceptions import GameActionError
+from views.ladder_info import LadderInfoEmbed
+
 class General(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -10,13 +15,14 @@ class General(commands.Cog):
     async def ping(self, ctx: commands.Context):
         await ctx.send(f'Pong! `{round(self.bot.latency * 1000)} ms`')
 
-    @app_commands.command(name="bing")
-    async def bing(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f'Bong! `{round(self.bot.latency * 1000)} ms`')
-
-    @commands.hybrid_command(name='hello', description="To greet the bot and get greeted back.", help="Gives bot a greeting.")
-    async def hello(self, ctx):
-        await ctx.send(f'Hello {ctx.author.mention}, Hope you are keeping well!')
+    @commands.hybrid_command(name="ladder", description="Show current ladder standings", help="Show current ladder standings")
+    async def ladder(self, ctx: commands.Context):
+        try:
+            ladder_data = GameClient.get_ladder_info()
+            ladder_info = LadderInfo(ladder_data)
+            await ctx.send(embed=LadderInfoEmbed(ladder_info))
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
 
 
 async def setup(bot: commands.Bot):

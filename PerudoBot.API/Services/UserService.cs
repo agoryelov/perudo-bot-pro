@@ -20,11 +20,27 @@ namespace PerudoBot.API.Services
             var existingUser = _db.Users
                 .SingleOrDefault(x => x.DiscordId == discordUser.DiscordId);
 
-            if (existingUser != null) return existingUser;
+            if (existingUser != null)
+            {
+                if (existingUser.Name != discordUser.Name)
+                {
+                    existingUser.Name = discordUser.Name;
+                    _db.SaveChanges();
+                }
+
+                if (existingUser.IsBot != discordUser.IsBot)
+                {
+                    existingUser.IsBot = discordUser.IsBot;
+                    _db.SaveChanges();
+                }
+
+                return existingUser;
+            }
 
             var user = new User
             {
                 DiscordId = discordUser.DiscordId,
+                IsBot = discordUser.IsBot,
                 Name = discordUser.Name,
                 Elo = 1200,
                 Points = 100

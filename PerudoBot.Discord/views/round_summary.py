@@ -1,6 +1,35 @@
 import discord
-from models import RoundSummary
-from utils import get_emoji, SYM_X
+from models import Liar, Player, RoundSummary
+from utils import get_emoji, SYM_X, EmbedColor
+
+class DefeatEmbed(discord.Embed):
+    def __init__(self, liar: Liar, players: dict[int, Player]):
+        super().__init__()
+        losing_player = players[liar.losing_player_id]
+        winning_player = players[liar.winning_player_id]
+        self.description = f":skull: **{losing_player.name}** was defeated by **{winning_player.name}**"
+        self.color = EmbedColor.Red
+
+class DamageDealtEmbed(discord.Embed):
+    def __init__(self, liar: Liar, players: dict[int, Player]):
+        super().__init__()
+        losing_player = players[liar.losing_player_id]
+        winning_player = players[liar.winning_player_id]
+        self.description = f"**{winning_player.name}** does `{liar.lives_lost}` {SYM_X} :heart: damage to **{losing_player.name}**"
+        self.color = EmbedColor.Red
+
+class LiarCalledEmbed(discord.Embed):
+    def __init__(self, liar: Liar, players: dict[int, Player], show_actual = False):
+        super().__init__()
+        target_bid = liar.target_bid
+        liar_player = players[liar.player_id]
+        bid_player = players[target_bid.player_id]
+
+        self.description = f"**{liar_player.name}** called liar on **{bid_player.name}**'s `{target_bid.quantity}` {SYM_X} {get_emoji(target_bid.pips)}"
+        if show_actual:
+            self.description += f"\nThere was actually `{liar.actual_quantity}` {SYM_X} {get_emoji(target_bid.pips)}"
+        
+        self.color = EmbedColor.Red
 
 class RoundSummaryEmbed(discord.Embed):
     def __init__(self, round_summary: RoundSummary):

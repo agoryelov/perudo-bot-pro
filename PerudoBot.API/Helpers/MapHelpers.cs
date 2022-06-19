@@ -79,6 +79,7 @@ namespace PerudoBot.API.Helpers
                 ActionType = liar.ActionType,
                 TargetBid = liar.TargetBid.ToBidDto(),
                 IsSuccessful = liar.IsSuccessful,
+                WinningPlayerId = liar.IsSuccessful ? liar.PlayerId : liar.TargetBid.PlayerId,
                 LosingPlayerId = liar.LosingPlayerId,
                 LivesLost = liar.LivesLost,
                 ActualQuantity = liar.ActualQuantity

@@ -16,6 +16,7 @@
     public class LiarDto : ActionDto
     {
         public BidDto TargetBid { get; set; }
+        public int WinningPlayerId { get; set; }
         public int LosingPlayerId { get; set; }
         public int LivesLost { get; set; }
         public int ActualQuantity { get; set; }

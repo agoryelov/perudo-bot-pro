@@ -10,4 +10,8 @@ class BetType(enum.Enum):
     Exact = 0
     Liar = 1
 
+class EmbedColor(enum.IntEnum):
+    Red = 12199168
+    White = 16777215
+
 SYM_X = "×"

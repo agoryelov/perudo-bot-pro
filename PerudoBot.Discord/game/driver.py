@@ -2,11 +2,11 @@ import asyncio
 from typing import Union
 
 import discord
-from discord import Member, Message, User
+from discord import Embed, Member, Message, User
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
 from utils import GameState, get_emoji, GameActionError, encrypt_dice
-from views import RoundEmbed, RoundView
+from views import RoundEmbed, RoundView, LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed
 from .client import GameClient
 
 class GameDriver():
@@ -96,20 +96,18 @@ class GameDriver():
         await asyncio.sleep(delay)
         return await self.channel.send(**kwargs)
 
-    async def send_liar_result(self, round_summary: RoundSummary):
-        round = round_summary.round
-        liar_action = round.liar
-        bid_player = round.players[liar_action.target_bid.player_id]
-        liar_player = round.players[liar_action.player_id]
-        losing_player = round.players[liar_action.losing_player_id]
+    async def send_liar_result(self, round_summary: RoundSummary): 
+        liar = round_summary.round.liar
+        players = round_summary.round.players
+        losing_player = players[liar.losing_player_id]
 
-        await self.send_delayed(content=f':fire: **{liar_player.name}** called liar on **{bid_player.name}**', delay = 0)
-        await self.send_delayed(content=f':fire: There was actually `{round.liar.actual_quantity}` ˣ {get_emoji(round.latest_bid.pips)}', delay = 2)
-        await self.send_delayed(content=f':fire: **{losing_player.name}** loses `{liar_action.lives_lost}` ˣ :heart:')
-
+        liar_call_embed = await self.send_delayed(embed=LiarCalledEmbed(liar, players), delay=0)
+        await asyncio.sleep(3)
+        await liar_call_embed.edit(embed=LiarCalledEmbed(liar, players, show_actual=True))
+        await self.send_delayed(embed=DamageDealtEmbed(liar, players))
+        
         if losing_player.lives <= 0:
-            winning_player = liar_player if liar_action.is_successful else bid_player
-            await self.send_delayed(content=f':skull: **{losing_player.name}** was defeated by **{winning_player.name}**')
+            await self.send_delayed(embed=DefeatEmbed(liar, players))
     
     async def send_out_dice(self):
         for discord_id, player in self.discord_players.items():

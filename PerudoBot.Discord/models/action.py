@@ -18,6 +18,7 @@ class Liar(Action):
         super().__init__(json)
         self.target_bid : Bid = Bid(json.get('targetBid'))
         self.lives_lost = json.get('livesLost')
+        self.winning_player_id = json.get('winningPlayerId')
         self.losing_player_id = json.get('losingPlayerId')
         self.is_successful = json.get('isSuccessful')
         self.actual_quantity = json.get('actualQuantity')

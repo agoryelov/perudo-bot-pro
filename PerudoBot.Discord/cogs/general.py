@@ -3,7 +3,7 @@ from discord.ext import commands
 from game import GameClient
 from models import LadderInfo
 from utils import GameActionError
-from views import LadderInfoEmbed
+from views import LadderInfoEmbed, LadderInfoView
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -18,7 +18,8 @@ class General(commands.Cog):
         try:
             ladder_data = GameClient.get_ladder_info()
             ladder_info = LadderInfo(ladder_data)
-            await ctx.send(embed=LadderInfoEmbed(ladder_info))
+            ladder_view = LadderInfoView(ladder_info.entries)
+            ladder_view.message = await ctx.send(view=ladder_view, embed=LadderInfoEmbed(ladder_info.entries))
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 

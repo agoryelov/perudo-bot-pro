@@ -9,3 +9,5 @@ class GameState(enum.Enum):
 class BetType(enum.Enum):
     Exact = 0
     Liar = 1
+
+SYM_X = "×"

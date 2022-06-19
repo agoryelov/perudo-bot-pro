@@ -1,12 +1,14 @@
 import json
 from .player import Player
-from .action import Bet, Bid, Liar
+from .action import Bid, Bet, Bid, Liar
 import utils
 
 class Round():
     def __init__(self, json: dict):
         self.players : dict[int, Player] = utils.parse_players(json.get('players'))
+        self.discord_players : dict[int, Player] = utils.parse_discord_players(json.get('players'))
         self.bets : list[Bet] = utils.parse_bets(json.get('bets'))
+        self.bids : list[Bid] = utils.parse_bids(json.get('bids'))
         self.action_player_id : int = json.get('activePlayerId')
         self.round_number : int = json.get('roundNumber')
         self.round_type : str = json.get('roundType')
@@ -22,8 +24,7 @@ class Round():
         self.is_final : bool = self.active_player_count == 1
         self.any_eliminated : bool = self.active_player_count < len(self.players)
         self.any_bets : bool = len(self.bets) > 0
-
-        # self.actions : list[Action] = parse_actions(json.get('actions'))
+        self.any_bids : bool = len(self.bids) > 0
     
     def bot_message(self) -> str:
         message = { 

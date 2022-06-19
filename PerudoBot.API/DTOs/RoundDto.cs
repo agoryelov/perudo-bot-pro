@@ -9,6 +9,7 @@
         public int ActivePlayerCount { get; set; }
         public List<PlayerDto> Players { get; set; }
         public List<BetDto> Bets { get; set; }
+        public List<BidDto> Bids { get; set; }
         public BidDto LatestBid { get; set; }
         public LiarDto Liar { get; set; }
     }

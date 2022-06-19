@@ -2,242 +2,133 @@ import asyncio
 from typing import Literal
 from discord.ext import commands
 
-from utils import GameClient, parse_bid, get_emoji, get_mention, encrypt_dice
-from models import GameSetup, Round, RoundSummary, LadderInfo, GameSummary
-from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, RoundEmbed, LadderInfoEmbed, GameSummaryEmbed, LadderInfoView
+from discord import TextChannel
 
+from game import GameDriver
+from utils import parse_bid, get_emoji, encrypt_dice, GameActionError
+from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, GameSummaryEmbed
 
 class Perudo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.game_channels : dict[int, GameClient] = {}
+        self.game_drivers : dict[int, GameDriver] = {}
+
+    def _get_channel_game(self, channel: TextChannel) -> GameDriver:
+        if channel.id not in self.game_drivers:
+            self.game_drivers[channel.id] = GameDriver(channel)
+        
+        return self.game_drivers.get(channel.id)
 
     @commands.hybrid_command(name="new", description="Create a new game", help="Create a new game")
     async def new(self, ctx: commands.Context):
         is_slash = ctx.interaction is not None
 
-        game_client = self.game_channels.get(ctx.channel.id)
-        if game_client is not None and game_client.game_in_progress():
-            await ctx.reply("Game already in progress", ephemeral=True)
-            return
-        
-        game_client = GameClient()
-        response = game_client.create_game()
-        if not response.is_success:
-            await ctx.reply(response.error_message, ephemeral=True)
+        game_driver = self._get_channel_game(ctx.channel)
+
+        if game_driver.in_setup or game_driver.in_progress:
+            await ctx.reply("Game already exists, use `/terminate` before starting a new game")
             return
         
         if not is_slash: await ctx.message.delete()
 
-        game_setup = GameSetup(response.data)
-        self.game_channels[ctx.channel.id] = game_client
-        game_setup_view = GameSetupView(game_client)
-
+        game_setup = await game_driver.create_game()
+        game_setup_view = GameSetupView(game_driver)
         game_setup_message = await ctx.send(view=game_setup_view, embed=GameSetupEmbed(game_setup))
+
         await game_setup_view.wait()
 
         if game_setup_view.timed_out:
             await game_setup_message.edit(content='Setup timed out', view=None, embed=None)
             return
 
-        if game_client.has_bots:
-            game_client.bot_message = await ctx.channel.send(content="||`{}`||")
-        
-        game_client.round_message = await ctx.channel.send(content="Starting game...")
-        
-        await asyncio.sleep(0.5)
-
-        game_client.start_game()
-        await self.start_round(ctx, game_client, is_slash)
+        try:
+            await game_driver.start_game()
+            await game_driver.start_round()
+            await self.send_out_dice(ctx, game_driver)
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
 
     @commands.hybrid_command(name="bid", description="Place a bid", help="Place a bid", aliases=['b'])
     async def bid(self, ctx: commands.Context, *, bid_text: str):
-        is_slash = ctx.interaction is not None
-        
-        bid_text = parse_bid(bid_text)
-        if bid_text is None:
+        parsed_bid = parse_bid(bid_text)
+        if parsed_bid is None:
             await ctx.reply("Invalid bid input", ephemeral=True)
             return
-        else:
-            quantity, pips = bid_text
-        
-        game_client = self.game_channels.get(ctx.channel.id)
-        if game_client is None or not game_client.game_in_progress():
-            await ctx.reply("No active game", ephemeral=True)
-            return
-        
-        response = game_client.bid_action(ctx.author.id, quantity, pips)
-        if not response.is_success:
-            if is_slash: await ctx.reply(response.error_message, ephemeral=True)
-            return
-        
-        round_state = Round(response.data)
-        player = game_client.get_player(ctx.author.id)
-        
-        if game_client.has_bots:
-            await game_client.bot_message.edit(content=f'||`{round_state.bot_message()}`||')
+        quantity, pips = parsed_bid
 
-        if not is_slash: await ctx.message.delete()
-        next_player = f'<@!{round_state.players[round_state.action_player_id].discord_id}>'
-        bot_update = f' ||`@bots update {game_client.bot_message.id}`||' if game_client.has_bots else ''
-        await ctx.send(f'{player.name} bids `{quantity}` ˣ {get_emoji(pips)}. {next_player} is up.{bot_update}')
-    
+        is_slash = ctx.interaction is not None
+        game_driver = self._get_channel_game(ctx.channel)
+
+        try:
+            round = await game_driver.bid_action(ctx.author.id, quantity, pips)
+
+            if is_slash: await ctx.reply('Bid placed', ephemeral=True)
+            else: await ctx.message.delete()
+
+            await game_driver.update_round_message(round)
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
+
     @commands.hybrid_command(name="liar", description="Call liar", help="Call liar")
     async def liar(self, ctx: commands.Context):
         is_slash = ctx.interaction is not None
-        
-        game_client = self.game_channels.get(ctx.channel.id)
-        if game_client is None or not game_client.game_in_progress():
-            await ctx.reply('No active game', ephemeral=True)
+        game_driver = self._get_channel_game(ctx.channel)
+
+        try:
+            round_summary = await game_driver.liar_action(ctx.author.id)
+
+            if is_slash: await ctx.reply('Liar called', ephemeral=True)
+            else: await ctx.message.delete()
+
+            await game_driver.send_liar_result(round_summary)
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
             return
-        
-        response = game_client.liar_action(ctx.author.id)
-        if not response.is_success:
-            if is_slash: await ctx.reply(response.error_message, ephemeral=True)
-            return
-
-        if not is_slash: await ctx.message.delete()
-
-        round_summary = RoundSummary(response.data)
-        round_state = round_summary.round
-        player = game_client.get_player(ctx.author.id)
-
-        await ctx.send(f'{player.name} called **liar** on `{round_state.latest_bid.quantity}` ˣ {get_emoji(round_state.latest_bid.pips)}.')
-
-        await asyncio.sleep(2)
-        
-        liar_action = round_state.liar
-        losing_player = round_state.players[liar_action.losing_player_id]
-        
-        life_or_lives = 'life' if liar_action.lives_lost == 1 else 'lives'
-        await ctx.channel.send(f'There was actually `{round_state.liar.actual_quantity}` dice. :fire: {get_mention(losing_player.discord_id)} loses {liar_action.lives_lost} {life_or_lives} :fire:')
-
-        if losing_player.lives <= 0:
-            await ctx.channel.send(f':fire::skull::fire: {losing_player.name} was defeated :fire::skull::fire:')
 
         await asyncio.sleep(1)
-
-        game_client.round_message = None
         await ctx.channel.send(embed=RoundSummaryEmbed(round_summary))
+        await asyncio.sleep(1)
 
-        if round_state.is_final:
-            await asyncio.sleep(1)
-            await self.end_game(ctx, game_client)
+        if game_driver.ended:
+            game_summary = await game_driver.end_game()
+            await ctx.channel.send(embed=GameSummaryEmbed(game_summary))
         else:
-            await self.start_round(ctx, game_client, is_slash)
+            await game_driver.start_round()
+            await self.send_out_dice(ctx, game_driver)
     
     @commands.hybrid_command(name="bet", description="Place a bet on the latest bid", help="Place a bet on the latest bid")
     async def bet(self, ctx: commands.Context, bet_amount: int, bet_type: Literal['liar', 'exact']):
         is_slash = ctx.interaction is not None
+        game_driver = self._get_channel_game(ctx.channel)
 
-        game_client = self.game_channels.get(ctx.channel.id)
-        if game_client is None or not game_client.game_in_progress():
-            await ctx.reply('No active game', ephemeral=True)
-            return
+        try:
+            round = await game_driver.bet_action(ctx.author.id, bet_amount, bet_type)
 
-        response = game_client.bet_action(ctx.author.id, bet_amount, bet_type)
-        if not response.is_success:
-            if is_slash: await ctx.send(response.error_message, ephemeral=True)
-            return
+            if is_slash: await ctx.reply('Bet placed', ephemeral=True)
+            else: await ctx.message.delete()
 
-        if not is_slash: await ctx.message.delete()
-        player = game_client.get_player(ctx.author.id)
-        round_state = Round(response.data)
-        bet_type_text = 'a lie' if bet_type == 'liar' else 'exact'
-        await ctx.send(f':dollar: {player.name} bets {bet_amount} that `{round_state.latest_bid.quantity}` ˣ {get_emoji(round_state.latest_bid.pips)} is {bet_type_text}')
-        await game_client.round_message.edit(embed=RoundEmbed(round_state))
+            await game_driver.update_round_message(round)
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
 
     @commands.hybrid_command(name="terminate", description="Terminate current game", help="Terminate current game")
     async def terminate(self, ctx: commands.Context):
-        game_client = self.game_channels.get(ctx.channel.id)
-        if game_client is None or not game_client.game_in_progress():
-            await ctx.reply('No active game', ephemeral=True)
-            return
-        
-        response = game_client.terminate_game()
-        if not response.is_success:
-            await ctx.reply(response.error_message, ephemeral=True)
-            return
-        
-        await ctx.reply(f'Terminated game {game_client.game_id}')
-
-    @commands.hybrid_command(name="note", description="Add a note to a game", help="Add a note to a game")
-    async def note(self, ctx: commands.Context, note_text: str):
-        if ctx.interaction is None: return
-        
-        game_client = self.game_channels.get(ctx.channel.id)
-        if game_client is None or not game_client.game_in_progress():
-            await ctx.reply('No active game', ephemeral=True)
-            return
-        
-        response = game_client.add_note(ctx.author.id, note_text)
-        if not response.is_success:
-            await ctx.reply(response.error_message, ephemeral=True)
-            return
-        
-        await ctx.send(f'Added note: `{note_text}`', ephemeral=False)
-
-    @commands.hybrid_command(name="ladder", description="Show current ladder standings", help="Show current ladder standings")
-    async def ladder(self, ctx: commands.Context):        
-        response = GameClient.get_ladder_info()
-        if not response.is_success:
-            await ctx.reply(response.error_message, ephemeral=True)
-            return  
-        
-        ladder_info = LadderInfo(response.data)
-        ladder_view = LadderInfoView(ladder_info.entries)
-        ladder_view.message = await ctx.send(view=ladder_view, embed=LadderInfoEmbed(ladder_info.entries))
-
-    async def end_game(self, ctx: commands.Context, game_client: GameClient):
-        response = game_client.end_game()
-
-        if not response.is_success:
-            await ctx.reply(response.error_message, ephemeral=True)
-            return
-        
-        game_summary = GameSummary(response.data)
-        await ctx.channel.send(embed=GameSummaryEmbed(game_summary))
+        game_driver = self._get_channel_game(ctx.channel)
+                
+        try:
+            await game_driver.terminate()
+            await ctx.reply(f'Terminated game {game_driver.game_id}')
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
     
-    async def start_round(self, ctx: commands.Context, game_client: GameClient, is_slash: bool):
-        if game_client.round_message is None:
-            game_client.round_message = await ctx.channel.send(content="Creating round...")
-        else:
-            await game_client.round_message.edit(content="Creating round...")
-
-        await asyncio.sleep(1)
-
-        response = game_client.start_round()
-        if not response.is_success:
-            if is_slash: await ctx.reply(response.error_message, ephemeral=True)
-            return
-        
-        round_state = Round(response.data)
-
-        if game_client.has_bots:
-            await game_client.bot_message.edit(content=f'||{round_state.bot_message()}||')
-        
-        await game_client.round_message.edit(content="", embed=RoundEmbed(round_state))
-        await self.send_out_dice(ctx)
-
-        next_player = f'<@!{round_state.players[round_state.action_player_id].discord_id}>'
-        bot_update = f' ||`@bots update {game_client.bot_message.id}`||' if game_client.has_bots else ''
-        await ctx.channel.send(f'A new round has begun. {next_player} goes first.{bot_update}')
-    
-    async def send_out_dice(self, ctx: commands.Context):
-        game_client = self.game_channels.get(ctx.channel.id)
-
-        # all_dice = []
-        # for player in game_client.players.values():
-        #     all_dice.append(f'{player.name}=[{",".join(str(x) for x in player.dice)}]')
-        # await ctx.channel.send(f'`{" ".join(all_dice)}`')
-
-        for discord_id, player in game_client.players.items():
-            if len(player.dice) > 0:
-                member = ctx.guild.get_member(discord_id)
-                if member.bot:
-                    await ctx.channel.send(f'{member.mention} ||deal {encrypt_dice(member.name, player.dice)}||')
-                else:
-                    await member.send(f'Your dice: {" ".join(get_emoji(x) for x in player.dice)}')
+    async def send_out_dice(self, ctx: commands.Context, game_driver: GameDriver):
+        for discord_id, player in game_driver.discord_players.items():
+            if len(player.dice) <= 0: continue
+            member = ctx.guild.get_member(discord_id)
+            if player.is_bot:
+                await ctx.channel.send(f'{member.mention} ||deal {encrypt_dice(member.name, player.dice)}||')
+            else:
+                await member.send(f'Your dice: {" ".join(get_emoji(x) for x in player.dice)}')
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Perudo(bot))

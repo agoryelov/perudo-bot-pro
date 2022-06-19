@@ -1,4 +1,4 @@
-from models import Player, Bet, Action, Achievement
+from models import Player, Bet, Bid, Achievement
 
 def parse_players(json) -> dict[int, Player]:
     players = {}
@@ -13,12 +13,12 @@ def parse_bets(json) -> list[Bet]:
         bets.append(Bet(bet))
     return bets
 
-def parse_actions(json) -> list[Action]:
+def parse_bids(json) -> list[Bid]:
     if json is None: return []
-    actions = []
-    for action in json:
-        actions.append(Action(action))
-    return actions
+    bids = []
+    for bid in json:
+        bids.append(Bid(bid))
+    return bids
 
 def parse_round_type(type_id: int):
     if (type_id == 0): return 'Sudden Death'

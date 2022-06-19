@@ -1,26 +1,26 @@
 import discord
+import game
+
+from discord import SelectOption
 from models import Round, GameSetup
-from utils import GameClient
+from utils import GameActionError
 
 class GameSetupView(discord.ui.View):
-    def __init__(self, game_client):
+    def __init__(self, game_driver):
         super().__init__(timeout=600)
-        self.game_client : GameClient = game_client
+        self.game_driver : game.GameDriver = game_driver
         self.player_count = 0
         self.first_round : Round = None
         self.timed_out = True
 
     @discord.ui.button(label='Join', style=discord.ButtonStyle.gray)
-    async def add(self, interaction: discord.Interaction, button: discord.ui.Button):
-        player_name = interaction.user.nick if interaction.user.nick is not None else interaction.user.name
-
-        response = self.game_client.add_player(interaction.user.id, player_name)
-        
-        if not response.is_success:
-            await interaction.response.send_message(response.error_message, ephemeral=True)
+    async def add(self, interaction: discord.Interaction, button: discord.ui.Button):   
+        try:
+            game_setup = await self.game_driver.add_player(interaction.user)
+        except GameActionError as e:
+            await interaction.response.send_message(e.message, ephemeral=True)
             return
         
-        game_setup = GameSetup(response.data)
         self.player_count += 1
 
         if interaction.channel.last_message_id == interaction.message.id:
@@ -29,18 +29,9 @@ class GameSetupView(discord.ui.View):
             await interaction.message.delete()
             await interaction.channel.send(view=self, embed=GameSetupEmbed(game_setup))
     
-    @discord.ui.select(placeholder="Choose game mode", options=[
-        discord.SelectOption(label='Sudden Death', value='0'),
-        discord.SelectOption(label='Reverse', value='1')
-    ])
+    @discord.ui.select(placeholder="Choose game mode", options=[ SelectOption(label='Sudden Death', value='0'), SelectOption(label='Reverse', value='1') ])
     async def mode(self, interaction: discord.Interaction, select: discord.ui.Select):
-        response = self.game_client.set_default_round_type(select.values[0])
-
-        if not response.is_success:
-            await interaction.response.send_message(response.error_message, ephemeral=True)
-            return
-
-        game_setup = GameSetup(response.data)
+        game_setup = await self.game_driver.set_default_round_type(select.values[0])
 
         if interaction.channel.last_message_id == interaction.message.id:
             await interaction.response.edit_message(view=self, embed=GameSetupEmbed(game_setup))
@@ -58,16 +49,15 @@ class GameSetupView(discord.ui.View):
             await interaction.response.edit_message(view=self)
             self.stop()
 
-    @discord.ui.button(label='Add BeginnerBot', style=discord.ButtonStyle.gray)
+    @discord.ui.button(label='Add BeginnerBot', style=discord.ButtonStyle.gray, disabled=True)
     async def add_beginner_bot(self, interaction: discord.Interaction, button: discord.ui.Button):
-        bot_user = await interaction.guild.fetch_member('743151009689501818')
-        response = self.game_client.add_player(bot_user.id, bot_user.display_name, is_bot=bot_user.bot)
-        
-        if not response.is_success:
-            await interaction.response.send_message(response.error_message, ephemeral=True)
+        try:
+            bot_user = await interaction.guild.fetch_member('743151009689501818')
+            game_setup = await self.game_driver.add_player(bot_user)
+        except GameActionError as e:
+            await interaction.response.send_message(e.message, ephemeral=True)
             return
-        
-        game_setup = GameSetup(response.data)
+
         self.player_count += 1
         button.disabled = True
 
@@ -76,7 +66,7 @@ class GameSetupView(discord.ui.View):
         else:
             await interaction.message.delete()
             await interaction.channel.send(view=self, embed=GameSetupEmbed(game_setup))
-        
+
 
 class GameSetupEmbed(discord.Embed):
     def __init__(self, game_setup: GameSetup):

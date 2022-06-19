@@ -6,7 +6,7 @@ from discord import TextChannel
 
 from game import GameDriver
 from utils import parse_bid, get_emoji, encrypt_dice, GameActionError
-from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, RoundEmbed, LadderInfoEmbed, GameSummaryEmbed
+from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, GameSummaryEmbed
 
 class Perudo(commands.Cog):
     def __init__(self, bot):
@@ -72,8 +72,8 @@ class Perudo(commands.Cog):
     @commands.hybrid_command(name="liar", description="Call liar", help="Call liar")
     async def liar(self, ctx: commands.Context):
         is_slash = ctx.interaction is not None
-        
         game_driver = self._get_channel_game(ctx.channel)
+
         try:
             round_summary = await game_driver.liar_action(ctx.author.id)
 
@@ -120,32 +120,6 @@ class Perudo(commands.Cog):
             await ctx.reply(f'Terminated game {game_driver.game_id}')
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
-
-    # @commands.hybrid_command(name="note", description="Add a note to a game", help="Add a note to a game")
-    # async def note(self, ctx: commands.Context, note_text: str):
-    #     if ctx.interaction is None: return
-        
-    #     game_client = self.game_channels.get(ctx.channel.id)
-    #     if game_client is None or not game_client.game_in_progress():
-    #         await ctx.reply('No active game', ephemeral=True)
-    #         return
-        
-    #     response = game_client.add_note(ctx.author.id, note_text)
-    #     if not response.is_success:
-    #         await ctx.reply(response.error_message, ephemeral=True)
-    #         return
-        
-    #     await ctx.send(f'Added note: `{note_text}`', ephemeral=False)
-
-    # @commands.hybrid_command(name="ladder", description="Show current ladder standings", help="Show current ladder standings")
-    # async def ladder(self, ctx: commands.Context):        
-    #     response = GameClient.get_ladder_info()
-    #     if not response.is_success:
-    #         await ctx.reply(response.error_message, ephemeral=True)
-    #         return
-
-    #     ladder_info = LadderInfo(response.data)
-    #     await ctx.send(embed=LadderInfoEmbed(ladder_info))
     
     async def send_out_dice(self, ctx: commands.Context, game_driver: GameDriver):
         for discord_id, player in game_driver.discord_players.items():

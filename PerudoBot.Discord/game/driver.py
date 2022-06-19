@@ -5,9 +5,8 @@ import discord
 from discord import Member, Message, User
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
-from utils import GameState, get_emoji, next_up_message, get_mention
-from utils.exceptions import GameActionError
-from views import RoundEmbed
+from utils import GameState, get_emoji, GameActionError, encrypt_dice
+from views import RoundEmbed, RoundView
 from .client import GameClient
 
 class GameDriver():
@@ -20,7 +19,6 @@ class GameDriver():
         self.discord_players : dict[int, Player] = {}
 
         self.round_message : Message = None
-        self.next_up_message : Message = None
         self.bot_message : Message = None
 
     async def create_game(self) -> GameSetup:
@@ -50,8 +48,7 @@ class GameDriver():
     async def start_round(self) -> Round:
         round_data = self.game_client.start_round(self.game_id)
         round = Round(round_data)
-        self.round_message = await self.channel.send(embed=RoundEmbed(round))
-        self.next_up_message = await self.channel.send(next_up_message(round, self))
+        self.round_message = await self.send_delayed(view=RoundView(round, self), embed=RoundEmbed(round))
         await self._update_from_round(round)
         return round
 
@@ -70,34 +67,34 @@ class GameDriver():
     async def liar_action(self, discord_id) -> RoundSummary:
         summary_data = self.game_client.liar_action(self.game_id, self._player_id(discord_id))
         round_summary = RoundSummary(summary_data)
-        await self.next_up_message.delete()
         await self._update_from_round(round_summary.round)
         return round_summary
-
 
     async def end_game(self) -> GameSummary:
         summary_data = self.game_client.end_game(self.game_id)
         return GameSummary(summary_data)
     
     async def terminate(self):
-        await self.game_client.terminate_game(self.game_id)
+        self.game_client.terminate_game(self.game_id)
+        self.game_state = GameState.Terminated
     
     async def _update_from_setup(self, game_setup: GameSetup):
         self.game_id = game_setup.game_id
         self.discord_players = game_setup.discord_players
         self.game_state = GameState.Setup
 
-    async def update_round_message(self, round: Round):
-        recent_history = [message async for message in self.channel.history(limit=2)]
+    async def update_round_message(self, round: Round, edit_function = None):
+        edit_function = edit_function or self.round_message.edit
+        recent_history = [message async for message in self.channel.history(limit=1)]
         if self.round_message in recent_history:
-            await self.round_message.edit(embed=RoundEmbed(round))
-            await self.next_up_message.delete()
-            self.next_up_message = await self.channel.send(next_up_message(round, self))
+            await edit_function(view=RoundView(round, self), embed=RoundEmbed(round))
         else:
             await self.round_message.delete()
-            await self.next_up_message.delete()
-            self.round_message = await self.channel.send(embed=RoundEmbed(round))
-            self.next_up_message = await self.channel.send(next_up_message(round, self))
+            self.round_message = await self.send_delayed(view=RoundView(round, self), embed=RoundEmbed(round), delay = 0)
+
+    async def send_delayed(self, delay = 0.5, **kwargs):
+        await asyncio.sleep(delay)
+        return await self.channel.send(**kwargs)
 
     async def send_liar_result(self, round_summary: RoundSummary):
         round = round_summary.round
@@ -106,14 +103,22 @@ class GameDriver():
         liar_player = round.players[liar_action.player_id]
         losing_player = round.players[liar_action.losing_player_id]
 
-        await self.channel.send(f':fire: **{liar_player.name}** called liar on **{bid_player.name}**')
-        await asyncio.sleep(2)
-        await self.channel.send(f':fire: There was actually `{round.liar.actual_quantity}` ˣ {get_emoji(round.latest_bid.pips)}. {get_mention(losing_player.discord_id)} loses `{liar_action.lives_lost}` ˣ :heart:')
-        await asyncio.sleep(1)
+        await self.send_delayed(content=f':fire: **{liar_player.name}** called liar on **{bid_player.name}**', delay = 0)
+        await self.send_delayed(content=f':fire: There was actually `{round.liar.actual_quantity}` ˣ {get_emoji(round.latest_bid.pips)}', delay = 2)
+        await self.send_delayed(content=f':fire: **{losing_player.name}** loses `{liar_action.lives_lost}` ˣ :heart:')
 
         if losing_player.lives <= 0:
             winning_player = liar_player if liar_action.is_successful else bid_player
-            await self.channel.send(f':skull: **{losing_player.name}** was defeated by **{winning_player.name}**')
+            await self.send_delayed(content=f':skull: **{losing_player.name}** was defeated by **{winning_player.name}**')
+    
+    async def send_out_dice(self):
+        for discord_id, player in self.discord_players.items():
+            if len(player.dice) <= 0: continue
+            member = self.channel.guild.get_member(discord_id)
+            if player.is_bot:
+                await self.send_delayed(f'{member.mention} ||deal {encrypt_dice(member.name, player.dice)}||', delay = 0)
+            else:
+                await member.send(f'Your dice: {" ".join(get_emoji(x) for x in player.dice)}')
     
     async def _update_from_round(self, round: Round):
         self.discord_players = round.discord_players
@@ -121,7 +126,7 @@ class GameDriver():
         if self.has_bots: await self._update_bot_message(round)
 
     async def _send_bot_message(self):
-        self.bot_message = await self.channel.send('||`{}`||')
+        self.bot_message = await self.send_delayed(content='||`{}`||')
 
     async def _update_bot_message(self, round: Round):
         await self.bot_message.edit(content=f'||`{round.bot_message()}`||')

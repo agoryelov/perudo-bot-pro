@@ -35,21 +35,36 @@ namespace PerudoBot.API.Services
                 return new RoundDto { RequestSuccess = false, ErrorMessage = "Round is completed" };
             }
 
-            if (currentRound.Actions.OfType<BetAction>().Any(x => x.PlayerId == player.Id))
-            {
-                return new RoundDto { RequestSuccess = false, ErrorMessage = "You can only bet once per round" };
-            }
-
             if (currentRound.LatestBid.PlayerId == player.Id)
             {
                 return new RoundDto { RequestSuccess = false, ErrorMessage = "You can't bet on your own bid" };
             }
 
+            var existingBet = currentRound.Actions.OfType<BetAction>().FirstOrDefault(x => x.PlayerId == player.Id);
+
+            if (existingBet == null)
+            {
+                _userService.RemoveBetPoints(player.User, betAmount, game);
+                currentRound.Actions.Add(BetOnLatestAction(currentRound, player, betAmount, betType));
+
+                _db.SaveChanges();
+                return currentRound.ToRoundDto();
+            }
+
+            if (existingBet.TargetBidId != currentRound.LatestBid.Id)
+            {
+                return new RoundDto { RequestSuccess = false, ErrorMessage = "You can only bet once per round" };
+            }
+
+            if (existingBet.BetType != (int) betType)
+            {
+                return new RoundDto { RequestSuccess = false, ErrorMessage = "You can't change your bet type" };
+            }
+
             _userService.RemoveBetPoints(player.User, betAmount, game);
+            existingBet.BetAmount += betAmount;
 
-            currentRound.Actions.Add(BetOnLatestAction(currentRound, player, betAmount, betType));
             _db.SaveChanges();
-
             return currentRound.ToRoundDto();
         }
 

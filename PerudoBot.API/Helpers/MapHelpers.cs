@@ -141,14 +141,26 @@ namespace PerudoBot.API.Helpers
             };
         }
 
+        public static AchievementDto ToAchievementDto(this Achievement achievement)
+        {
+            return new AchievementDto
+            {
+                Name = achievement.Name,
+                Description = achievement.Description,
+                UnlocksCount = achievement.UserAchievements.Count(),
+                UnlockedBy = achievement.UserAchievements.FirstOrDefault()?.User.Name,
+                DateUnlocked = achievement.UserAchievements.FirstOrDefault()?.DateCreated.ToString("yyyy-MM-ddTHH:mm:sszzz")
+            };
+        }
+
         public static UserAchievementDto ToUserAchievementDto(this UserAchievement achievement)
         {
             return new UserAchievementDto
             {
-                DateUnlocked = achievement.DateCreated,
-                AchievementDescription = achievement.Achievement.Description,
-                AchievementName = achievement.Achievement.Name,
-                UserName = achievement.User.Name
+                DateUnlocked = achievement.DateCreated.ToString("yyyy-MM-ddTHH:mm:sszzz"),
+                Description = achievement.Achievement.Description,
+                Name = achievement.Achievement.Name,
+                Username = achievement.User.Name
             };
         }
 

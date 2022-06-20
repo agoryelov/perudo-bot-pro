@@ -15,6 +15,12 @@ namespace PerudoBot.API.Services
             _db = context;
         }
 
+        public User GetUserFromDiscordId(ulong discordId)
+        {
+            return _db.Users
+                .SingleOrDefault(x => x.DiscordId == discordId);
+        }
+
         public User GetUserFromDiscordUser(DiscordUser discordUser)
         {
             var existingUser = _db.Users

@@ -13,5 +13,6 @@ class BetType(enum.Enum):
 class EmbedColor(enum.IntEnum):
     Red = 12199168
     White = 16777215
+    Yellow = 16172079
 
 SYM_X = "×"

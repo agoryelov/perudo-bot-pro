@@ -104,10 +104,10 @@ class GameDriver():
         liar_call_embed = await self.send_delayed(embed=LiarCalledEmbed(liar, players), delay=0)
         await asyncio.sleep(3)
         await liar_call_embed.edit(embed=LiarCalledEmbed(liar, players, show_actual=True))
-        await self.send_delayed(embed=DamageDealtEmbed(liar, players))
+        await self.send_delayed(embed=DamageDealtEmbed(liar, players), delay=1)
         
         if losing_player.lives <= 0:
-            await self.send_delayed(embed=DefeatEmbed(liar, players))
+            await self.send_delayed(embed=DefeatEmbed(liar, players), delay=1)
     
     async def send_out_dice(self):
         for discord_id, player in self.discord_players.items():

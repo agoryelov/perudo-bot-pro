@@ -6,7 +6,7 @@ class GameSummary():
         self.betting_changes : list[PlayerPointsChange] = parse_points_changes(json.get('betPointsChanges'))
         self.elo_changes : list[PlayerEloChange] = parse_elo_changes(json.get('eloChanges'))
         self.notes : list[GameNote] = parse_game_notes(json.get('notes'))
-        self.achievements = utils.parse_achievements(json.get('achievements'))
+        self.achievements = utils.parse_user_achievements(json.get('achievements'))
 
 class PlayerEloChange():
     def __init__(self, json: dict) -> None:

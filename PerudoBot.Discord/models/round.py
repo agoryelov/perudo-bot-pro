@@ -46,5 +46,5 @@ class Round():
 class RoundSummary():
     def __init__(self, json: dict):
         self.round = Round(json.get('round'))
-        self.achievements = utils.parse_achievements(json.get('achievements'))
+        self.achievements = utils.parse_user_achievements(json.get('achievements'))
         

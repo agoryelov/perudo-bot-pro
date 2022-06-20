@@ -9,8 +9,16 @@ SERVER_PATH = 'https://localhost:7068'
 class GameClient():
 
     @staticmethod
+    def get_achievements():
+        return GameClient._get(f'{SERVER_PATH}/general/achievements')
+
+    @staticmethod
+    def get_user_achievements(discord_id):
+        return GameClient._get(f'{SERVER_PATH}/general/achievements/{discord_id}')
+
+    @staticmethod
     def get_ladder_info():
-        return GameClient._get(f'{SERVER_PATH}/stats/ladder')
+        return GameClient._get(f'{SERVER_PATH}/general/ladder')
 
     def add_note(self, game_id, player_id, note_text):
         headers = { 'GAME_ID': str(game_id), 'PLAYER_ID': str(player_id) }

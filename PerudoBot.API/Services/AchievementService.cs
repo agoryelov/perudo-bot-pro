@@ -13,7 +13,25 @@ namespace PerudoBot.API.Services
         {
             _db = context;
         }
+        
+        public List<UserAchievementDto> GetAchievementsForUser(User user)
+        {
+            return _db.UserAchievements
+                .Where(x => x.UserId == user.Id)
+                .Include(x => x.Achievement)
+                .Select(x => x.ToUserAchievementDto())
+                .ToList();
+        }
 
+        public List<AchievementDto> GetAchievements()
+        {
+            return _db.Achievements
+                .Include(x => x.UserAchievements)
+                    .ThenInclude(x => x.User)
+                .OrderByDescending(x => x.UserAchievements.Count())
+                .Select(x => x.ToAchievementDto())
+                .ToList();
+        }
 
         public List<UserAchievementDto> GetNewAchievements()
         {

@@ -1,4 +1,4 @@
-from .achievement import Achievement
+from .achievement import Achievement, UserAchievement
 from .action import Action, Bid, Liar, Bet
 from .game import GameSummary
 from .ladder_info import LadderInfo, LadderEntry

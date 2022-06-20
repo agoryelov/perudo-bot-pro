@@ -4,7 +4,7 @@ from discord.ext import commands
 from game import GameClient
 from models import LadderInfo
 from utils import GameActionError, parse_achievements, parse_user_achievements
-from views import LadderInfoEmbed, LadderInfoView, UserAchievementsEmbed, AchievementsEmbed
+from views import LadderInfoEmbed, LadderInfoView, UserAchievementsEmbed, AchievementSource, PagedView
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -43,7 +43,9 @@ class General(commands.Cog):
         try:
             achievement_data = GameClient.get_achievements()
             achivements = parse_achievements(achievement_data)
-            await ctx.send(embed=AchievementsEmbed(achivements))
+            source = AchievementSource(achivements)
+            paged_view = PagedView(source)
+            paged_view.message = await ctx.send(view=paged_view, embed=source.page(1))
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 

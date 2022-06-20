@@ -1,7 +1,27 @@
+import math
 import discord
 
 from models import Achievement, UserAchievement
 from utils import EmbedColor
+from .paginator import PageSource
+
+class AchievementSource(PageSource):
+    def __init__(self, achievements: list[Achievement]):
+        super().__init__()
+        self.achievements = achievements
+        self.items_per_page = 4
+    
+    @property
+    def num_pages(self) -> int:
+        return math.ceil(len(self.achievements) / self.items_per_page)
+
+    def page(self, page_num: int) -> discord.Embed:        
+        end_index = page_num * self.items_per_page
+        start_index = end_index - self.items_per_page
+        end_index = min(end_index, len(self.achievements))
+        embed = AchievementsEmbed(self.achievements[start_index:end_index])
+        embed.set_footer(text=f'Results {start_index + 1} - {end_index} of {len(self.achievements)}')
+        return embed
 
 class AchievementsEmbed(discord.Embed):
     def __init__(self, achievements: list[Achievement]):

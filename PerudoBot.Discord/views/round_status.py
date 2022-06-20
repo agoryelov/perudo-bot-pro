@@ -44,10 +44,9 @@ class LiarButton(discord.ui.Button['RoundView']):
 
         if game_driver.ended:
             game_summary = await game_driver.end_game()
-            await game_driver.send_delayed(embed=GameSummaryEmbed(game_summary))
+            await game_driver.send_delayed(embed=GameSummaryEmbed(game_summary), delay=2)
         else:
             await game_driver.start_round()
-            await game_driver.send_out_dice()
 
 class RoundView(discord.ui.View):
     def __init__(self, r: Round, game_driver: 'GameDriver'):

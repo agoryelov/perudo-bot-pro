@@ -59,6 +59,7 @@ namespace PerudoBot.API.Achievements
                 {
                     if (round.Liar.PlayerId != player.Id) return false;
                     if (!round.Liar.IsSuccessful) return false;
+                    if (round.Liar.TargetBid.Pips == 1) return false;
                     var quickMaths = (int) Math.Round(round.PlayerHands.GetAllDice().Count / 3.0);
                     return round.Liar.TargetBid.Quantity < quickMaths;
                 }

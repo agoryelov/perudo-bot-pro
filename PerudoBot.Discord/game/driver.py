@@ -2,10 +2,10 @@ import asyncio
 from typing import Union
 
 import discord
-from discord import Embed, Member, Message, User
+from discord import Member, Message, User
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
-from utils import GameState, get_emoji, GameActionError, encrypt_dice
+from utils import GameState, get_emoji, GameActionError, encrypt_dice, get_mention
 from views import RoundEmbed, RoundView, LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed
 from .client import GameClient
 
@@ -50,12 +50,15 @@ class GameDriver():
         round = Round(round_data)
         self.round_message = await self.send_delayed(view=RoundView(round, self), embed=RoundEmbed(round))
         await self._update_from_round(round)
+        await self._send_out_dice(round)
+        await self._send_next_up_pm(round)
         return round
 
     async def bid_action(self, discord_id, quantity, pips) -> Round:
         round_data = self.game_client.bid_action(self.game_id, self._player_id(discord_id), quantity, pips)
         round = Round(round_data)
         await self._update_from_round(round)
+        if round.active_player_count > 2: await self._send_next_up_pm(round)
         return round
     
     async def bet_action(self, discord_id, amount, bet_type) -> Round:
@@ -83,6 +86,11 @@ class GameDriver():
         self.discord_players = game_setup.discord_players
         self.game_state = GameState.Setup
 
+    async def _send_next_up_pm(self, round: Round):
+        member = self.channel.guild.get_member(round.players[round.action_player_id].discord_id)
+        if not member.bot:
+            await member.send(f"`Round {round.round_number}`: You're up")
+
     async def update_round_message(self, round: Round, edit_function = None):
         edit_function = edit_function or self.round_message.edit
         recent_history = [message async for message in self.channel.history(limit=1)]
@@ -102,21 +110,21 @@ class GameDriver():
         losing_player = players[liar.losing_player_id]
 
         liar_call_embed = await self.send_delayed(embed=LiarCalledEmbed(liar, players), delay=0)
-        await asyncio.sleep(3)
+        await asyncio.sleep(2)
         await liar_call_embed.edit(embed=LiarCalledEmbed(liar, players, show_actual=True))
         await self.send_delayed(embed=DamageDealtEmbed(liar, players), delay=1)
         
         if losing_player.lives <= 0:
             await self.send_delayed(embed=DefeatEmbed(liar, players), delay=1)
     
-    async def send_out_dice(self):
-        for discord_id, player in self.discord_players.items():
+    async def _send_out_dice(self, round: Round):
+        for player in round.players.values():
             if len(player.dice) <= 0: continue
-            member = self.channel.guild.get_member(discord_id)
+            member = self.channel.guild.get_member(player.discord_id)
             if player.is_bot:
                 await self.send_delayed(f'{member.mention} ||deal {encrypt_dice(member.name, player.dice)}||', delay = 0)
             else:
-                await member.send(f'Your dice: {" ".join(get_emoji(x) for x in player.dice)}')
+                await member.send(f'`Your dice`: {" ".join(get_emoji(x) for x in player.dice)}')
     
     async def _update_from_round(self, round: Round):
         self.discord_players = round.discord_players

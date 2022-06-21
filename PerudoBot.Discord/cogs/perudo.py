@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord import TextChannel
 
 from game import GameDriver
-from utils import parse_bid, get_emoji, encrypt_dice, GameActionError
+from utils import parse_bid, GameActionError
 from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, GameSummaryEmbed
 
 class Perudo(commands.Cog):
@@ -44,7 +44,6 @@ class Perudo(commands.Cog):
         try:
             await game_driver.start_game()
             await game_driver.start_round()
-            await self.send_out_dice(ctx, game_driver)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
@@ -94,7 +93,6 @@ class Perudo(commands.Cog):
             await ctx.channel.send(embed=GameSummaryEmbed(game_summary))
         else:
             await game_driver.start_round()
-            await self.send_out_dice(ctx, game_driver)
     
     @commands.hybrid_command(name="bet", description="Place a bet on the latest bid", help="Place a bet on the latest bid")
     async def bet(self, ctx: commands.Context, bet_amount: int, bet_type: Literal['liar', 'exact']):
@@ -120,15 +118,6 @@ class Perudo(commands.Cog):
             await ctx.reply(f'Terminated game {game_driver.game_id}')
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
-    
-    async def send_out_dice(self, ctx: commands.Context, game_driver: GameDriver):
-        for discord_id, player in game_driver.discord_players.items():
-            if len(player.dice) <= 0: continue
-            member = ctx.guild.get_member(discord_id)
-            if player.is_bot:
-                await ctx.channel.send(f'{member.mention} ||deal {encrypt_dice(member.name, player.dice)}||')
-            else:
-                await member.send(f'Your dice: {" ".join(get_emoji(x) for x in player.dice)}')
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Perudo(bot))

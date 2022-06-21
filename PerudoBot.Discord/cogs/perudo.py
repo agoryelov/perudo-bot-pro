@@ -119,5 +119,30 @@ class Perudo(commands.Cog):
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
+    @commands.hybrid_command(name="voice", description="Ask the bot to join your voice channel", help="Ask the bot to join your voice channel")
+    async def voice(self, ctx: commands.Context):
+        if ctx.author.voice is None:
+            await ctx.reply('You are not in a voice channel', ephemeral=True)
+            return
+
+        voice_channel = ctx.author.voice.channel
+        try:
+            voice_client = await voice_channel.connect()
+        except Exception as e:
+            await ctx.reply(e, ephemeral=True)
+            return
+        
+        game_driver = self._get_channel_game(ctx.channel)
+        game_driver.voice_client = voice_client
+        await ctx.reply(f'Joined voice channel {voice_channel.name}', ephemeral=True)
+    
+    @commands.hybrid_command(name="leave", description="Leave voice channel", help="Leave voice channel")
+    async def leave(self, ctx: commands.Context):
+        if ctx.voice_client:
+            await ctx.guild.voice_client.disconnect()
+            await ctx.reply("I'm leaving the voice channel", ephemeral=True)
+        else:
+            await ctx.reply("I'm not in a voice channel", ephemeral=True)
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Perudo(bot))

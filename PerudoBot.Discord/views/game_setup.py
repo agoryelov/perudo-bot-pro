@@ -49,23 +49,22 @@ class GameSetupView(discord.ui.View):
             await interaction.response.edit_message(view=self)
             self.stop()
 
-    @discord.ui.button(label='Add BeginnerBot', style=discord.ButtonStyle.gray, disabled=True)
-    async def add_beginner_bot(self, interaction: discord.Interaction, button: discord.ui.Button):
+    @discord.ui.button(label='Voice', style=discord.ButtonStyle.gray)
+    async def join_voice(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.voice is None:
+            await interaction.response.send_message('You are not in a voice channel', ephemeral=True)
+            return
+        
+        voice_channel = interaction.user.voice.channel
         try:
-            bot_user = await interaction.guild.fetch_member('743151009689501818')
-            game_setup = await self.game_driver.add_player(bot_user)
-        except GameActionError as e:
-            await interaction.response.send_message(e.message, ephemeral=True)
+            voice_client = await voice_channel.connect()
+        except:
+            await interaction.response.send_message(f'Unable to connect to the {voice_channel.name}', ephemeral=True)
             return
 
-        self.player_count += 1
+        self.game_driver.voice_client = voice_client
         button.disabled = True
-
-        if interaction.channel.last_message_id == interaction.message.id:
-            await interaction.response.edit_message(view=self, embed=GameSetupEmbed(game_setup))
-        else:
-            await interaction.message.delete()
-            await interaction.channel.send(view=self, embed=GameSetupEmbed(game_setup))
+        await interaction.response.edit_message(view=self)
 
 
 class GameSetupEmbed(discord.Embed):

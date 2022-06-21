@@ -2,7 +2,7 @@ import asyncio
 from typing import Union
 
 import discord
-from discord import Member, Message, User
+from discord import Member, Message, User, VoiceClient
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
 from utils import GameState, get_emoji, GameActionError, encrypt_dice, get_mention
@@ -20,6 +20,7 @@ class GameDriver():
 
         self.round_message : Message = None
         self.bot_message : Message = None
+        self.voice_client : VoiceClient = None
 
     async def create_game(self) -> GameSetup:
         setup_data = self.game_client.create_game()
@@ -51,20 +52,20 @@ class GameDriver():
         self.round_message = await self.send_delayed(view=RoundView(round, self), embed=RoundEmbed(round))
         await self._update_from_round(round)
         await self._send_out_dice(round)
-        await self._send_next_up_pm(round)
         return round
 
     async def bid_action(self, discord_id, quantity, pips) -> Round:
         round_data = self.game_client.bid_action(self.game_id, self._player_id(discord_id), quantity, pips)
         round = Round(round_data)
         await self._update_from_round(round)
-        if round.active_player_count > 2: await self._send_next_up_pm(round)
+        self._play_notification('notify_pop.mp3')
         return round
     
     async def bet_action(self, discord_id, amount, bet_type) -> Round:
         round_data = self.game_client.bet_action(self.game_id, self._player_id(discord_id), amount, bet_type)
         round = Round(round_data)
         await self._update_from_round(round)
+        self._play_notification('notify_coins.mp3')
         return round
 
     async def liar_action(self, discord_id) -> RoundSummary:
@@ -86,10 +87,10 @@ class GameDriver():
         self.discord_players = game_setup.discord_players
         self.game_state = GameState.Setup
 
-    async def _send_next_up_pm(self, round: Round):
-        member = self.channel.guild.get_member(round.players[round.action_player_id].discord_id)
-        if not member.bot:
-            await member.send(f"`Round {round.round_number}`: You're up")
+    def _play_notification(self, source = 'notify.mp3'):
+        if self.voice_client is None: return
+        try: self.voice_client.play(discord.FFmpegPCMAudio(executable='C:/audio/ffmpeg/bin/ffmpeg.exe', source=f'C:/audio/{source}'))
+        except: pass
 
     async def update_round_message(self, round: Round, edit_function = None):
         edit_function = edit_function or self.round_message.edit

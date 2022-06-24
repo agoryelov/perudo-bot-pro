@@ -144,5 +144,14 @@ class Perudo(commands.Cog):
         else:
             await ctx.reply("I'm not in a voice channel", ephemeral=True)
 
+    @commands.hybrid_command(name="play", description="Play a sound", help="Play a sound")
+    async def play(self, ctx: commands.Context, sound_file: str = 'notify.mp3'):
+        game_driver = self._get_channel_game(ctx.channel)
+        try:
+            game_driver._play_notification(sound_file)
+            await ctx.reply(f"♫ Playing {sound_file}", ephemeral=True)
+        except:
+            await ctx.reply("Unable to play right now", ephemeral=True)
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Perudo(bot))

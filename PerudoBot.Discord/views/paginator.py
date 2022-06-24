@@ -13,7 +13,7 @@ class PageSource(ABC):
 
 class PagedView(discord.ui.View):
     def __init__(self, source: PageSource):
-        super().__init__(timeout=1200)
+        super().__init__(timeout=600)
         self.source = source
         self.current_page = 1
         self.num_pages = source.num_pages

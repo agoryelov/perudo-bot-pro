@@ -50,7 +50,7 @@ class LiarButton(discord.ui.Button['RoundView']):
 
 class RoundView(discord.ui.View):
     def __init__(self, r: Round, game_driver: 'GameDriver'):
-        super().__init__(timeout=1200)
+        super().__init__(timeout=600)
         self.round = r
         self.game_driver = game_driver
 

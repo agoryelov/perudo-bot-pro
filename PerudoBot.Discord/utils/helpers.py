@@ -1,6 +1,6 @@
 from typing import Tuple
 from datetime import datetime
-from models import Round
+from models import Round, Player
 
 def get_emoji(num : int) -> str:
     if num == 1: return ':one:'
@@ -20,7 +20,6 @@ def get_unicode(num : int) -> str:
     if num == 6: return '6️⃣'
     else: return '1️⃣'
 
-
 def get_mention(discord_id: int) -> str:
     return f'<@!{discord_id}>'
 
@@ -38,6 +37,21 @@ def get_next_bid(quantity, pips) -> Tuple[int, int]:
         return (quantity // 2 + 1), 1
     
     return quantity + 1, 2
+
+def get_pip_quantity(pips, prev_quantity, prev_pips):
+    if pips == 1 and prev_pips == 1:
+        return prev_quantity + 1
+    
+    if prev_pips == 1:
+        return prev_quantity * 2
+    
+    if pips == 1:
+        return (prev_quantity // 2 + 1)
+    
+    if pips <= prev_pips:
+        return prev_quantity + 1
+
+    return prev_quantity
 
 def bid_to_action_index(quantity: int, pips: int) -> int:
     if pips != 1:
@@ -63,3 +77,6 @@ def parse_bid(bid_text: str) -> Tuple[int, int]:
             return False
 
     return int(bid_text[0]), int(bid_text[1])
+
+def deal_dice_message(player: Player):
+    return f'`Your dice`: {" ".join(get_emoji(x) for x in player.dice)}'

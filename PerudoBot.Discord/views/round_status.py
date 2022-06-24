@@ -50,7 +50,7 @@ class LiarButton(discord.ui.Button['RoundView']):
 
 class RoundView(discord.ui.View):
     def __init__(self, r: Round, game_driver: 'GameDriver'):
-        super().__init__(timeout=1200)
+        super().__init__(timeout=600)
         self.round = r
         self.game_driver = game_driver
 
@@ -60,26 +60,22 @@ class RoundView(discord.ui.View):
         else: 
             bid = get_next_bid(r.latest_bid.quantity, r.latest_bid.pips)
 
-        for i in range(7):
-            self.add_item(BidButton(bid[0], bid[1], i // 4))
+        for i in range(6):
+            self.add_item(BidButton(bid[0], bid[1], i // 3))
             bid = get_next_bid(bid[0], bid[1])
         
         self.add_item(LiarButton(1))
     
     @discord.ui.select(placeholder="Place bet...", options=[ 
-        SelectOption(label='Bet Liar +10%', value='liar 0.10'), 
-        SelectOption(label='Bet Liar +50%', value='liar 0.50'),
-        SelectOption(label='Bet Exact +10%', value='exact 0.10'), 
-        SelectOption(label='Bet Exact +50%', value='exact 0.50'), 
+        SelectOption(label='Bet Liar +100', value='liar 100'), 
+        SelectOption(label='Bet Liar +1000', value='liar 1000'),
+        SelectOption(label='Bet Exact +100', value='exact 100'), 
+        SelectOption(label='Bet Exact +1000', value='exact 1000'), 
         ], row=2)
     async def bet(self, interaction: discord.Interaction, select: discord.ui.Select):
-        bet_type, percent = select.values[0].split()
-
-        player = self.game_driver.discord_players[interaction.user.id]
-        bet_amount = int(player.points * float(percent))
-
+        bet_type, bet_amount = select.values[0].split()
         try:
-            round = await self.game_driver.bet_action(interaction.user.id, bet_amount, bet_type)
+            round = await self.game_driver.bet_action(interaction.user.id, int(bet_amount), bet_type)
             await self.game_driver.update_round_message(round, interaction.response.edit_message)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)

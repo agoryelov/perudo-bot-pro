@@ -119,5 +119,39 @@ class Perudo(commands.Cog):
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
+    @commands.hybrid_command(name="voice", description="Ask the bot to join your voice channel", help="Ask the bot to join your voice channel")
+    async def voice(self, ctx: commands.Context):
+        if ctx.author.voice is None:
+            await ctx.reply('You are not in a voice channel', ephemeral=True)
+            return
+
+        voice_channel = ctx.author.voice.channel
+        try:
+            voice_client = await voice_channel.connect()
+        except Exception as e:
+            await ctx.reply(e, ephemeral=True)
+            return
+        
+        game_driver = self._get_channel_game(ctx.channel)
+        game_driver.voice_client = voice_client
+        await ctx.reply(f'Joined voice channel {voice_channel.name}', ephemeral=True)
+    
+    @commands.hybrid_command(name="leave", description="Leave voice channel", help="Leave voice channel")
+    async def leave(self, ctx: commands.Context):
+        if ctx.voice_client:
+            await ctx.guild.voice_client.disconnect()
+            await ctx.reply("I'm leaving the voice channel", ephemeral=True)
+        else:
+            await ctx.reply("I'm not in a voice channel", ephemeral=True)
+
+    @commands.hybrid_command(name="play", description="Play a sound", help="Play a sound")
+    async def play(self, ctx: commands.Context, sound_file: str = 'notify.mp3'):
+        game_driver = self._get_channel_game(ctx.channel)
+        try:
+            game_driver._play_notification(sound_file)
+            await ctx.reply(f"♫ Playing {sound_file}", ephemeral=True)
+        except:
+            await ctx.reply("Unable to play right now", ephemeral=True)
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Perudo(bot))

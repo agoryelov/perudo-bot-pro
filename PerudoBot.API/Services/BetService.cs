@@ -18,9 +18,14 @@ namespace PerudoBot.API.Services
 
         public RoundDto Bet(Game game, Player player, int betAmount, BetType betType)
         {
+            if (player.User.Points <= 0)
+            {
+                return new RoundDto { RequestSuccess = false, ErrorMessage = "You have no points" };
+            }
+
             if (player.User.Points < betAmount)
             {
-                return new RoundDto { RequestSuccess = false, ErrorMessage = "Insufficient points to place this bet" };
+                betAmount = player.User.Points;
             }
 
             if (game.LatestRound?.LatestBid == null)

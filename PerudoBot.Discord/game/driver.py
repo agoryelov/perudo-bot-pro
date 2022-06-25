@@ -6,7 +6,7 @@ import discord
 from discord import Member, Message, TextChannel, User, VoiceClient
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
-from utils import GameState, get_emoji, GameActionError, bot_dice, bot_update, get_mention
+from utils import GameState, GameActionError, bot_dice, bot_update, get_mention, deal_dice_message
 from views import RoundEmbed, RoundView, LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed
 from .client import GameClient
 
@@ -128,7 +128,7 @@ class GameDriver():
             if player.is_bot:
                 await self._send_bot_dice(player)
             else:
-                await member.send(f'`Your dice`: {" ".join(get_emoji(x) for x in player.dice)}')
+                await member.send(deal_dice_message(player))
     
     async def _update_from_round(self, round: Round):
         self.discord_players = round.discord_players

@@ -1,7 +1,8 @@
+from math import ceil
 import discord
 from discord import SelectOption
 from models import Round
-from utils import get_emoji, get_next_bid, next_up_message, SYM_X
+from utils import get_emoji, get_pip_quantity, next_up_message, deal_dice_message, SYM_X
 from utils.exceptions import GameActionError
 
 from typing import TYPE_CHECKING
@@ -13,10 +14,15 @@ if TYPE_CHECKING:
     from game import GameDriver
 
 class BidButton(discord.ui.Button['RoundView']):
-    def __init__(self, quantity: int, pips: int, row: int):
-        super().__init__(style=discord.ButtonStyle.grey, label=f'{quantity} {SYM_X} {pips}', row=row)
+    def __init__(self, quantity: int, pips: int, row: int, pip_used: bool):
+        super().__init__(label=f'{quantity} {SYM_X} {pips}', row=row)
         self.quantity = quantity
         self.pips = pips
+
+        if pip_used:
+            self.style = discord.ButtonStyle.green
+        else:
+            self.style = discord.ButtonStyle.gray
     
     async def callback(self, interaction: discord.Interaction):
         game_driver = self.view.game_driver
@@ -48,6 +54,19 @@ class LiarButton(discord.ui.Button['RoundView']):
         else:
             await game_driver.start_round()
 
+class DiceButton(discord.ui.Button['RoundView']):
+    def __init__(self, row: int,):
+        super().__init__(style=discord.ButtonStyle.blurple, label=f'Dice', row=row)
+    
+    async def callback(self, interaction: discord.Interaction):
+        discord_players = self.view.round.discord_players
+        player = discord_players[interaction.user.id]
+        if interaction.user.id in discord_players:
+            player = discord_players[interaction.user.id]
+            await interaction.response.send_message(deal_dice_message(player), ephemeral=True)
+        else:
+            await interaction.response.send_message("You are not in this game", ephemeral=True)
+
 class RoundView(discord.ui.View):
     def __init__(self, r: Round, game_driver: 'GameDriver'):
         super().__init__(timeout=600)
@@ -55,28 +74,39 @@ class RoundView(discord.ui.View):
         self.game_driver = game_driver
 
         if r.latest_bid is None:
-            starting_quantity = (r.total_dice // 3) or 1
-            bid = starting_quantity, 2
+            starting_quantity = round(r.total_dice / 3) - 1
+            latest_bid = starting_quantity, 6
         else: 
-            bid = get_next_bid(r.latest_bid.quantity, r.latest_bid.pips)
+            latest_bid = r.latest_bid.quantity, r.latest_bid.pips
 
-        for i in range(6):
-            self.add_item(BidButton(bid[0], bid[1], i // 3))
-            bid = get_next_bid(bid[0], bid[1])
+        for i, pips in enumerate([2, 3, 4, 5, 6, 1]):
+            quantity = get_pip_quantity(pips, latest_bid[0], latest_bid[1])
+            pip_used = discord.utils.get(r.bids, pips=pips) is not None
+            self.add_item(BidButton(quantity, pips, i // 3, pip_used))
         
+        self.add_item(DiceButton(0))
         self.add_item(LiarButton(1))
     
     @discord.ui.select(placeholder="Place bet...", options=[ 
-        SelectOption(label='Bet Liar +100', value='liar 100'), 
-        SelectOption(label='Bet Liar +1000', value='liar 1000'),
-        SelectOption(label='Bet Exact +100', value='exact 100'), 
-        SelectOption(label='Bet Exact +1000', value='exact 1000'), 
-        ], row=2)
+        SelectOption(label='Bet Liar +10%', value='liar 0.1'), 
+        SelectOption(label='Bet Liar +50%', value='liar 0.5'),
+        SelectOption(label='Bet Exact +10%', value='exact 0.1'), 
+        SelectOption(label='Bet Exact +50%', value='exact 0.5'), 
+        ], row=3)
     async def bet(self, interaction: discord.Interaction, select: discord.ui.Select):
-        bet_type, bet_amount = select.values[0].split()
+        bet_type, bet_percent = select.values[0].split()
+
+        better = self.game_driver.discord_players[interaction.user.id]
+        existing_bet = discord.utils.get(self.round.bets, player_id=better.player_id)
+
+        if existing_bet is None:
+            bet_amount = float(bet_percent) * better.points
+        else:
+            bet_amount = float(bet_percent) * (better.points + existing_bet.bet_amount)
+        
         try:
-            round = await self.game_driver.bet_action(interaction.user.id, int(bet_amount), bet_type)
-            await self.game_driver.update_round_message(round, interaction.response.edit_message)
+            r = await self.game_driver.bet_action(interaction.user.id, ceil(bet_amount), bet_type)
+            await self.game_driver.update_round_message(r, interaction.response.edit_message)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
 

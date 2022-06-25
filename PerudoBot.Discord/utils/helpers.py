@@ -39,13 +39,7 @@ def get_next_bid(quantity, pips) -> Tuple[int, int]:
     
     return quantity + 1, 2
 
-def bid_to_action_index(quantity: int, pips: int) -> int:
-    if pips != 1:
-        wildcard = quantity // 2
-        non_wildcard = (quantity - 1) * 5
-        return wildcard + non_wildcard + (pips - 2)
-    else:
-        return 5 + ((quantity - 1) * 11)
+
 
 def next_up_message(round: Round) -> str:
     next_player = f'<@!{round.players[round.action_player_id].discord_id}>'

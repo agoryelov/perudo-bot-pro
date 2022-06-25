@@ -1,5 +1,6 @@
 import asyncio
 from typing import Literal
+from os import getenv
 from discord.ext import commands
 
 from discord import TextChannel
@@ -9,21 +10,22 @@ from utils import parse_bid, GameActionError
 from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, GameSummaryEmbed
 
 class Perudo(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.game_drivers : dict[int, GameDriver] = {}
 
-    def _get_channel_game(self, channel: TextChannel) -> GameDriver:
-        if channel.id not in self.game_drivers:
-            self.game_drivers[channel.id] = GameDriver(channel)
+    def _get_channel_game(self, game_channel: TextChannel) -> GameDriver:
+        if game_channel.id not in self.game_drivers:
+            self.game_drivers[game_channel.id] = GameDriver(game_channel)
         
-        return self.game_drivers.get(channel.id)
+        return self.game_drivers.get(game_channel.id)
 
     @commands.hybrid_command(name="new", description="Create a new game", help="Create a new game")
     async def new(self, ctx: commands.Context):
         is_slash = ctx.interaction is not None
 
         game_driver = self._get_channel_game(ctx.channel)
+        game_driver.bot_channel = await self.bot.fetch_channel(getenv('BOT_CHANNEL'))
 
         if game_driver.in_setup or game_driver.in_progress:
             await ctx.reply("Game already exists, use `/terminate` before starting a new game")

@@ -66,6 +66,23 @@ class GameSetupView(discord.ui.View):
         button.disabled = True
         await interaction.response.edit_message(view=self)
 
+    @discord.ui.button(label='BeginnerBot', style=discord.ButtonStyle.gray, row=1)
+    async def beginner_bot(self, interaction: discord.Interaction, button: discord.ui.Button):
+        try:
+            bot_user = await interaction.guild.fetch_member('743151009689501818')
+            game_setup = await self.game_driver.add_player(bot_user)
+        except GameActionError as e:
+            await interaction.response.send_message(e.message, ephemeral=True)
+            return
+
+        self.player_count += 1
+        button.disabled = True
+
+        if interaction.channel.last_message_id == interaction.message.id:
+            await interaction.response.edit_message(view=self, embed=GameSetupEmbed(game_setup))
+        else:
+            await interaction.message.delete()
+            await interaction.channel.send(view=self, embed=GameSetupEmbed(game_setup))
 
 class GameSetupEmbed(discord.Embed):
     def __init__(self, game_setup: GameSetup):

@@ -23,7 +23,7 @@ def bot_update(round: Round, channel_id: int, points: int):
     current_player = round.players[round.latest_bid.player_id]
     message['currentPlayer'] = current_player.discord_id
     message['playerDice'] = len(current_player.dice)
-    message['action'] = bid_to_action_index(round.latest_bid.quantity, round.latest_bid.pips)
+    message['action'] = bid_to_action_index(round.latest_bid.quantity, round.latest_bid.pips, round.total_dice)
     return json.dumps(message)
 
 def bot_dice(player: Player, channel_id: int):
@@ -48,10 +48,12 @@ def encrypt_dice(key : str, dice: list[int]) -> str:
     
     return b64encode(result).decode('utf-8')
 
-def bid_to_action_index(quantity: int, pips: int) -> int:
+def bid_to_action_index(quantity: int, pips: int, total_dice: int) -> int:
     if pips != 1:
         wildcard = quantity // 2
         non_wildcard = (quantity - 1) * 5
         return wildcard + non_wildcard + (pips - 2)
     else:
-        return 5 + ((quantity - 1) * 11)
+        absolute_index = 5 + ((quantity - 1) * 11)
+        adjust = max((quantity - 1 - (total_dice - quantity)), 0) * 5
+        return absolute_index - adjust

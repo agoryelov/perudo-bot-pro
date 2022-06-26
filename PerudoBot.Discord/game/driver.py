@@ -1,26 +1,29 @@
 import asyncio
 from typing import Union
 
+
 import discord
-from discord import Member, Message, User, VoiceClient
+from discord import Member, Message, TextChannel, User, VoiceClient
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
-from utils import GameState, get_emoji, GameActionError, encrypt_dice, deal_dice_message
+from utils import GameState, GameActionError, bot_dice, bot_update, get_mention, deal_dice_message
 from views import RoundEmbed, RoundView, LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed
 from .client import GameClient
 
 class GameDriver():
-    def __init__(self, channel: discord.TextChannel):
-        self.channel = channel
+
+    def __init__(self, game_channel: discord.TextChannel):
+        self.channel = game_channel
         self.game_client = GameClient()
         
         self.game_state = GameState.Terminated
         self.game_id = 0
         self.discord_players : dict[int, Player] = {}
 
+        self.setup_message : Message = None
         self.round_message : Message = None
-        self.bot_message : Message = None
         self.voice_client : VoiceClient = None
+        self.bot_channel : TextChannel = None
 
     async def create_game(self) -> GameSetup:
         setup_data = self.game_client.create_game()
@@ -44,7 +47,6 @@ class GameDriver():
     async def start_game(self):
         self.game_client.start_game(self.game_id)
         self.game_state = GameState.InProgress
-        if self.has_bots: await self._send_bot_message()
 
     async def start_round(self) -> Round:
         round_data = self.game_client.start_round(self.game_id)
@@ -52,6 +54,7 @@ class GameDriver():
         self.round_message = await self.send_delayed(view=RoundView(round, self), embed=RoundEmbed(round))
         await self._update_from_round(round)
         await self._send_out_dice(round)
+        if self.has_bots: await asyncio.create_task(self._send_bot_updates(round))
         return round
 
     async def bid_action(self, discord_id, quantity, pips) -> Round:
@@ -59,6 +62,7 @@ class GameDriver():
         round = Round(round_data)
         await self._update_from_round(round)
         self._play_notification('notify_pop.mp3')
+        if self.has_bots: await asyncio.create_task(self._send_bot_updates(round))
         return round
     
     async def bet_action(self, discord_id, amount, bet_type) -> Round:
@@ -94,7 +98,7 @@ class GameDriver():
 
     async def update_round_message(self, round: Round, edit_function = None):
         edit_function = edit_function or self.round_message.edit
-        recent_history = [message async for message in self.channel.history(limit=1)]
+        recent_history = [message async for message in self.channel.history(limit=2)]
         if self.round_message in recent_history:
             await edit_function(view=RoundView(round, self), embed=RoundEmbed(round))
         else:
@@ -123,20 +127,31 @@ class GameDriver():
             if len(player.dice) <= 0: continue
             member = self.channel.guild.get_member(player.discord_id)
             if player.is_bot:
-                await self.send_delayed(f'{member.mention} ||deal {encrypt_dice(member.name, player.dice)}||', delay = 0)
+                await self._send_bot_dice(player)
             else:
                 await member.send(deal_dice_message(player))
     
     async def _update_from_round(self, round: Round):
         self.discord_players = round.discord_players
         self.game_state = GameState.InProgress if not round.is_final else GameState.Ended
-        if self.has_bots: await self._update_bot_message(round)
 
-    async def _send_bot_message(self):
-        self.bot_message = await self.send_delayed(content='||`{}`||')
-
-    async def _update_bot_message(self, round: Round):
-        await self.bot_message.edit(content=f'||`{round.bot_message()}`||')
+    async def _send_bot_updates(self, round):
+        if self.bot_channel is None:
+            print("Warning: Bot channel is not accessible")
+            return
+        
+        await asyncio.sleep(1)
+        for discord_id, player in self.discord_players.items():
+            if not player.is_bot: continue
+            update = bot_update(round, self.channel.id, player.points)
+            await self.bot_channel.send(f'{get_mention(discord_id)} update {update}')
+    
+    async def _send_bot_dice(self, player: Player):
+        if self.bot_channel is None:
+            print("Warning: Bot channel is not accessible")
+            return
+        
+        await self.bot_channel.send(f'{get_mention(player.discord_id)} deal {bot_dice(player, self.channel.id)}')
     
     def _player_id(self, discord_id):
         if discord_id not in self.discord_players:
@@ -158,6 +173,10 @@ class GameDriver():
     @property
     def ended(self) -> bool:
         return self.game_state == GameState.Ended
+
+    @property
+    def num_players(self) -> int:
+        return len(self.discord_players)
     
     @property
     def has_bots(self) -> bool:

@@ -1,7 +1,8 @@
 import asyncio
+import discord
 from typing import Literal
+from os import getenv
 from discord.ext import commands
-
 from discord import TextChannel
 
 from game import GameDriver
@@ -9,21 +10,22 @@ from utils import parse_bid, GameActionError
 from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, GameSummaryEmbed
 
 class Perudo(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.game_drivers : dict[int, GameDriver] = {}
 
-    def _get_channel_game(self, channel: TextChannel) -> GameDriver:
-        if channel.id not in self.game_drivers:
-            self.game_drivers[channel.id] = GameDriver(channel)
+    def _get_channel_game(self, game_channel: TextChannel) -> GameDriver:
+        if game_channel.id not in self.game_drivers:
+            self.game_drivers[game_channel.id] = GameDriver(game_channel)
         
-        return self.game_drivers.get(channel.id)
+        return self.game_drivers.get(game_channel.id)
 
     @commands.hybrid_command(name="new", description="Create a new game", help="Create a new game")
     async def new(self, ctx: commands.Context):
         is_slash = ctx.interaction is not None
 
         game_driver = self._get_channel_game(ctx.channel)
+        game_driver.bot_channel = await self.bot.fetch_channel(getenv('BOT_CHANNEL'))
 
         if game_driver.in_setup or game_driver.in_progress:
             await ctx.reply("Game already exists, use `/terminate` before starting a new game")
@@ -33,12 +35,12 @@ class Perudo(commands.Cog):
 
         game_setup = await game_driver.create_game()
         game_setup_view = GameSetupView(game_driver)
-        game_setup_message = await ctx.send(view=game_setup_view, embed=GameSetupEmbed(game_setup))
+        game_driver.setup_message = await ctx.send(view=game_setup_view, embed=GameSetupEmbed(game_setup))
 
         await game_setup_view.wait()
 
         if game_setup_view.timed_out:
-            await game_setup_message.edit(content='Setup timed out', view=None, embed=None)
+            await game_driver.setup_message.edit(content='Setup timed out', view=None, embed=None)
             return
 
         try:
@@ -79,7 +81,9 @@ class Perudo(commands.Cog):
             if is_slash: await ctx.reply('Liar called', ephemeral=True)
             else: await ctx.message.delete()
 
+            await game_driver.round_message.edit(view=None)
             await game_driver.send_liar_result(round_summary)
+
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
             return
@@ -112,10 +116,28 @@ class Perudo(commands.Cog):
     @commands.hybrid_command(name="terminate", description="Terminate current game", help="Terminate current game")
     async def terminate(self, ctx: commands.Context):
         game_driver = self._get_channel_game(ctx.channel)
-                
+        
         try:
             await game_driver.terminate()
             await ctx.reply(f'Terminated game {game_driver.game_id}')
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
+
+    @commands.hybrid_command(name="add", description="Add player to the game", help="Add player to the game", aliases=['a'])
+    async def add(self, ctx: commands.Context, user: discord.Member):
+        is_slash = ctx.interaction is not None
+        game_driver = self._get_channel_game(ctx.channel)
+        if not game_driver.in_setup:
+            await ctx.reply("No game setup, make sure you are in the right channel", ephemeral=True)
+            return
+        
+        try:
+            game_setup = await game_driver.add_player(user)
+
+            if is_slash: await ctx.reply(f'Added {user.name} to the game', ephemeral=True)
+            else: await ctx.message.delete()
+
+            await game_driver.setup_message.edit(embed=GameSetupEmbed(game_setup))
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 

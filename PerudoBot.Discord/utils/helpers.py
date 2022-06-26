@@ -53,14 +53,6 @@ def get_pip_quantity(pips, prev_quantity, prev_pips):
 
     return prev_quantity
 
-def bid_to_action_index(quantity: int, pips: int) -> int:
-    if pips != 1:
-        wildcard = quantity // 2
-        non_wildcard = (quantity - 1) * 5
-        return wildcard + non_wildcard + (pips - 2)
-    else:
-        return 5 + ((quantity - 1) * 11)
-
 def next_up_message(round: Round) -> str:
     next_player = f'<@!{round.players[round.action_player_id].discord_id}>'
     # bot_update = f' ||`@bots update {game_driver.bot_message.id}`||' if game_driver.has_bots else ''

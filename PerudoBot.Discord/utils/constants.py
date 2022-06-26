@@ -14,5 +14,6 @@ class EmbedColor(enum.IntEnum):
     Red = 12199168
     White = 16777215
     Yellow = 16172079
+    Invisible = 3092790
 
 SYM_X = "×"

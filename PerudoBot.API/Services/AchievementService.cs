@@ -78,7 +78,7 @@ namespace PerudoBot.API.Services
                 {
                     if (UserHasAchievement(player.User, achievement)) continue;
                     if (!achievementCheck.Evaluate(player, game, round)) continue;
-                    AddUserAchievement(player.User, achievement, game);
+                    AddUserAchievement(player.User, achievement);
                 }
             }
             _db.SaveChanges();
@@ -89,7 +89,7 @@ namespace PerudoBot.API.Services
             return _db.UserAchievements.Any(x => x.Id == user.Id && x.AchievementId == achievement.Id);
         }
 
-        private void AddUserAchievement(User user, Achievement achievement, Game game)
+        private void AddUserAchievement(User user, Achievement achievement)
         {
             var hasAchievement = _db.UserAchievements.Any(x => x.UserId == user.Id && x.AchievementId == achievement.Id);
             if (hasAchievement) return;
@@ -98,7 +98,6 @@ namespace PerudoBot.API.Services
             _db.UserAchievements.Add(new UserAchievement 
             {
                 AchievementId = achievement.Id,
-                DateCreated = game.DateCreated,
                 UserId = user.Id
             });
         }

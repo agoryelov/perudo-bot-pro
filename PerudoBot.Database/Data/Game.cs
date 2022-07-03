@@ -9,7 +9,9 @@ namespace PerudoBot.Database.Data
         public int DefaultRoundType { get; set; }
 
         public ICollection<Round> Rounds { get; set; }
+        public ICollection<User> Users { get; set; }
         public ICollection<Player> Players { get; set; }
+        public ICollection<UserLog> UserLogs { get; set; }
 
         [ForeignKey("SeasonId")]
         public Season Season { get; set; }

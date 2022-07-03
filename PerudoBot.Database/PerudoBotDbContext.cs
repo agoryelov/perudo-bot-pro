@@ -47,6 +47,10 @@ namespace PerudoBot.Database.Data
                 .IsUnique();
 
             modelBuilder.Entity<User>()
+                .HasIndex(x => x.DiscordId)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
                 .HasMany(x => x.Achievements)
                 .WithMany(x => x.Users)
                 .UsingEntity<UserAchievement>();
@@ -55,6 +59,11 @@ namespace PerudoBot.Database.Data
                 .HasMany(x => x.Rounds)
                 .WithMany(x => x.Players)
                 .UsingEntity<PlayerHand>();
+
+            modelBuilder.Entity<User>()
+                .HasMany(x => x.Games)
+                .WithMany(x => x.Users)
+                .UsingEntity<Player>();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

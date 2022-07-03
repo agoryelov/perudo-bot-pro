@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 
 from game import GameClient
-from models import LadderInfo
+from models import LadderInfo, UserProfile
 from utils import GameActionError, parse_achievements, parse_user_achievements
-from views import LadderInfoEmbed, LadderInfoView, UserAchievementsEmbed, AchievementSource, PagedView
+from views import LadderInfoEmbed, LadderInfoView, UserAchievementsEmbed, AchievementSource, PagedView, UserProfileEmbed
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -14,6 +14,17 @@ class General(commands.Cog):
     async def ping(self, ctx: commands.Context):
         await ctx.send(f'Pong! `{round(self.bot.latency * 1000)} ms`')
 
+    @commands.hybrid_command(name="profile", description="Check profile of a user", help="Check profile of a user")
+    async def profile(self, ctx: commands.Context, member: discord.Member=None):
+        if member is None: member = ctx.author
+        await ctx.defer()
+        try:
+            profile_data = GameClient.get_user_profile(member.id)
+            profile_embed = UserProfileEmbed(UserProfile(profile_data), member)
+            await ctx.send(embed=profile_embed)
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
+    
     @commands.hybrid_command(name="ladder", description="Show current ladder standings", help="Show current ladder standings")
     async def ladder(self, ctx: commands.Context):
         try:

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PerudoBot.Database.Data;
 
@@ -10,9 +11,10 @@ using PerudoBot.Database.Data;
 namespace PerudoBot.Database.Migrations
 {
     [DbContext(typeof(PerudoBotDbContext))]
-    partial class PerudoBotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220703044828_AddAchievementScore")]
+    partial class AddAchievementScore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.5");
@@ -174,9 +176,6 @@ namespace PerudoBot.Database.Migrations
                     b.Property<int>("ActivePlayerId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("GameId")
                         .HasColumnType("INTEGER");
 
@@ -247,9 +246,6 @@ namespace PerudoBot.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AchievementScore")
                         .HasColumnType("INTEGER");
 
                     b.Property<ulong>("DiscordId")

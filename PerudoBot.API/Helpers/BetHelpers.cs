@@ -1,7 +1,15 @@
-﻿namespace PerudoBot.API.Helpers
+﻿using PerudoBot.Database.Data;
+
+namespace PerudoBot.API.Helpers
 {
     public static class BetHelpers
     {
+        public static int WinAmount(this BetAction bet)
+        {
+            if (!bet.IsSuccessful) return 0;
+            return (int)Math.Round(bet.BetAmount * bet.BetOdds);
+        }
+
         public static double BidChance(int pips, int quantity, int total, int face_count = 6)
         {
             if (quantity < 0) return 0;

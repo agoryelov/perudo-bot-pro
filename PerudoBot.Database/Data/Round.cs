@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PerudoBot.Database.Data
 {
-    public class Round
+    public class Round : TrackedEntity
     {
         public int Id { get; set; }
         public int RoundType { get; set; }

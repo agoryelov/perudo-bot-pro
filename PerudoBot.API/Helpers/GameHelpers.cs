@@ -46,6 +46,11 @@ namespace PerudoBot.API.Helpers
             return allDice.Count(x => x == bid.Pips || x == 1);
         }
 
+        public static bool IsBluff(this BidAction bid)
+        {
+            return !bid.PlayerHand.Dice.ToIntegerDice().Any(x => x == bid.Pips);
+        }
+
         public static int GetStartingPlayerId(this ICollection<Player> players)
         {
             return players.OrderBy(x => x.TurnOrder).First().Id;

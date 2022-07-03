@@ -1,4 +1,4 @@
-from models import Player, Bet, Bid, Achievement, UserAchievement
+from models import Player, Bet, Bid, Achievement, UserAchievement, UserGame
 
 def parse_players(json) -> dict[int, Player]:
     players = {}
@@ -44,3 +44,10 @@ def parse_user_achievements(json) -> list[UserAchievement]:
     for achievement in json:
         achievements.append(UserAchievement(achievement))
     return achievements
+
+def parse_user_games(json) -> list[UserGame]:
+    if json is None: return []
+    games = []
+    for game in json:
+        games.append(UserGame(game))
+    return games

@@ -37,5 +37,5 @@ class GameSummaryEmbed(discord.Embed):
     def get_achievements_field(self):
         achievements = []
         for achievement in self.game_summary.achievements:
-            achievements.append(f':star: {achievement.user_name} unlocked **{achievement.name}**\n*{achievement.description}*')
+            achievements.append(f':star: **{achievement.username}** unlocked `{achievement.score}` **{achievement.name}**\n*{achievement.description}*')
         return '\n\n'.join(achievements)

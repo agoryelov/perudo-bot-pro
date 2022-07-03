@@ -20,6 +20,10 @@ class GameClient():
     def get_ladder_info():
         return GameClient._get(f'{SERVER_PATH}/general/ladder')
 
+    @staticmethod
+    def get_user_profile(discord_id):
+        return GameClient._get(f'{SERVER_PATH}/general/profile/{discord_id}')
+
     def add_note(self, game_id, player_id, note_text):
         headers = { 'GAME_ID': str(game_id), 'PLAYER_ID': str(player_id) }
         payload = { 'Text': note_text }
@@ -79,7 +83,7 @@ class GameClient():
 
     @staticmethod
     def _post(url, headers = None, payload = None):
-        r = requests.post(url, headers=headers, json=payload, verify=False)     
+        r = requests.post(url, headers=headers, json=payload, verify=False)
         return GameClient._get_data(r.json())
 
     @staticmethod

@@ -54,7 +54,6 @@ class GameDriver():
         self.round_message = await self.send_delayed(view=RoundView(round, self), embed=RoundEmbed(round))
         await self._update_from_round(round)
         await self._send_out_dice(round)
-        if self.has_bots: await asyncio.create_task(self._send_bot_updates(round))
         return round
 
     async def bid_action(self, discord_id, quantity, pips) -> Round:
@@ -62,7 +61,6 @@ class GameDriver():
         round = Round(round_data)
         await self._update_from_round(round)
         self._play_notification('notify_pop.mp3')
-        if self.has_bots: await asyncio.create_task(self._send_bot_updates(round))
         return round
     
     async def bet_action(self, discord_id, amount, bet_type) -> Round:
@@ -135,12 +133,11 @@ class GameDriver():
         self.discord_players = round.discord_players
         self.game_state = GameState.InProgress if not round.is_final else GameState.Ended
 
-    async def _send_bot_updates(self, round):
+    async def send_bot_updates(self, round):
         if self.bot_channel is None:
             print("Warning: Bot channel is not accessible")
             return
         
-        await asyncio.sleep(1)
         for discord_id, player in self.discord_players.items():
             if not player.is_bot: continue
             update = bot_update(round, self.channel.id, player.points)

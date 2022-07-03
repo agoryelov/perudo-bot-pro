@@ -29,6 +29,7 @@ class BidButton(discord.ui.Button['RoundView']):
         try:
             round = await game_driver.bid_action(interaction.user.id, self.quantity, self.pips)
             await game_driver.update_round_message(round, interaction.response.edit_message)
+            if game_driver.has_bots: await game_driver.send_bot_updates(round)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
 

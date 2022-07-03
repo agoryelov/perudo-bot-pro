@@ -6,6 +6,9 @@
         public const int POINTS_EARNED_PER_ROUND = 10;
         public const float MAX_BET_ODDS = 4.0f;
         public const float MIN_BET_ODDS = 1.5f;
+        public const int RECENT_GAMES = 10;
+        public const int RECENT_ACHIEVEMENTS = 3;
+        public const string DATE_FORMAT = "yyyy-MM-ddTHH:mm:sszzz";
     }
 
     public enum GameState
@@ -34,5 +37,13 @@
         Game = 1,
         Lifetime = 2,
         Seasonal = 3
+    }
+
+    public enum AchievementScore
+    {
+        Easy = 100,
+        Medium = 250,
+        Hard = 500,
+        ExtraHard = 750
     }
 }

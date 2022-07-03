@@ -43,6 +43,9 @@ namespace PerudoBot.Database.Data
 
         [NotMapped]
         public BidAction TargetBid => Round.LatestBid;
+
+        [NotMapped]
+        public bool OutOfTurn => Round.ActivePlayerId != PlayerId;
     }
 
     public class BetAction : Action

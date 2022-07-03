@@ -148,9 +148,7 @@ namespace PerudoBot.API.Controllers
             if (!response.RequestSuccess)
             {
                 return Results.BadRequest(new { error = response.ErrorMessage });
-            }
-
-            _betService.AwardBetPoints(_gameService.GetActiveGame().LatestRound);
+            }            
 
             return Results.Ok(new { data = _gameService.GetCurrentRoundSummary() });
         }

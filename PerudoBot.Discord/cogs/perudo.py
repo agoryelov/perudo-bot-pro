@@ -45,7 +45,8 @@ class Perudo(commands.Cog):
 
         try:
             await game_driver.start_game()
-            await game_driver.start_round()
+            round = await game_driver.start_round()
+            if game_driver.has_bots: await game_driver.send_bot_updates(round)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
@@ -67,6 +68,7 @@ class Perudo(commands.Cog):
             else: await ctx.message.delete()
 
             await game_driver.update_round_message(round)
+            if game_driver.has_bots: await game_driver.send_bot_updates(round)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
@@ -96,7 +98,8 @@ class Perudo(commands.Cog):
             game_summary = await game_driver.end_game()
             await ctx.channel.send(embed=GameSummaryEmbed(game_summary))
         else:
-            await game_driver.start_round()
+            round = await game_driver.start_round()
+            if game_driver.has_bots: await game_driver.send_bot_updates(round)
     
     @commands.hybrid_command(name="bet", description="Place a bet on the latest bid", help="Place a bet on the latest bid")
     async def bet(self, ctx: commands.Context, bet_amount: int, bet_type: Literal['liar', 'exact']):

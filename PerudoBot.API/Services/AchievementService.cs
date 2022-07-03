@@ -19,6 +19,7 @@ namespace PerudoBot.API.Services
             return _db.UserAchievements
                 .Where(x => x.UserId == user.Id)
                 .Include(x => x.Achievement)
+                .OrderByDescending(x => x.DateCreated)
                 .Select(x => x.ToUserAchievementDto())
                 .ToList();
         }
@@ -29,6 +30,7 @@ namespace PerudoBot.API.Services
                 .Include(x => x.UserAchievements)
                     .ThenInclude(x => x.User)
                 .OrderByDescending(x => x.UserAchievements.Count())
+                .ThenBy(x => x.Score)
                 .Select(x => x.ToAchievementDto())
                 .ToList();
         }
@@ -76,7 +78,7 @@ namespace PerudoBot.API.Services
                 {
                     if (UserHasAchievement(player.User, achievement)) continue;
                     if (!achievementCheck.Evaluate(player, game, round)) continue;
-                    AddUserAchievement(player.User, achievement);
+                    AddUserAchievement(player.User, achievement, game);
                 }
             }
             _db.SaveChanges();
@@ -87,14 +89,16 @@ namespace PerudoBot.API.Services
             return _db.UserAchievements.Any(x => x.Id == user.Id && x.AchievementId == achievement.Id);
         }
 
-        private void AddUserAchievement(User user, Achievement achievement)
+        private void AddUserAchievement(User user, Achievement achievement, Game game)
         {
             var hasAchievement = _db.UserAchievements.Any(x => x.UserId == user.Id && x.AchievementId == achievement.Id);
             if (hasAchievement) return;
 
+            user.AchievementScore += achievement.Score;
             _db.UserAchievements.Add(new UserAchievement 
             {
                 AchievementId = achievement.Id,
+                DateCreated = game.DateCreated,
                 UserId = user.Id
             });
         }

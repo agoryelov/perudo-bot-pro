@@ -48,10 +48,10 @@ namespace PerudoBot.API.Controllers
         public IResult GetUserAchievements(ulong discordId)
         {
             var user = _userService.GetUserFromDiscordId(discordId);
-            
+
             if (user == null)
             {
-                return Results.BadRequest(new { error = "No achievements for user" });
+                return Results.BadRequest(new { error = "User is not recognized" });
             }
 
             var achievements = _achievementService.GetAchievementsForUser(user);
@@ -62,6 +62,21 @@ namespace PerudoBot.API.Controllers
             }
 
             return Results.Ok(new { data = achievements });
+        }
+
+
+        [HttpGet]
+        [Route("general/profile/{discordId}")]
+        public IResult GetUserProfile(ulong discordId)
+        {
+            var response = _userService.GetUserProfile(discordId);
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
         }
     }
 }

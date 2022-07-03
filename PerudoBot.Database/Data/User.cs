@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PerudoBot.Database.Data
 {
@@ -14,7 +11,10 @@ namespace PerudoBot.Database.Data
         public string Name { get; set; }
         public int Points { get; set; }
         public int Elo { get; set; }
-        public ICollection<Player> Players { get; set; }
+        public int AchievementScore { get; set; }
+        public ICollection<Game> Games { get; set; }
+        public ICollection<UserAchievement> UserAchievements { get; set; }
         public ICollection<Achievement> Achievements { get; set; }
+        public ICollection<UserLog> UserLogs { get; set; }
     }
 }

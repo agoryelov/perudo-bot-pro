@@ -133,16 +133,46 @@ namespace PerudoBot.API.Services
         public LadderInfoDto GetLadderInfo()
         {
             var ladderEntries = _db.Users
-                .Include(x => x.Players)
-                    .ThenInclude(x => x.Game)
+                .Include(x => x.Games)
                 .OrderByDescending(x => x.Elo)
                 .Select(x => x.ToLadderEntryDto())
                 .ToList();
 
-            return new LadderInfoDto
+            return new LadderInfoDto { LadderEntries = ladderEntries };
+        }
+
+        public UserProfileDto GetUserProfile(ulong discordId)
+        {
+            var user = _db.Users
+                .Where(x => x.DiscordId == discordId)
+                .Include(x => x.UserAchievements)
+                    .ThenInclude(x => x.Achievement)
+                        .ThenInclude(x => x.Users)
+                .Include(x => x.Games)
+                    .ThenInclude(x => x.Players)
+                .Include(x => x.Games)
+                    .ThenInclude(x => x.UserLogs)
+                .SingleOrDefault();
+
+            if (user == null) 
             {
-                LadderEntries = ladderEntries
-            };
+                return new UserProfileDto { RequestSuccess = false, ErrorMessage = "User is not recognized" };
+            }
+
+            var userProfile = user.ToUserProfileDto();
+            CalculateUserRanks(userProfile);
+
+            return userProfile;
+        }
+
+        private void CalculateUserRanks(UserProfileDto userProfile)
+        {
+            foreach (var user in _db.Users)
+            {
+                if (user.Elo > userProfile.Elo) userProfile.EloRank++;
+                if (user.Points > userProfile.Points) userProfile.PointsRank++;
+                if (user.AchievementScore > userProfile.Score) userProfile.ScoreRank++;
+            }
         }
     }
 }

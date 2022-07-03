@@ -27,6 +27,12 @@ class GameNote():
         self.name = json.get('name')
         self.text = json.get('text')
 
+class UserGame():
+    def __init__(self, json: dict):
+        self.placing = json['placing']
+        self.net_points = json['netPoints']
+        self.player_count = json['playerCount']
+
 def parse_elo_changes(json) -> list[PlayerEloChange]:
     elo_changes = []
     for elo_change in json:

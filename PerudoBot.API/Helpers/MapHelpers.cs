@@ -66,7 +66,7 @@ namespace PerudoBot.API.Helpers
                 Pips = bid.Pips,
                 Quantity = bid.Quantity,
                 PlayerId = bid.PlayerId,
-                DateCreated = bid.DateCreated.ToString("yyyy-MM-ddTHH:mm:sszzz")
+                DateCreated = bid.DateCreated.ToString(GameConstants.DATE_FORMAT)
             };
         }
 
@@ -137,7 +137,8 @@ namespace PerudoBot.API.Helpers
             {
                 Name = achievement.Name,
                 Description = achievement.Description,
-                Type = achievement.Type
+                Type = achievement.Type,
+                Score = achievement.Score
             };
         }
 
@@ -147,20 +148,17 @@ namespace PerudoBot.API.Helpers
             {
                 Name = achievement.Name,
                 Description = achievement.Description,
-                UnlocksCount = achievement.UserAchievements.Count(),
-                UnlockedBy = achievement.UserAchievements.FirstOrDefault()?.User.Name,
-                DateUnlocked = achievement.UserAchievements.FirstOrDefault()?.DateCreated.ToString("yyyy-MM-ddTHH:mm:sszzz")
+                UnlockedBy = achievement.UserAchievements.OrderBy(x => x.DateCreated).Select(x => x.User.Name).ToList(),
+                Score = achievement.Score
             };
         }
 
         public static UserAchievementDto ToUserAchievementDto(this UserAchievement achievement)
         {
-            return new UserAchievementDto
+            return new UserAchievementDto(achievement.Achievement.ToAchievementDto())
             {
-                DateUnlocked = achievement.DateCreated.ToString("yyyy-MM-ddTHH:mm:sszzz"),
-                Description = achievement.Achievement.Description,
-                Name = achievement.Achievement.Name,
-                Username = achievement.User.Name
+                Username = achievement.User.Name,
+                DateUnlocked = achievement.DateCreated.ToString(GameConstants.DATE_FORMAT)
             };
         }
 
@@ -171,7 +169,33 @@ namespace PerudoBot.API.Helpers
                 Name = user.Name,
                 Elo = user.Elo,
                 Points = user.Points,
-                GamesPlayed = user.Players.Count(x => x.Game.State == (int)GameState.Ended)
+                GamesPlayed = user.Games.Count(x => x.State == (int)GameState.Ended)
+            };
+        }
+
+        public static UserProfileDto ToUserProfileDto(this User user)
+        {
+            return new UserProfileDto
+            {
+                Name = user.Name,
+                DiscordId = user.DiscordId,
+                Elo = user.Elo,
+                Points = user.Points,
+                Score = user.AchievementScore,
+                RecentGames = user.Games?.TakeLast(GameConstants.RECENT_GAMES).Select(x => x.ToUserGameDto(user)).ToList(),
+                RecentAchievements = user.UserAchievements?.OrderByDescending(x => x.DateCreated).Take(GameConstants.RECENT_ACHIEVEMENTS).Select(x => x.ToUserAchievementDto()).ToList()
+            };
+        }
+
+        public static UserGameDto ToUserGameDto(this Game game, User user)
+        {
+            var player = game.Players.SingleOrDefault(x => x.UserId == user.Id);
+
+            return new UserGameDto
+            {
+                Placing = game.Players.OrderByDescending(x => x.RoundEliminated).ToList().IndexOf(player) + 1,
+                PlayerCount = game.Players.Count(),
+                NetPoints = game.UserLogs.OfType<PointsLog>().Where(x => x.UserId == user.Id).Sum(x => x.PointsChange)
             };
         }
     }

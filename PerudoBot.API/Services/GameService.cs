@@ -12,13 +12,15 @@ namespace PerudoBot.API.Services
         private Game _activeGame { get; set; }
 
         private readonly PerudoBotDbContext _db;
+        private readonly BetService _betService;
         private readonly EloService _eloService;
         private readonly UserService _userService;
         private readonly AchievementService _achievementService;
 
-        public GameService(PerudoBotDbContext context, EloService eloService, UserService userService, AchievementService achievementService)
+        public GameService(PerudoBotDbContext context, BetService betService, EloService eloService, UserService userService, AchievementService achievementService)
         {
             _db = context;
+            _betService = betService;
             _eloService = eloService;
             _userService = userService;
             _achievementService = achievementService;
@@ -263,6 +265,8 @@ namespace PerudoBot.API.Services
             _db.LiarActions.Add(liarAction);
 
             _db.SaveChanges();
+
+            _betService.AwardBetPoints(currentRound);
 
             _achievementService.CheckRoundAchievements(_activeGame, currentRound);
 

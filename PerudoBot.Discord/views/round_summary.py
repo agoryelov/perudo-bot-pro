@@ -90,5 +90,5 @@ class RoundSummaryEmbed(discord.Embed):
     def get_achievements_field(self):
         achievements = []
         for achievement in self.achievements:
-            achievements.append(f':star: {achievement.user_name} unlocked **{achievement.name}**\n*{achievement.description}*')
+            achievements.append(f':star: `{achievement.score}` {achievement.username} unlocked **{achievement.name}**\n*{achievement.description}*')
         return '\n\n'.join(achievements)

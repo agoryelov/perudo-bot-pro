@@ -6,9 +6,11 @@ class GameState(enum.Enum):
     Terminated = 2
     Ended = 3
 
-class BetType(enum.Enum):
+class BetType(enum.IntEnum):
     Exact = 0
-    Liar = 1
+    Liar = 1,
+    Peak = 2,
+    Legit = 3
 
 class EmbedColor(enum.IntEnum):
     Red = 12199168

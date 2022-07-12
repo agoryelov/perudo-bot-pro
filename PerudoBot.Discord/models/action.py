@@ -27,7 +27,7 @@ class Bet(Action):
     def __init__(self, json: dict) -> None:
         super().__init__(json)
         self.target_bid : Bid = Bid(json.get('targetBid'))
-        self.bet_type = json.get('betType')
+        self.bet_type = utils.BetType(json.get('betType'))
         self.bet_amount = json.get('betAmount')
         self.is_successful = json.get('isSuccessful')
         self.bet_odds = json.get('betOdds')

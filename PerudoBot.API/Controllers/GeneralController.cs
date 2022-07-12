@@ -33,7 +33,7 @@ namespace PerudoBot.API.Controllers
         [Route("general/achievements")]
         public IResult GetAchievements()
         {
-            var achievements = _achievementService.GetAchievements();
+            var achievements = _achievementService.GetAchievementDetails();
 
             if (achievements.Count == 0)
             {

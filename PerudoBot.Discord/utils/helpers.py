@@ -1,6 +1,7 @@
 from typing import Tuple
 from datetime import datetime
-from models import Round, Player
+from models import Round, Player, Bet
+from .constants import BetType
 
 def get_emoji(num : int) -> str:
     if num == 1: return ':one:'
@@ -72,3 +73,10 @@ def parse_bid(bid_text: str) -> Tuple[int, int]:
 
 def deal_dice_message(player: Player):
     return f'`Your dice`: {" ".join(get_emoji(x) for x in player.dice)}'
+
+def bet_emoji(type: BetType) -> str:
+    if type is BetType.Liar: return '🧊'
+    if type is BetType.Exact: return '🎯'
+    if type is BetType.Peak: return '🗻'
+    if type is BetType.Legit: return '🔥'
+    return '❔'

@@ -1,4 +1,5 @@
-﻿using PerudoBot.Database.Data;
+﻿using PerudoBot.API.Constants;
+using PerudoBot.Database.Data;
 
 namespace PerudoBot.API.Helpers
 {
@@ -10,37 +11,94 @@ namespace PerudoBot.API.Helpers
             return (int)Math.Round(bet.BetAmount * bet.BetOdds);
         }
 
-        public static double BidChance(int pips, int quantity, int total, int face_count = 6)
+        public static BetAction SetOutcome(this BetAction bet, List<int> allDice, List<int> playerDice)
         {
-            if (quantity < 0) return 0;
-            if (quantity > total) return 0;
-
-            var prob = pips == 1 ? (1.0 / face_count) : (2.0 / face_count);
-            var chance1 = Math.Pow(prob, quantity);
-            var chance2 = Math.Pow(1 - prob, total - quantity);
-            var permute = Factorial(total) / (Factorial(quantity) * Factorial(total - quantity));
-            return chance1 * chance2 * permute;
-        }
-
-        public static double BidChanceOrMore(int pips, int quantity, int total, int face_count = 6)
-        {
-            var sum = 0.0;
-            for (var i = quantity; i <= total; i++)
+            if (bet.BetType == (int)BetType.Liar)
             {
-                sum += BidChance(pips, i, total, face_count);
+                bet.IsSuccessful = bet.IsLiar(allDice);
+                bet.BetOdds = GameConstants.LIAR_ODDS;
             }
 
-            if (sum < 0) return 0;
-            if (sum > 1) return 1;
-            return sum;
+            if (bet.BetType == (int)BetType.Exact)
+            {
+                bet.IsSuccessful = bet.IsExact(allDice);
+                bet.BetOdds = GameConstants.EXACT_ODDS;
+            }
+
+            if (bet.BetType == (int)BetType.Peak)
+            {
+                bet.IsSuccessful = bet.IsPeak(allDice);
+                bet.BetOdds = GameConstants.PEAK_ODDS;
+            }
+
+            if (bet.BetType == (int)BetType.Legit)
+            {
+                bet.IsSuccessful = bet.IsLegit(allDice);
+                bet.BetOdds = GameConstants.LEGIT_ODDS;
+            }
+
+            if (bet.IsGuaranteed(playerDice, allDice.Count)) bet.BetOdds = GameConstants.PITY_ODDS;
+
+            return bet;
         }
 
-        public static double Factorial(int num)
+        private static bool IsGuaranteed(this BetAction bet, List<int> playerDice, int totalDice)
         {
-            if (num == 0)
-                return 1;
+            if (bet.BetType == (int)BetType.Exact) return false;
+            if (bet.BetType == (int)BetType.Peak) return false;
+
+            var playerQuantity = playerDice.Count(x => x == bet.BetPips || x == 1);
+
+            if (bet.BetType == (int)BetType.Liar) return bet.BetQuantity > (totalDice + playerQuantity);
+            if (bet.BetType == (int)BetType.Legit) return bet.BetQuantity <= playerQuantity;
+
+            return false;
+        }
+
+        private static bool IsExact(this BetAction bet, List<int> allDice)
+        {
+            return bet.BetQuantity == allDice.Count(x => x == bet.BetPips || x == 1);
+        }
+
+        private static bool IsLiar(this BetAction bet, List<int> allDice)
+        {
+            return bet.BetQuantity > allDice.Count(x => x == bet.BetPips || x == 1);
+        }
+
+        private static bool IsPeak(this BetAction bet, List<int> allDice)
+        {
+            if (!bet.IsExact(allDice)) return false;
+
+            var bidIndex = BidToActionIndex(bet.BetPips, bet.BetQuantity, allDice.Count);
+            for (int face = 1; face <= 6; face++)
+            {
+                var faceQuantity = allDice.Count(x => x == face || x == 1);
+                var faceIndex = BidToActionIndex(face, faceQuantity, allDice.Count);
+                if (faceIndex > bidIndex) return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsLegit(this BetAction bet, List<int> allDice)
+        {
+            return !bet.IsLiar(allDice);
+        }
+
+        private static int BidToActionIndex(int pips, int quantity, int total)
+        {
+            if (pips != 1)
+            {
+                var wildcard = quantity / 2;
+                var non_wildcard = (quantity - 1) * 5;
+                return wildcard + non_wildcard + (pips - 2);
+            }
             else
-                return num * Factorial(num - 1);
+            {
+                var abs_index = 5 + ((quantity - 1) * 11);
+                var adjust = Math.Max(quantity - 1 - (total - quantity), 0) * 5;
+                return abs_index - adjust;
+            }
         }
     }
 }

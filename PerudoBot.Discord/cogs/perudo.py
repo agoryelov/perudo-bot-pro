@@ -6,7 +6,7 @@ from discord.ext import commands
 from discord import TextChannel
 
 from game import GameDriver
-from utils import parse_bid, GameActionError
+from utils import parse_bid, GameActionError, BetType
 from views import GameSetupView, GameSetupEmbed, RoundSummaryEmbed, GameSummaryEmbed
 
 class Perudo(commands.Cog):
@@ -62,6 +62,7 @@ class Perudo(commands.Cog):
         game_driver = self._get_channel_game(ctx.channel)
 
         try:
+            await ctx.defer(ephemeral=True)
             round = await game_driver.bid_action(ctx.author.id, quantity, pips)
 
             if is_slash: await ctx.reply('Bid placed', ephemeral=True)
@@ -78,6 +79,7 @@ class Perudo(commands.Cog):
         game_driver = self._get_channel_game(ctx.channel)
 
         try:
+            await ctx.defer(ephemeral=True)
             round_summary = await game_driver.liar_action(ctx.author.id)
 
             if is_slash: await ctx.reply('Liar called', ephemeral=True)
@@ -102,12 +104,13 @@ class Perudo(commands.Cog):
             if game_driver.has_bots: await game_driver.send_bot_updates(round)
     
     @commands.hybrid_command(name="bet", description="Place a bet on the latest bid", help="Place a bet on the latest bid")
-    async def bet(self, ctx: commands.Context, bet_amount: int, bet_type: Literal['liar', 'exact']):
+    async def bet(self, ctx: commands.Context, bet_amount: int, bet_type: Literal['liar', 'exact', 'peak', 'legit']):
         is_slash = ctx.interaction is not None
         game_driver = self._get_channel_game(ctx.channel)
 
         try:
-            round = await game_driver.bet_action(ctx.author.id, bet_amount, bet_type)
+            await ctx.defer(ephemeral=True)
+            round = await game_driver.bet_action(ctx.author.id, bet_amount, BetType[bet_type.capitalize()])
 
             if is_slash: await ctx.reply('Bet placed', ephemeral=True)
             else: await ctx.message.delete()

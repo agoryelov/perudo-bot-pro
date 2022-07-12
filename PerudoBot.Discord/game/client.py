@@ -61,10 +61,9 @@ class GameClient():
         headers = { 'GAME_ID': str(game_id) }
         return GameClient._post(f'{SERVER_PATH}/game/newround', headers=headers)
 
-    def bet_action(self, game_id, player_id, amount : int, bet_type: str):
-        bet_type_id = 0 if bet_type == 'exact' else 1
+    def bet_action(self, game_id, player_id, amount : int, bet_type: int):
         headers = { 'GAME_ID': str(game_id), 'PLAYER_ID': str(player_id) }
-        payload = { 'Amount': amount, 'Type': bet_type_id }
+        payload = { 'Amount': amount, 'Type': bet_type }
         return GameClient._post(f'{SERVER_PATH}/game/bet', headers=headers, payload=payload)
 
     def liar_action(self, game_id, player_id):

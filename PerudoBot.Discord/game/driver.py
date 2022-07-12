@@ -77,10 +77,12 @@ class GameDriver():
         return round_summary
 
     async def end_game(self) -> GameSummary:
+        if self.voice_client is not None: await self.voice_client.disconnect()
         summary_data = self.game_client.end_game(self.game_id)
         return GameSummary(summary_data)
     
     async def terminate(self):
+        if self.voice_client is not None: await self.voice_client.disconnect()
         self.game_client.terminate_game(self.game_id)
         self.game_state = GameState.Terminated
     
@@ -123,11 +125,8 @@ class GameDriver():
     async def _send_out_dice(self, round: Round):
         for player in round.players.values():
             if len(player.dice) <= 0: continue
-            member = self.channel.guild.get_member(player.discord_id)
             if player.is_bot:
                 await self._send_bot_dice(player)
-            else:
-                await member.send(deal_dice_message(player))
     
     async def _update_from_round(self, round: Round):
         self.discord_players = round.discord_players

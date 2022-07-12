@@ -7,6 +7,11 @@ namespace PerudoBot.API.Helpers
     {
         private static Random _random = new Random();
 
+        public static IEnumerable<Game> Completed(this ICollection<Game> games)
+        {
+            return games.Where(x => x.State == (int)GameState.Ended);
+        }
+
         public static PlayerHand DealHand(this Player player, Round round)
         {
             var numDice = player.Lives;
@@ -48,7 +53,7 @@ namespace PerudoBot.API.Helpers
 
         public static bool IsBluff(this BidAction bid)
         {
-            return !bid.PlayerHand.Dice.ToIntegerDice().Any(x => x == bid.Pips);
+            return !bid.PlayerHand.Dice.ToIntegerDice().Any(x => x == bid.Pips || x == 1);
         }
 
         public static int GetStartingPlayerId(this ICollection<Player> players)

@@ -158,7 +158,7 @@ namespace PerudoBot.API.Services
                 .Where(x => x.BetType == (int)betType)
                 .Where(x => x.TargetBid == round.LatestBid)
                 .ToList().Sum(x => x.BetAmount);
-            var maxBetAmount = GameConstants.MAX_BET_PER_DIE * round.PlayerHands.GetAllDice().Count;
+            var maxBetAmount = betType.MaxBetPerDie() * round.PlayerHands.GetAllDice().Count;
             return maxBetAmount - existingBets;
         }
 

@@ -176,6 +176,7 @@ namespace PerudoBot.API.Helpers
                 Name = user.Name,
                 Elo = user.Elo,
                 Points = user.Points,
+                AchievementScore = user.AchievementScore,
                 GamesPlayed = user.Games.Count(x => x.State == (int)GameState.Ended)
             };
         }

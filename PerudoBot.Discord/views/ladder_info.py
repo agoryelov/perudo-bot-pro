@@ -1,6 +1,5 @@
 import discord
 from prettytable import PrettyTable
-
 from models import LadderEntry
 
 class LadderInfoView(discord.ui.View):
@@ -8,18 +7,13 @@ class LadderInfoView(discord.ui.View):
         super().__init__()
         self.entries = ladder_entries
     
-    @discord.ui.select(placeholder="Sort by...", options=[
+    @discord.ui.select(placeholder="Choose ladder...", options=[
         discord.SelectOption(label='Points', value='Points'),
-        discord.SelectOption(label='Elo Rating', value='Elo Rating')
+        discord.SelectOption(label='Elo Rating', value='Elo'),
+        discord.SelectOption(label='Achievement Score', value='Score')
     ])
-    async def sort(self, interaction: discord.Interaction, select: discord.ui.Select):
-
-        if select.values[0] == 'Points':
-            sorted_list: list[LadderEntry] = sorted(self.entries, key=lambda x: x.points, reverse=True)
-        else:
-            sorted_list: list[LadderEntry] = sorted(self.entries, key=lambda x: x.elo, reverse=True)
-        
-        await interaction.response.edit_message(view=self, embed=LadderInfoEmbed(sorted_list))
+    async def choose(self, interaction: discord.Interaction, select: discord.ui.Select):
+        await interaction.response.edit_message(view=self, embed=LadderInfoEmbed(self.entries, ladder_type=select.values[0]))
     
     async def on_timeout(self) -> None:
         for item in self.children:
@@ -28,18 +22,28 @@ class LadderInfoView(discord.ui.View):
         await self.message.edit(view=self)
 
 class LadderInfoEmbed(discord.Embed):
-    def __init__(self, ladder_entries: list[LadderEntry]):
+    def __init__(self, ladder_entries: list[LadderEntry], ladder_type):
         super().__init__(title=f'Ladder')
         self.entries = ladder_entries
-        self.add_field(name='Standings', value=self.get_standings())
+        self.sort_entries(ladder_type)
+        self.add_field(name='Standings', value=self.get_standings(ladder_type))
 
-    def get_standings(self):
+    def get_standings(self, ladder_type):
         table = PrettyTable()
-        table.field_names = ["Name", "Elo", "Points"]
+        table.field_names = ["Name", ladder_type]
         for entry in self.entries:
-            table.add_row([entry.name, entry.elo, entry.points])
+            if ladder_type == 'Points': table.add_row([entry.name, entry.points])
+            if ladder_type == 'Elo': table.add_row([entry.name, entry.elo])
+            if ladder_type == 'Score': table.add_row([entry.name, entry.achievement_score])
         
         table.align["Name"] = "l"
-        table.align["Elo"] = "l"
-        table.align["Points"] = "l"
+        table.align[ladder_type] = "l"
         return f'```\n{table.get_string(border=False)}\n```'
+    
+    def sort_entries(self, ladder_type):
+        if ladder_type == 'Points':
+            self.entries = sorted(self.entries, key=lambda x: x.points, reverse=True)
+        if ladder_type == 'Elo':
+            self.entries = sorted(self.entries, key=lambda x: x.elo, reverse=True)
+        if ladder_type == 'Score':
+            self.entries = sorted(self.entries, key=lambda x: x.achievement_score, reverse=True)

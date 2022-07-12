@@ -1,13 +1,12 @@
 import discord
 from models import Round
-from utils import get_emoji, get_pip_quantity, next_up_message, deal_dice_message, bet_emoji
+from utils import get_emoji, get_pip_quantity, next_up_message, deal_dice_message, bet_emoji, min_bet
 from utils import GameActionError, BetType, SYM_X
 
 from typing import TYPE_CHECKING
 
 from .round_summary import RoundSummaryEmbed
 from .game_summary import GameSummaryEmbed
-from .bet_buttons import BetButtonsView
 
 if TYPE_CHECKING:
     from game import GameDriver
@@ -70,40 +69,49 @@ class DiceButton(discord.ui.Button['RoundView']):
         else:
             await interaction.response.send_message("You are not in this game", ephemeral=True)
 
-class GambleButton(discord.ui.Button['RoundView']):
-    def __init__(self, bet_type: BetType, row: int, enabled: bool = True):
-        super().__init__(style=discord.ButtonStyle.green, label=bet_type.name, row=row)
+class BetButton(discord.ui.Button['RoundView']):
+    def __init__(self, bet_type: BetType, row: int, enabled=True):
+        super().__init__(style=discord.ButtonStyle.grey, emoji=bet_emoji(bet_type), row=row)
         self.disabled = not enabled
         self.bet_type = bet_type
     
     async def callback(self, interaction: discord.Interaction):
-        bet_view = BetButtonsView(self.view.round, self.view.game_driver, self.bet_type)
-        await interaction.response.send_message(view=bet_view, ephemeral=True)
+        game_driver = self.view.game_driver
+        better = game_driver.discord_players[interaction.user.id]
+        existing_bet = discord.utils.get(game_driver.round.bets, player_id=better.player_id)
+        
+        bet_amount = min_bet(self.bet_type) if existing_bet is None else existing_bet.bet_amount * 4
+
+        try:
+            r = await game_driver.bet_action(interaction.user.id, bet_amount, self.bet_type)
+            await game_driver.update_round_message(r, interaction.response.edit_message)
+        except GameActionError as e:
+            await interaction.response.send_message(e.message, ephemeral=True)
 
 class RoundView(discord.ui.View):
-    def __init__(self, r: Round, game_driver: 'GameDriver'):
+    def __init__(self, game_driver: 'GameDriver'):
         super().__init__(timeout=1200)
-        self.round = r
+        self.round = game_driver.round
         self.game_driver = game_driver
 
-        if r.latest_bid is None:
-            starting_quantity = round(r.total_dice / 3) - 1
+        if self.round.latest_bid is None:
+            starting_quantity = round(self.round.total_dice / 3) - 1
             latest_bid = starting_quantity, 6
         else: 
-            latest_bid = r.latest_bid.quantity, r.latest_bid.pips
+            latest_bid = self.round.latest_bid.quantity, self.round.latest_bid.pips
 
         for i, pips in enumerate([2, 3, 4, 5, 6, 1]):
             quantity = get_pip_quantity(pips, latest_bid[0], latest_bid[1])
-            pip_used = discord.utils.get(r.bids, pips=pips) is not None
+            pip_used = discord.utils.get(self.round.bids, pips=pips) is not None
             self.add_item(BidButton(quantity, pips, i // 3, pip_used))
 
         self.add_item(LiarButton(0))
         self.add_item(DiceButton(1))
 
-        self.add_item(GambleButton(BetType.Liar, 2))
-        self.add_item(GambleButton(BetType.Exact, 2))
-        self.add_item(GambleButton(BetType.Peak, 2))
-        self.add_item(GambleButton(BetType.Legit, 2))
+        self.add_item(BetButton(BetType.Liar, 2, enabled=self.round.any_bids))
+        self.add_item(BetButton(BetType.Exact, 2, enabled=self.round.any_bids))
+        self.add_item(BetButton(BetType.Peak, 2, enabled=self.round.any_bids))
+        self.add_item(BetButton(BetType.Legit, 2, enabled=self.round.any_liar_bets))
 
 class RoundEmbed(discord.Embed):
     def __init__(self, r: Round):

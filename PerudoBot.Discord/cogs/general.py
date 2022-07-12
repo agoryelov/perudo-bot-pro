@@ -31,7 +31,7 @@ class General(commands.Cog):
             ladder_data = GameClient.get_ladder_info()
             ladder_info = LadderInfo(ladder_data)
             ladder_view = LadderInfoView(ladder_info.entries)
-            ladder_view.message = await ctx.send(view=ladder_view, embed=LadderInfoEmbed(ladder_info.entries))
+            ladder_view.message = await ctx.send(view=ladder_view, embed=LadderInfoEmbed(ladder_info.entries, 'Points'))
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 

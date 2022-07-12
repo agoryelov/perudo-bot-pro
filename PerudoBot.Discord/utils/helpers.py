@@ -76,7 +76,14 @@ def deal_dice_message(player: Player):
 
 def bet_emoji(type: BetType) -> str:
     if type is BetType.Liar: return '🧊'
+    if type is BetType.Legit: return '🔥'
     if type is BetType.Exact: return '🎯'
     if type is BetType.Peak: return '🗻'
-    if type is BetType.Legit: return '🔥'
     return '❔'
+
+def min_bet(type: BetType) -> int:
+    if type is BetType.Liar: return 100
+    if type is BetType.Legit: return 100
+    if type is BetType.Exact: return 50
+    if type is BetType.Peak: return 50
+    return 0

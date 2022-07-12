@@ -10,6 +10,7 @@
         public string Name { get; set; }
         public int Elo { get; set; }
         public int Points { get; set; }
+        public int AchievementScore { get; set; }
         public int GamesPlayed { get; set; }
     }
 }

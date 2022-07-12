@@ -16,7 +16,17 @@
         public const float PEAK_ODDS = 5.0f;
         public const float LEGIT_ODDS = 2.0f;
 
-        public const int MAX_BET_PER_DIE = 500;
+        public static int MaxBetPerDie(this BetType betType)
+        {
+            switch (betType)
+            {
+                case BetType.Exact: return 50;
+                case BetType.Peak: return 50;
+                case BetType.Liar: return 100;
+                case BetType.Legit: return 100;
+                default: throw new ArgumentOutOfRangeException("betType");
+            }
+        }
     }
 
     public enum GameState

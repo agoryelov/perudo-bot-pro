@@ -24,14 +24,14 @@ namespace PerudoBot.API.Services
                 .ToList();
         }
 
-        public List<AchievementDto> GetAchievements()
+        public List<AchievementDetailsDto> GetAchievementDetails()
         {
             return _db.Achievements
                 .Include(x => x.UserAchievements)
                     .ThenInclude(x => x.User)
                 .OrderByDescending(x => x.UserAchievements.Count())
                 .ThenBy(x => x.Score)
-                .Select(x => x.ToAchievementDto())
+                .Select(x => x.ToAchievementDetailsDto())
                 .ToList();
         }
 
@@ -40,6 +40,7 @@ namespace PerudoBot.API.Services
             var newAchivements = _db.UserAchievements
                 .Where(x => x.IsNew)
                 .Include(x => x.Achievement)
+                .Include(x => x.User)
                 .ToList();
 
             var achievementsDto = newAchivements

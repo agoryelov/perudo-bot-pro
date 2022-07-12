@@ -19,11 +19,28 @@ class Round():
 
         liar = json.get('liar')
         self.liar : Liar = Liar(liar) if liar is not None else None
-        
-        self.is_final : bool = self.active_player_count == 1
-        self.any_eliminated : bool = self.active_player_count < len(self.players)
-        self.any_bets : bool = len(self.bets) > 0
-        self.any_bids : bool = len(self.bids) > 0
+    
+    @property
+    def is_final(self) -> bool:
+        return self.active_player_count == 1
+    
+    @property
+    def any_eliminated(self) -> bool:
+        return self.active_player_count < len(self.players)
+    
+    @property
+    def any_bets(self) -> bool:
+        return len(self.bets) > 0
+    
+    @property
+    def any_bids(self) -> bool:
+        return len(self.bids) > 0
+
+    @property
+    def any_liar_bets(self) -> bool:
+        for bet in self.bets:
+            if bet.bet_type is utils.BetType.Liar: return True
+        return False
 
 class RoundSummary():
     def __init__(self, json: dict):

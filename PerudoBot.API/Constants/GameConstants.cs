@@ -4,11 +4,29 @@
     {
         public const int STARTING_LIVES = 5;
         public const int POINTS_EARNED_PER_ROUND = 10;
-        public const float MAX_BET_ODDS = 4.0f;
-        public const float MIN_BET_ODDS = 1.5f;
-        public const int RECENT_GAMES = 10;
+
+        public const int RECENT_GAMES = 5;
         public const int RECENT_ACHIEVEMENTS = 3;
         public const string DATE_FORMAT = "yyyy-MM-ddTHH:mm:sszzz";
+
+        public const float ZERO_ODDS = 1.0f;
+        public const float PITY_ODDS = 1.1f;
+        public const float LIAR_ODDS = 1.5f;
+        public const float EXACT_ODDS = 3.0f;
+        public const float PEAK_ODDS = 5.0f;
+        public const float LEGIT_ODDS = 2.0f;
+
+        public static int MaxBetPerDie(this BetType betType)
+        {
+            switch (betType)
+            {
+                case BetType.Exact: return 50;
+                case BetType.Peak: return 50;
+                case BetType.Liar: return 100;
+                case BetType.Legit: return 100;
+                default: throw new ArgumentOutOfRangeException("betType");
+            }
+        }
     }
 
     public enum GameState
@@ -28,7 +46,9 @@
     public enum BetType
     {
         Exact = 0,
-        Liar = 1
+        Liar = 1,
+        Peak = 2,
+        Legit = 3
     }
 
     public enum AchievementType

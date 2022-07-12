@@ -148,8 +148,15 @@ namespace PerudoBot.API.Helpers
             {
                 Name = achievement.Name,
                 Description = achievement.Description,
-                UnlockedBy = achievement.UserAchievements.OrderBy(x => x.DateCreated).Select(x => x.User.Name).ToList(),
                 Score = achievement.Score
+            };
+        }
+
+        public static AchievementDetailsDto ToAchievementDetailsDto(this Achievement achievement)
+        {
+            return new AchievementDetailsDto(achievement.ToAchievementDto())
+            {
+                UnlockedBy = achievement.UserAchievements.OrderBy(x => x.DateCreated).Select(x => x.User?.Name).ToList()
             };
         }
 
@@ -157,7 +164,7 @@ namespace PerudoBot.API.Helpers
         {
             return new UserAchievementDto(achievement.Achievement.ToAchievementDto())
             {
-                Username = achievement.User.Name,
+                Username = achievement.User?.Name,
                 DateUnlocked = achievement.DateCreated.ToString(GameConstants.DATE_FORMAT)
             };
         }
@@ -169,6 +176,7 @@ namespace PerudoBot.API.Helpers
                 Name = user.Name,
                 Elo = user.Elo,
                 Points = user.Points,
+                AchievementScore = user.AchievementScore,
                 GamesPlayed = user.Games.Count(x => x.State == (int)GameState.Ended)
             };
         }
@@ -182,7 +190,7 @@ namespace PerudoBot.API.Helpers
                 Elo = user.Elo,
                 Points = user.Points,
                 Score = user.AchievementScore,
-                RecentGames = user.Games?.TakeLast(GameConstants.RECENT_GAMES).Select(x => x.ToUserGameDto(user)).ToList(),
+                RecentGames = user.Games?.Completed().TakeLast(GameConstants.RECENT_GAMES).Select(x => x.ToUserGameDto(user)).ToList(),
                 RecentAchievements = user.UserAchievements?.OrderByDescending(x => x.DateCreated).Take(GameConstants.RECENT_ACHIEVEMENTS).Select(x => x.ToUserAchievementDto()).ToList()
             };
         }

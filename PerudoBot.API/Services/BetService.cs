@@ -45,12 +45,26 @@ namespace PerudoBot.API.Services
                 return new RoundDto { RequestSuccess = false, ErrorMessage = "You can't bet on your own bid" };
             }
 
+            var allowedBetAmount = MaxBetAmount(currentRound, betType);
+
+            if (allowedBetAmount <= 0)
+            {
+                return new RoundDto { RequestSuccess = false, ErrorMessage = "You can't bet that much right now" };
+            }
+
+            if (allowedBetAmount < betAmount)
+            {
+                betAmount = allowedBetAmount;
+            }
+
             var existingBet = currentRound.Actions.OfType<BetAction>().FirstOrDefault(x => x.PlayerId == player.Id);
 
             if (existingBet == null)
             {
                 _userService.RemoveBetPoints(player.User, betAmount, game);
-                currentRound.Actions.Add(BetOnLatestAction(currentRound, player, betAmount, betType));
+                
+                var betAction = BetOnLatestAction(currentRound, player, betAmount, betType);
+                currentRound.Actions.Add(betAction);
 
                 _db.SaveChanges();
                 return currentRound.ToRoundDto();
@@ -73,6 +87,37 @@ namespace PerudoBot.API.Services
             return currentRound.ToRoundDto();
         }
 
+        //private void LowerOddsFromPreviousBets(Round round, BetAction bet)
+        //{
+        //    if (bet.BetType == (int)BetType.Legit) return;
+        //    var prevBets = round.Actions.OfType<BetAction>().Count(x => x.TargetBidId == round.LatestBid.Id && x.BetType == bet.BetType);
+        //    var oddsBefore = bet.BetOdds;
+        //    if (prevBets > 0) bet.BetOdds = 1 + ((bet.BetOdds - 1) * 0.5);
+        //}
+
+        private BetAction BetOnLatestAction(Round currentRound, Player player, int betAmount, BetType betType)
+        {
+            var playerHand = currentRound.PlayerHands.SingleOrDefault(x => x.PlayerId == player.Id);
+
+            var playerDice = new List<int>();
+            if (playerHand != null) playerDice = playerHand.Dice.ToIntegerDice();
+
+            var currentBid = currentRound.LatestBid;
+            var gameDice = currentRound.PlayerHands.GetAllDice();
+
+            var bet = new BetAction
+            {
+                PlayerId = player.Id,
+                ParentActionId = currentRound.LatestAction?.Id,
+                RoundId = currentRound.Id,
+                TargetBid = currentBid,
+                BetAmount = betAmount,
+                BetType = (int) betType
+            };
+
+            return bet.SetOutcome(gameDice, playerDice);
+        }
+
         public Response AwardBetPoints(Round round)
         {
             if (round == null)
@@ -82,49 +127,53 @@ namespace PerudoBot.API.Services
 
             var bets = round.Actions.OfType<BetAction>().Where(x => x.IsSuccessful);
 
-            foreach(var bet in bets)
+            foreach (var bet in bets)
             {
-                _userService.AddBetPoints(bet.Player.User, bet.WinAmount(), round.Game);
+                AwardBetPoints(round, bet);
             }
 
             return Responses.OK();
         }
 
-        private BetAction BetOnLatestAction(Round currentRound, Player player, int betAmount, BetType betType)
+        private void AwardBetPoints(Round round, BetAction bet)
         {
-            var currentBid = currentRound.LatestBid;
-            var gameDice = currentRound.PlayerHands.GetAllDice();
-
-            var targetPips = currentBid.Pips;
-            var targetQuantity = currentBid.Quantity;
-
-            var actualQuantity = gameDice.Where(x => x == targetPips || x == 1).Count();
-
-            var bet = new BetAction
+            if (bet.BetType == (int)BetType.Legit)
             {
-                PlayerId = player.Id,
-                ParentActionId = currentRound.LatestAction?.Id,
-                TargetBidId = currentBid.Id,
-                RoundId = currentRound.Id,
-                BetAmount = betAmount,
-                BetType = (int) betType
-            };
-
-            if (bet.BetType == (int)BetType.Liar)
-            {
-                bet.IsSuccessful = actualQuantity < targetQuantity;
-                bet.BetOdds = 1.0 / (1 - BetHelpers.BidChanceOrMore(targetPips, targetQuantity, gameDice.Count));
+                // Limit legit bet amount and refund the rest
+                var maxLegitAmount = MaxLegitAmount(round, bet);
+                if (bet.BetAmount > maxLegitAmount)
+                {
+                    var overflowPoints = bet.BetAmount - maxLegitAmount;
+                    _userService.AddBetPoints(bet.Player.User, overflowPoints, round.Game);
+                    bet.BetAmount = maxLegitAmount;
+                }
             }
 
-            if (bet.BetType == (int)BetType.Exact)
-            {
-                bet.IsSuccessful = actualQuantity == targetQuantity;
-                bet.BetOdds = 1.0 / BetHelpers.BidChance(targetPips, targetQuantity, gameDice.Count);
-            }
+            _userService.AddBetPoints(bet.Player.User, bet.WinAmount(), round.Game);
+        }
 
-            bet.BetOdds = Math.Max(Math.Min(bet.BetOdds, GameConstants.MAX_BET_ODDS), GameConstants.MIN_BET_ODDS);
+        private int MaxBetAmount(Round round, BetType betType)
+        {
+            var existingBets = round.Actions.OfType<BetAction>()
+                .Where(x => x.BetType == (int)betType)
+                .Where(x => x.TargetBid == round.LatestBid)
+                .ToList().Sum(x => x.BetAmount);
+            var maxBetAmount = betType.MaxBetPerDie() * round.PlayerHands.GetAllDice().Count;
+            return maxBetAmount - existingBets;
+        }
 
-            return bet;
+        private int MaxLegitAmount(Round round, BetAction bet)
+        {
+            var numLegitBets = (double)round.Actions.OfType<BetAction>()
+                    .Where(x => x.BetType == (int)BetType.Legit)
+                    .Where(x => x.TargetBidId == bet.TargetBidId)
+                    .ToList().Count;
+            var sumLiarBets = (double)round.Actions.OfType<BetAction>()
+                    .Where(x => x.PlayerId != bet.PlayerId)
+                    .Where(x => x.BetType == (int)BetType.Liar)
+                    .Where(x => x.TargetBidId == bet.TargetBidId)
+                    .ToList().Sum(x => x.BetAmount);
+            return (int)Math.Round(sumLiarBets / numLegitBets);
         }
     }
 }

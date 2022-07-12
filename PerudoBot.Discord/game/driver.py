@@ -6,12 +6,11 @@ import discord
 from discord import Member, Message, TextChannel, User, VoiceClient
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
-from utils import GameState, GameActionError, bot_dice, bot_update, get_mention, deal_dice_message
+from utils import GameState, GameActionError, bot_dice, bot_update, get_mention
 from views import RoundEmbed, RoundView, LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed
 from .client import GameClient
 
 class GameDriver():
-
     def __init__(self, game_channel: discord.TextChannel):
         self.channel = game_channel
         self.game_client = GameClient()
@@ -19,6 +18,7 @@ class GameDriver():
         self.game_state = GameState.Terminated
         self.game_id = 0
         self.discord_players : dict[int, Player] = {}
+        self.round : Round = None
 
         self.setup_message : Message = None
         self.round_message : Message = None
@@ -51,9 +51,9 @@ class GameDriver():
     async def start_round(self) -> Round:
         round_data = self.game_client.start_round(self.game_id)
         round = Round(round_data)
-        self.round_message = await self.send_delayed(view=RoundView(round, self), embed=RoundEmbed(round))
         await self._update_from_round(round)
         await self._send_out_dice(round)
+        self.round_message = await self.send_delayed(view=RoundView(self), embed=RoundEmbed(round))
         return round
 
     async def bid_action(self, discord_id, quantity, pips) -> Round:
@@ -77,10 +77,12 @@ class GameDriver():
         return round_summary
 
     async def end_game(self) -> GameSummary:
+        if self.voice_client is not None: await self.voice_client.disconnect()
         summary_data = self.game_client.end_game(self.game_id)
         return GameSummary(summary_data)
     
     async def terminate(self):
+        if self.voice_client is not None: await self.voice_client.disconnect()
         self.game_client.terminate_game(self.game_id)
         self.game_state = GameState.Terminated
     
@@ -98,10 +100,10 @@ class GameDriver():
         edit_function = edit_function or self.round_message.edit
         recent_history = [message async for message in self.channel.history(limit=2)]
         if self.round_message in recent_history:
-            await edit_function(view=RoundView(round, self), embed=RoundEmbed(round))
+            await edit_function(view=RoundView(self), embed=RoundEmbed(round))
         else:
             await self.round_message.delete()
-            self.round_message = await self.send_delayed(view=RoundView(round, self), embed=RoundEmbed(round), delay = 0)
+            self.round_message = await self.send_delayed(view=RoundView(self), embed=RoundEmbed(round), delay = 0)
 
     async def send_delayed(self, delay = 0.5, **kwargs):
         await asyncio.sleep(delay)
@@ -123,13 +125,11 @@ class GameDriver():
     async def _send_out_dice(self, round: Round):
         for player in round.players.values():
             if len(player.dice) <= 0: continue
-            member = self.channel.guild.get_member(player.discord_id)
             if player.is_bot:
                 await self._send_bot_dice(player)
-            else:
-                await member.send(deal_dice_message(player))
     
     async def _update_from_round(self, round: Round):
+        self.round = round
         self.discord_players = round.discord_players
         self.game_state = GameState.InProgress if not round.is_final else GameState.Ended
 
@@ -182,7 +182,3 @@ class GameDriver():
             if player.lives > 0 and player.is_bot:
                 return True
         return False
-
-        
-
-

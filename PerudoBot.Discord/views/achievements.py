@@ -1,12 +1,12 @@
 import math
 import discord
 
-from models import Achievement, UserAchievement
+from models import AchievementDetails, UserAchievement
 from utils import EmbedColor
 from .paginator import PageSource
 
 class AchievementSource(PageSource):
-    def __init__(self, achievements: list[Achievement]):
+    def __init__(self, achievements: list[AchievementDetails]):
         super().__init__()
         self.achievements = achievements
         self.items_per_page = 5
@@ -24,7 +24,7 @@ class AchievementSource(PageSource):
         return embed
 
 class AchievementsEmbed(discord.Embed):
-    def __init__(self, achievements: list[Achievement]):
+    def __init__(self, achievements: list[AchievementDetails]):
         super().__init__()
         self.color = EmbedColor.Yellow
         self.title = f'Achievements'
@@ -32,10 +32,10 @@ class AchievementsEmbed(discord.Embed):
         for achievement in achievements:
             self.add_field(name=self.get_entry_name(achievement), value=self.get_entry_value(achievement), inline=False)
     
-    def get_entry_name(self, achievement: Achievement):
+    def get_entry_name(self, achievement: AchievementDetails):
         return f':star: `{achievement.score}` {achievement.name}'
 
-    def get_entry_value(self, achievement: Achievement):
+    def get_entry_value(self, achievement: AchievementDetails):
         return f'*{achievement.description}*\n{format_unlocked(achievement.unlocked_by)}'
 
 class UserAchievementsEmbed(discord.Embed):

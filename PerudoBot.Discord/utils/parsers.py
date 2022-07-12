@@ -1,4 +1,5 @@
 from models import Player, Bet, Bid, Achievement, UserAchievement, UserGame
+from models.achievement import AchievementDetails
 
 def parse_players(json) -> dict[int, Player]:
     players = {}
@@ -31,11 +32,11 @@ def parse_discord_players(json) -> dict[int, Player]:
         players[player['discordId']] = Player(player)
     return players
 
-def parse_achievements(json) -> list[Achievement]:
+def parse_achievement_details(json) -> list[AchievementDetails]:
     if json is None: return []
     achievements = []
     for achievement in json:
-        achievements.append(Achievement(achievement))
+        achievements.append(AchievementDetails(achievement))
     return achievements
 
 def parse_user_achievements(json) -> list[UserAchievement]:

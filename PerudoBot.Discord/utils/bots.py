@@ -55,5 +55,5 @@ def bid_to_action_index(quantity: int, pips: int, total_dice: int) -> int:
         return wildcard + non_wildcard + (pips - 2)
     else:
         absolute_index = 5 + ((quantity - 1) * 11)
-        adjust = max((quantity - 1 - (total_dice - quantity)), 0) * 5
+        adjust = max(quantity - 1 - (total_dice - quantity), 0) * 5
         return absolute_index - adjust

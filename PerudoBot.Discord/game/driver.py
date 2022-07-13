@@ -93,7 +93,7 @@ class GameDriver():
 
     def _play_notification(self, source = 'notify.mp3'):
         if self.voice_client is None: return
-        try: self.voice_client.play(discord.FFmpegPCMAudio(executable='C:/audio/ffmpeg/bin/ffmpeg.exe', source=f'C:/audio/{source}'))
+        try: self.voice_client.play(discord.FFmpegPCMAudio(executable='./audio/ffmpeg/ffmpeg.exe', source=f'./audio/{source}'))
         except: pass
 
     async def update_round_message(self, round: Round, edit_function = None):

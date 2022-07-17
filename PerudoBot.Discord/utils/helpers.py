@@ -56,7 +56,6 @@ def get_pip_quantity(pips, prev_quantity, prev_pips):
 
 def next_up_message(round: Round) -> str:
     next_player = f'<@!{round.players[round.action_player_id].discord_id}>'
-    # bot_update = f' ||`@bots update {game_driver.bot_message.id}`||' if game_driver.has_bots else ''
     return f'{next_player} is up next'
 
 def parse_bid(bid_text: str) -> Tuple[int, int]:

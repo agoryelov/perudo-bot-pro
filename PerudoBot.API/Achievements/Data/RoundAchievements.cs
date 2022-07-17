@@ -42,17 +42,6 @@ namespace PerudoBot.API.Achievements
             },
             new AchievementCheck
             {
-                Name = "Fate Worse Than Death",
-                Description = "Lose all points in a single round",
-                Type = (int)AchievementType.Round,
-                Score = (int)AchievementScore.Medium,
-                Evaluate = (player, game, round) =>
-                {
-                    return player.User.Points == 0;
-                }
-            },
-            new AchievementCheck
-            {
                 Name = "A Lot of Damage",
                 Description = "Deal 5 or more damage with a single liar call in Reverse",
                 Type = (int)AchievementType.Round,
@@ -68,12 +57,11 @@ namespace PerudoBot.API.Achievements
             new AchievementCheck
             {
                 Name = "Just Wanted Info",
-                Description = "Take 4 damage first round in a reverse game with 5 or more players",
+                Description = "Take 4 damage at full life in a reverse game with 5 or more players",
                 Type = (int)AchievementType.Round,
                 Score = (int)AchievementScore.Medium,
                 Evaluate = (player, game, round) =>
                 {
-                    if (round.RoundNumber != 1) return false;
                     if (game.DefaultRoundType != (int)RoundType.Reverse) return false;
                     if (game.Players.Count < 5) return false;
                     if (round.Liar.LosingPlayerId != player.Id) return false;
@@ -82,43 +70,30 @@ namespace PerudoBot.API.Achievements
             },
             new AchievementCheck
             {
-                Name = "Frequent Liar",
-                Description = "Bluff 4 bids in a row in a single game",
+                Name = "Money to Burn",
+                Description = "Win 1000 or more points in a single Legit bet",
                 Type = (int)AchievementType.Round,
-                Score = (int)AchievementScore.Medium,
+                Score = (int)AchievementScore.Hard,
                 Evaluate = (player, game, round) =>
                 {
-                    var bids = game.Rounds.SelectMany(x => x.Actions).OfType<BidAction>().Where(x => x.PlayerId == player.Id).TakeLast(4);
-                    if (bids.Count() < 4) return false;
-                    return bids.All(x => x.IsBluff());
+                    var bet = round.Actions.OfType<BetAction>().FirstOrDefault(x => x.PlayerId == player.Id && x.BetType == (int)BetType.Legit);
+                    if (bet == null) return false;
+                    return (bet.WinAmount() - bet.BetAmount) >= 1000;
                 }
             },
             new AchievementCheck
             {
-                Name = "Stone Cold",
-                Description = "Bluff 8 bids in a row in a single game",
-                Type = (int)AchievementType.Round,
-                Score = (int)AchievementScore.ExtraHard,
-                Evaluate = (player, game, round) =>
-                {
-                    var bids = game.Rounds.SelectMany(x => x.Actions).OfType<BidAction>().Where(x => x.PlayerId == player.Id).TakeLast(8);
-                    if (bids.Count() < 8) return false;
-                    return bids.All(x => x.IsBluff());
-                }
-            },
-            new AchievementCheck
-            {
-                Name = "Style Points",
-                Description = "Win 777 points in a single round",
+                Name = "Jackpot",
+                Description = "Win 5000 or more points in a single round",
                 Type = (int)AchievementType.Round,
                 Score = (int)AchievementScore.ExtraHard,
                 Evaluate = (player, game, round) =>
                 {
                     var bet = round.Actions.OfType<BetAction>().FirstOrDefault(x => x.PlayerId == player.Id);
                     if (bet == null) return false;
-                    return bet.WinAmount() == 777;
+                    return (bet.WinAmount() - bet.BetAmount) >= 5000;
                 }
-            },
+            }
         };
     }
 }

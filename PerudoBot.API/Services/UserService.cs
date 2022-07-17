@@ -132,9 +132,15 @@ namespace PerudoBot.API.Services
 
         public LadderInfoDto GetLadderInfo()
         {
-            var ladderEntries = _db.Users
-                .Include(x => x.Games)
-                .OrderByDescending(x => x.Elo)
+            var activeUsers = _db.Games
+                .Where(x => x.State == (int)GameState.Ended)
+                .Include(x => x.Users)
+                .AsEnumerable()
+                .TakeLast(20)
+                .SelectMany(x => x.Users)
+                .Distinct();
+
+            var ladderEntries = activeUsers
                 .Select(x => x.ToLadderEntryDto())
                 .ToList();
 

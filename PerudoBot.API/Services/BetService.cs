@@ -62,7 +62,7 @@ namespace PerudoBot.API.Services
             if (existingBet == null)
             {
                 _userService.RemoveBetPoints(player.User, betAmount, game);
-                
+
                 var betAction = BetOnLatestAction(currentRound, player, betAmount, betType);
                 currentRound.Actions.Add(betAction);
 
@@ -75,7 +75,7 @@ namespace PerudoBot.API.Services
                 return new RoundDto { RequestSuccess = false, ErrorMessage = "You can only bet once per round" };
             }
 
-            if (existingBet.BetType != (int) betType)
+            if (existingBet.BetType != (int)betType)
             {
                 return new RoundDto { RequestSuccess = false, ErrorMessage = "You can't change your bet type" };
             }
@@ -112,7 +112,7 @@ namespace PerudoBot.API.Services
                 RoundId = currentRound.Id,
                 TargetBid = currentBid,
                 BetAmount = betAmount,
-                BetType = (int) betType
+                BetType = (int)betType
             };
 
             return bet.SetOutcome(gameDice, playerDice);
@@ -125,21 +125,22 @@ namespace PerudoBot.API.Services
                 return Responses.Error("Can't resolve bets for current round");
             }
 
-            var bets = round.Actions.OfType<BetAction>().Where(x => x.IsSuccessful);
+            RefundLegitOverflow(round);
 
+            var bets = round.Actions.OfType<BetAction>().Where(x => x.IsSuccessful);
             foreach (var bet in bets)
             {
-                AwardBetPoints(round, bet);
+                _userService.AddBetPoints(bet.Player.User, bet.WinAmount(), round.Game);
             }
 
             return Responses.OK();
         }
 
-        private void AwardBetPoints(Round round, BetAction bet)
+        private void RefundLegitOverflow(Round round)
         {
-            if (bet.BetType == (int)BetType.Legit)
+            var legitBets = round.Actions.OfType<BetAction>().Where(x => x.BetType == (int)BetType.Legit);
+            foreach (var bet in legitBets)
             {
-                // Limit legit bet amount and refund the rest
                 var maxLegitAmount = MaxLegitAmount(round, bet);
                 if (bet.BetAmount > maxLegitAmount)
                 {
@@ -148,8 +149,6 @@ namespace PerudoBot.API.Services
                     bet.BetAmount = maxLegitAmount;
                 }
             }
-
-            _userService.AddBetPoints(bet.Player.User, bet.WinAmount(), round.Game);
         }
 
         private int MaxBetAmount(Round round, BetType betType)

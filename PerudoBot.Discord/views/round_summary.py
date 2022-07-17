@@ -60,7 +60,7 @@ class RoundSummaryEmbed(discord.Embed):
             bet_player = self.round.players[bet.player_id]
             points_delta = round(bet.bet_amount * bet.bet_odds) - bet.bet_amount if bet.is_successful else bet.bet_amount
             wins_or_loses = "wins" if bet.is_successful else "loses"
-            odds = f'*(x{round(bet.bet_odds, 1):.1f})*' if bet.is_successful else ''
+            odds = f'*(x{round(bet.bet_odds - 1, 1):.1f})*' if bet.is_successful else ''
             bet_results.append(f':dollar: {bet_player.name} **{wins_or_loses} {points_delta}** {odds} points betting {bet_emoji(bet.bet_type)} on `{bet.target_bid.quantity}` {SYM_X} {get_emoji(bet.target_bid.pips)}')
         return '\n'.join(bet_results)
 

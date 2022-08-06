@@ -111,7 +111,7 @@ class RoundView(discord.ui.View):
         self.add_item(BetButton(BetType.Liar, 2, enabled=self.round.any_bids))
         self.add_item(BetButton(BetType.Exact, 2, enabled=self.round.any_bids))
         self.add_item(BetButton(BetType.Peak, 2, enabled=self.round.any_bids))
-        self.add_item(BetButton(BetType.Legit, 2, enabled=self.round.any_liar_bets))
+        self.add_item(BetButton(BetType.Legit, 2, enabled=self.round.any_bids))
 
 class RoundEmbed(discord.Embed):
     def __init__(self, r: Round):
@@ -151,7 +151,7 @@ class RoundEmbed(discord.Embed):
         bets = []
         for bet in self.round.bets:
             bet_player = self.round.players[bet.player_id]
-            bets.append(f':dollar: {bet_player.name} bets {bet_emoji(bet.bet_type)} {bet.bet_amount} on `{bet.target_bid.quantity}` {SYM_X} {get_emoji(bet.target_bid.pips)}')
+            bets.append(f':dollar: {bet_player.name} bets `{bet.bet_amount}` on `{bet.target_bid.quantity}` {SYM_X} {get_emoji(bet.target_bid.pips)}')
         if len(bets) == 0: return 'None'
         return '\n'.join(bets)
 

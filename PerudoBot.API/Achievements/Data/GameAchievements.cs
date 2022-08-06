@@ -68,7 +68,7 @@ namespace PerudoBot.API.Achievements
                 Score = (int)AchievementScore.Medium,
                 Evaluate = (player, game, round) =>
                 {
-                    return game.Rounds.SelectMany(x => x.Actions).OfType<LiarAction>().Where(x => x.OutOfTurn).Count() >= 3;
+                    return game.Rounds.SelectMany(x => x.Actions).OfType<LiarAction>().Where(x => x.PlayerId == player.Id && x.OutOfTurn).Count() >= 3;
                 }
             },
             new AchievementCheck

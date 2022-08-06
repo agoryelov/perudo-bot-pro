@@ -81,8 +81,8 @@ def bet_emoji(type: BetType) -> str:
     return '❔'
 
 def min_bet(type: BetType) -> int:
-    if type is BetType.Liar: return 100
-    if type is BetType.Legit: return 100
+    if type is BetType.Liar: return 50
+    if type is BetType.Legit: return 50
     if type is BetType.Exact: return 50
     if type is BetType.Peak: return 50
     return 0

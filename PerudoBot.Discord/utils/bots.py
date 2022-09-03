@@ -8,6 +8,8 @@ import json
 from models import Round
 from models.player import Player
 
+from typing import List
+
 def bot_update(round: Round, channel_id: int, points: int):
     message = {
         'points': points,
@@ -33,7 +35,7 @@ def bot_dice(player: Player, channel_id: int):
     }
     return json.dumps(message)
 
-def encrypt_dice(key : str, dice: list[int]) -> str:
+def encrypt_dice(key : str, dice: List[int]) -> str:
     data = ' '.join(str(x) for x in dice)
     data = bytes(data, encoding='utf-8')
     salt = get_random_bytes(16)

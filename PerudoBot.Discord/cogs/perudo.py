@@ -23,9 +23,10 @@ class Perudo(commands.Cog):
     @commands.hybrid_command(name="new", description="Create a new game", help="Create a new game")
     async def new(self, ctx: commands.Context):
         is_slash = ctx.interaction is not None
-
         game_driver = self._get_channel_game(ctx.channel)
-        game_driver.bot_channel = await self.bot.fetch_channel(getenv('BOT_CHANNEL'))
+
+        if getenv('BOT_CHANNEL') != 'NONE':
+            game_driver.bot_channel = await self.bot.fetch_channel(getenv('BOT_CHANNEL'))
 
         if game_driver.in_setup or game_driver.in_progress:
             await ctx.reply("Game already exists, use `/terminate` before starting a new game")

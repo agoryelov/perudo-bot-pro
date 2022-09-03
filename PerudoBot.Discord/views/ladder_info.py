@@ -1,9 +1,10 @@
 import discord
 from prettytable import PrettyTable
 from models import LadderEntry
+from typing import List
 
 class LadderInfoView(discord.ui.View):
-    def __init__(self, ladder_entries: list[LadderEntry]):
+    def __init__(self, ladder_entries: List[LadderEntry]):
         super().__init__()
         self.entries = ladder_entries
     
@@ -22,7 +23,7 @@ class LadderInfoView(discord.ui.View):
         await self.message.edit(view=self)
 
 class LadderInfoEmbed(discord.Embed):
-    def __init__(self, ladder_entries: list[LadderEntry], ladder_type):
+    def __init__(self, ladder_entries: List[LadderEntry], ladder_type):
         super().__init__(title=f'Ladder')
         self.entries = ladder_entries
         self.sort_entries(ladder_type)

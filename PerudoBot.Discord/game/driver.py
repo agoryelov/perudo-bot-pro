@@ -1,6 +1,7 @@
 import asyncio
-from typing import Union
+from typing import Union, Dict
 
+from os import getenv
 
 import discord
 from discord import Member, Message, TextChannel, User, VoiceClient
@@ -17,7 +18,7 @@ class GameDriver():
         
         self.game_state = GameState.Terminated
         self.game_id = 0
-        self.discord_players : dict[int, Player] = {}
+        self.discord_players : Dict[int, Player] = {}
         self.round : Round = None
 
         self.setup_message : Message = None
@@ -93,7 +94,11 @@ class GameDriver():
 
     def _play_notification(self, source = 'notify.mp3'):
         if self.voice_client is None: return
-        try: self.voice_client.play(discord.FFmpegPCMAudio(executable='./audio/ffmpeg/ffmpeg.exe', source=f'./audio/{source}'))
+        is_windows = getenv('IS_WINDOWS') == 'TRUE'
+        try:
+            if is_windows: audio_source = discord.FFmpegPCMAudio(executable='./audio/ffmpeg/ffmpeg.exe', source=f'./audio/{source}')
+            else: audio_source = discord.FFmpegPCMAudio(source=f'./audio/{source}')
+            self.voice_client.play(audio_source)
         except: pass
 
     async def update_round_message(self, round: Round, edit_function = None):

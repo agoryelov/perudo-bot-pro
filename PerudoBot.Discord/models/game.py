@@ -1,5 +1,7 @@
 import utils
 
+from typing import List
+
 class GameSummary():
     def __init__(self, json: dict) -> None:
         self.game_id = json.get('gameId')
@@ -33,19 +35,19 @@ class UserGame():
         self.net_points = json['netPoints']
         self.player_count = json['playerCount']
 
-def parse_elo_changes(json) -> list[PlayerEloChange]:
+def parse_elo_changes(json) -> List[PlayerEloChange]:
     elo_changes = []
     for elo_change in json:
         elo_changes.append(PlayerEloChange(elo_change))
     return elo_changes
 
-def parse_points_changes(json) -> list[PlayerPointsChange]:
+def parse_points_changes(json) -> List[PlayerPointsChange]:
     points_changes = []
     for points_change in json:
         points_changes.append(PlayerPointsChange(points_change))
     return points_changes
 
-def parse_game_notes(json) -> list[GameNote]:
+def parse_game_notes(json) -> List[GameNote]:
     game_notes = []
     for note in json:
         game_notes.append(GameNote(note))

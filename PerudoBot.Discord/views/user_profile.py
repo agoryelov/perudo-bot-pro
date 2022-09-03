@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 import discord
 from models import UserProfile, UserGame
 from models.achievement import UserAchievement
@@ -15,17 +15,17 @@ class UserProfileEmbed(discord.Embed):
         if len(profile.recent_achievements) > 0:
             self.add_field(name="Recent Achievements", value=self.get_recent_achievements(profile.recent_achievements))
 
-    def get_recent_games(self, games: list[UserGame]):
+    def get_recent_games(self, games: List[UserGame]):
         return f'Average Place: `{average_place(games)}` \nNet Points: `{net_points(games)} pts`'
 
-    def get_recent_achievements(self, achievements: list[UserAchievement]):
+    def get_recent_achievements(self, achievements: List[UserAchievement]):
         output = []
         for achievement in achievements:
             formatted_date = achievement.date_unlocked.strftime('%Y-%m-%d')
             output.append(f':star: `{achievement.score}` **{achievement.name}** @ `{formatted_date}`')
         return '\n'.join(output)
 
-def average_place(games: list[UserGame]):
+def average_place(games: List[UserGame]):
     if len(games) <= 0: return 'N/A'
     total = 0
     for game in games:
@@ -33,7 +33,7 @@ def average_place(games: list[UserGame]):
         total += scaled_place * 100
     return f'Top {round(total / len(games))}%'
 
-def net_points(games: list[UserGame]):
+def net_points(games: List[UserGame]):
     if len(games) <= 0: return 'N/A'
     total = 0
     for game in games:

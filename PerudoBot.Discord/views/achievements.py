@@ -4,9 +4,10 @@ import discord
 from models import AchievementDetails, UserAchievement
 from utils import EmbedColor
 from .paginator import PageSource
+from typing import List
 
 class AchievementSource(PageSource):
-    def __init__(self, achievements: list[AchievementDetails]):
+    def __init__(self, achievements: List[AchievementDetails]):
         super().__init__()
         self.achievements = achievements
         self.items_per_page = 5
@@ -24,7 +25,7 @@ class AchievementSource(PageSource):
         return embed
 
 class AchievementsEmbed(discord.Embed):
-    def __init__(self, achievements: list[AchievementDetails]):
+    def __init__(self, achievements: List[AchievementDetails]):
         super().__init__()
         self.color = EmbedColor.Yellow
         self.title = f'Achievements'
@@ -39,7 +40,7 @@ class AchievementsEmbed(discord.Embed):
         return f'*{achievement.description}*\n{format_unlocked(achievement.unlocked_by)}'
 
 class UserAchievementsEmbed(discord.Embed):
-    def __init__(self, achievements: list[UserAchievement]):
+    def __init__(self, achievements: List[UserAchievement]):
         super().__init__()
         self.color = EmbedColor.Yellow
         user_name = achievements[0].username
@@ -56,7 +57,7 @@ class UserAchievementsEmbed(discord.Embed):
         return f'*{achievement.description}*'
 
 
-def format_unlocked(usernames: list[str], max_show = 3):
+def format_unlocked(usernames: List[str], max_show = 3):
     if len(usernames) == 0: return "`Locked` :lock:"
     formatted = f"`Unlocked by`: {', '.join(usernames[:max_show])}"
     if len(usernames) > max_show:

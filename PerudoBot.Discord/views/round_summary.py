@@ -1,9 +1,10 @@
 import discord
 from models import Liar, Player, RoundSummary
 from utils import get_emoji, SYM_X, EmbedColor, bet_emoji
+from typing import Dict, List
 
 class DefeatEmbed(discord.Embed):
-    def __init__(self, liar: Liar, players: dict[int, Player]):
+    def __init__(self, liar: Liar, players: Dict[int, Player]):
         super().__init__()
         losing_player = players[liar.losing_player_id]
         winning_player = players[liar.winning_player_id]
@@ -11,7 +12,7 @@ class DefeatEmbed(discord.Embed):
         self.color = EmbedColor.Red
 
 class DamageDealtEmbed(discord.Embed):
-    def __init__(self, liar: Liar, players: dict[int, Player]):
+    def __init__(self, liar: Liar, players: Dict[int, Player]):
         super().__init__()
         losing_player = players[liar.losing_player_id]
         winning_player = players[liar.winning_player_id]
@@ -19,7 +20,7 @@ class DamageDealtEmbed(discord.Embed):
         self.color = EmbedColor.Red
 
 class LiarCalledEmbed(discord.Embed):
-    def __init__(self, liar: Liar, players: dict[int, Player], show_actual = False):
+    def __init__(self, liar: Liar, players: Dict[int, Player], show_actual = False):
         super().__init__()
         target_bid = liar.target_bid
         liar_player = players[liar.player_id]
@@ -48,7 +49,7 @@ class RoundSummaryEmbed(discord.Embed):
         if len(self.achievements) > 0:
             self.add_field(name='Achievements', value=self.get_achievements_field(), inline=False)
 
-    def get_all_dice(self) -> list[int]:
+    def get_all_dice(self) -> List[int]:
         all_dice = []
         for player in self.round.players.values():
             all_dice.extend(player.dice)

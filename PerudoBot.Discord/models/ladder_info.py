@@ -1,3 +1,5 @@
+from typing import List
+
 class LadderInfo():
     def __init__(self, json: dict) -> None:
         self.entries = parse_ladder_entries(json.get('ladderEntries'))
@@ -10,7 +12,7 @@ class LadderEntry():
         self.achievement_score = json.get('achievementScore')
         self.games_played = json.get('gamesPlayed')
 
-def parse_ladder_entries(json) -> list[LadderEntry]:
+def parse_ladder_entries(json) -> List[LadderEntry]:
     ladder_entries = []
     for entry in json:
         ladder_entries.append(LadderEntry(entry))

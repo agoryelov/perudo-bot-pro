@@ -1,0 +1,42 @@
+name: PerudoBot.Discord Build and Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+        # checkout the repo
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@master
+          
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+        - uses: azure/docker-login@v1
+          with:
+            login-server: perudo.azurecr.io
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+        - run: |
+            cd ./PerudoBot.Discord/
+            docker build . -t perudo.azurecr.io/perudo-discord:${{ github.sha }}
+            docker push perudo.azurecr.io/perudo-discord:${{ github.sha }}
+        
+        - name: 'Deploy to Azure Container Instances'
+          uses: 'azure/aci-deploy@v1'
+          with:
+            resource-group: PerudoBot
+            dns-name-label: perudo-discord
+            image: perudo.azurecr.io/perudo-discord:${{ github.sha }}
+            registry-username: ${{ secrets.REGISTRY_USERNAME }}
+            registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+            name: perudo-discord
+            location: 'canada central'
+            secure-environment-variables: DISCORD_TOKEN=${{ secrets.ENV_DISCORD_TOKEN }} GUILD_ID=${{ secrets.ENV_GUILD_ID }} OWNER_ID=${{ secrets.ENV_OWNER_ID }} SERVER_PATH=${{ secrets.ENV_SERVER_PATH }} BOT_CHANNEL=${{ secrets.ENV_BOT_CHANNEL }}

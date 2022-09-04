@@ -25,7 +25,7 @@ class Perudo(commands.Cog):
         is_slash = ctx.interaction is not None
         game_driver = self._get_channel_game(ctx.channel)
 
-        if getenv('BOT_CHANNEL') != 'NONE':
+        if getenv('BOT_CHANNEL', None) is not None:
             game_driver.bot_channel = await self.bot.fetch_channel(getenv('BOT_CHANNEL'))
 
         if game_driver.in_setup or game_driver.in_progress:

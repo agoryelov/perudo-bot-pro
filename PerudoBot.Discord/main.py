@@ -13,7 +13,6 @@ MY_GUILD = discord.Object(id=getenv('GUILD_ID'))
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 bot.owner_id = int(OWNER_ID)
 
-
 @bot.command(name='sync_guild', help='To sync application commands for current guild.', hidden=True)
 # Command to sync application commands for current guild.
 @commands.has_permissions(administrator=True)

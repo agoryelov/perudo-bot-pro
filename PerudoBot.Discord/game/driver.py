@@ -94,7 +94,7 @@ class GameDriver():
 
     def _play_notification(self, source = 'notify.mp3'):
         if self.voice_client is None: return
-        is_windows = getenv('IS_WINDOWS') == 'TRUE'
+        is_windows = getenv('IS_WINDOWS', 'False') == 'True'
         try:
             if is_windows: audio_source = discord.FFmpegPCMAudio(executable='./audio/ffmpeg/ffmpeg.exe', source=f'./audio/{source}')
             else: audio_source = discord.FFmpegPCMAudio(source=f'./audio/{source}')

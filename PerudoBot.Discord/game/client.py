@@ -4,7 +4,9 @@ from utils import GameActionError
 import urllib3
 urllib3.disable_warnings()
 
-SERVER_PATH = 'https://localhost:7068'
+from os import getenv
+
+SERVER_PATH = getenv('SERVER_PATH', 'https://localhost:7068')
 
 class GameClient():
 

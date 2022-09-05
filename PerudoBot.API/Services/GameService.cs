@@ -197,6 +197,44 @@ namespace PerudoBot.API.Services
             return Responses.OK();
         }
 
+        public Response AddReverseAction()
+        {
+            var currentRound = _activeGame.LatestRound;
+
+            if (currentRound.IsCompleted)
+            {
+                return Responses.Error("Round is completed");
+            }
+
+            if (currentRound.ActivePlayerId != _activePlayer?.Id)
+            {
+                return Responses.Error("Player not currently active");
+            }
+
+            if (currentRound.Actions.OfType<ReverseAction>().Any())
+            {
+                return Responses.Error("Reverse can only be used once per round");
+            }
+
+            var roundPlayer = currentRound.PlayerHands
+                .SingleOrDefault(x => x.PlayerId == _activePlayer.Id);
+
+            var reverseAction = new ReverseAction
+            {
+                ParentActionId = currentRound.LatestAction?.Id,
+                RoundId = currentRound.Id,
+                PlayerId = _activePlayer.Id,
+                PlayerHandId = roundPlayer.Id
+            };
+
+            _activeGame.Players = _activeGame.Players.Reverse();
+
+            _db.ReverseActions.Add(reverseAction);
+            _db.SaveChanges();
+
+            return Responses.OK();
+        }
+
         public RoundDto GetCurrentRound()
         {
             return _activeGame.LatestRound.ToRoundDto();

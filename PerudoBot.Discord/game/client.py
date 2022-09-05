@@ -68,6 +68,10 @@ class GameClient():
         payload = { 'Amount': amount, 'Type': bet_type }
         return GameClient._post(f'{SERVER_PATH}/game/bet', headers=headers, payload=payload)
 
+    def reverse_action(self, game_id, player_id):
+        headers = { 'GAME_ID': str(game_id), 'PLAYER_ID': str(player_id) }
+        return GameClient._post(f'{SERVER_PATH}/game/reverse', headers=headers)
+
     def liar_action(self, game_id, player_id):
         headers = { 'GAME_ID': str(game_id), 'PLAYER_ID': str(player_id) }
         return GameClient._post(f'{SERVER_PATH}/game/liar', headers=headers)

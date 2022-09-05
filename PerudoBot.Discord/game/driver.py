@@ -55,6 +55,7 @@ class GameDriver():
         await self._update_from_round(round)
         await self._send_out_dice(round)
         self.round_message = await self.send_delayed(view=RoundView(self), embed=RoundEmbed(round))
+        self._play_notification('notify_round_start.mp3')
         return round
 
     async def bid_action(self, discord_id, quantity, pips) -> Round:
@@ -62,6 +63,13 @@ class GameDriver():
         round = Round(round_data)
         await self._update_from_round(round)
         self._play_notification('notify_pop.mp3')
+        return round
+
+    async def reverse_action(self, discord_id) -> Round:
+        round_data = self.game_client.reverse_action(self.game_id, self._player_id(discord_id))
+        round = Round(round_data)
+        await self._update_from_round(round)
+        self._play_notification('notify_reverse.mp3')
         return round
     
     async def bet_action(self, discord_id, amount, bet_type) -> Round:
@@ -75,10 +83,17 @@ class GameDriver():
         summary_data = self.game_client.liar_action(self.game_id, self._player_id(discord_id))
         round_summary = RoundSummary(summary_data)
         await self._update_from_round(round_summary.round)
+        self._play_notification('notify_long_pop.mp3')
         return round_summary
 
+    async def _end_game_voice(self):
+        if self.voice_client is None: return
+        self._play_notification('notify_game_over.mp3')
+        await asyncio.sleep(5)
+        await self.voice_client.disconnect()
+    
     async def end_game(self) -> GameSummary:
-        if self.voice_client is not None: await self.voice_client.disconnect()
+        await self._end_game_voice()
         summary_data = self.game_client.end_game(self.game_id)
         return GameSummary(summary_data)
     

@@ -154,6 +154,21 @@ namespace PerudoBot.API.Controllers
         }
 
         [HttpPost]
+        [Route("game/reverse")]
+        [RequirePlayerInGame]
+        public IResult ReverseAction()
+        {
+            var response = _gameService.AddReverseAction();
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = _gameService.GetCurrentRound() });
+        }
+
+        [HttpPost]
         [Route("game/end")]
         [RequireGameInProgress]
         public IResult EndGame()

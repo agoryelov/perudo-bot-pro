@@ -51,7 +51,7 @@ class LiarButton(discord.ui.Button['RoundView']):
 
         if game_driver.ended:
             game_summary = await game_driver.end_game()
-            await game_driver.send_delayed(embed=GameSummaryEmbed(game_summary), delay=2)
+            await game_driver.send_delayed(embed=GameSummaryEmbed(game_summary))
         else:
             round = await game_driver.start_round()
             if game_driver.has_bots: await game_driver.send_bot_updates(round)
@@ -68,6 +68,19 @@ class DiceButton(discord.ui.Button['RoundView']):
             await interaction.response.send_message(deal_dice_message(player), ephemeral=True)
         else:
             await interaction.response.send_message("You are not in this game", ephemeral=True)
+
+class ReverseButton(discord.ui.Button['RoundView']):
+    def __init__(self, row: int, enabled=True):
+        super().__init__(style=discord.ButtonStyle.blurple, emoji='🪃', row=row)
+        self.disabled = not enabled
+    
+    async def callback(self, interaction: discord.Interaction):
+        game_driver = self.view.game_driver
+        try:
+            r = await game_driver.reverse_action(interaction.user.id)
+            await game_driver.update_round_message(r, interaction.response.edit_message)
+        except GameActionError as e:
+            await interaction.response.send_message(e.message, ephemeral=True)
 
 class BetButton(discord.ui.Button['RoundView']):
     def __init__(self, bet_type: BetType, row: int, enabled=True):
@@ -111,7 +124,8 @@ class RoundView(discord.ui.View):
         self.add_item(BetButton(BetType.Liar, 2, enabled=self.round.any_bids))
         self.add_item(BetButton(BetType.Exact, 2, enabled=self.round.any_bids))
         self.add_item(BetButton(BetType.Peak, 2, enabled=self.round.any_bids))
-        self.add_item(BetButton(BetType.Legit, 2, enabled=self.round.any_bids))
+
+        self.add_item(ReverseButton(2, enabled=self.round.can_reverse))
 
 class RoundEmbed(discord.Embed):
     def __init__(self, r: Round):

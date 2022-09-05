@@ -8,6 +8,7 @@ class Round():
         self.discord_players : dict[int, Player] = utils.parse_discord_players(json.get('players'))
         self.bets : list[Bet] = utils.parse_bets(json.get('bets'))
         self.bids : list[Bid] = utils.parse_bids(json.get('bids'))
+        self.can_reverse : bool = json.get('canReverse')
         self.action_player_id : int = json.get('activePlayerId')
         self.round_number : int = json.get('roundNumber')
         self.round_type : str = json.get('roundType')

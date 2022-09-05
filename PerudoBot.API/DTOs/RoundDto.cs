@@ -7,6 +7,7 @@
         public int RoundType { get; set; }
         public int TotalDiceCount { get; set; }
         public int ActivePlayerCount { get; set; }
+        public bool CanReverse { get; set; }
         public List<PlayerDto> Players { get; set; }
         public List<BetDto> Bets { get; set; }
         public List<BidDto> Bids { get; set; }

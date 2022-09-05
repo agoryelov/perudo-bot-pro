@@ -122,5 +122,18 @@ namespace PerudoBot.API.Helpers
 
             return shuffledPlayers;
         }
+
+        public static ICollection<Player> Reverse(this ICollection<Player> players)
+        {
+            var reversedPlayers = players.OrderByDescending(x => x.TurnOrder).ToList();
+            var turnOrder = 0;
+            foreach (var gamePlayer in reversedPlayers)
+            {
+                gamePlayer.TurnOrder = turnOrder;
+                turnOrder += 1;
+            }
+
+            return players;
+        }
     }
 }

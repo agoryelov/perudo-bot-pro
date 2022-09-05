@@ -36,6 +36,7 @@ namespace PerudoBot.API.Helpers
                 ActivePlayerId = round.ActivePlayerId,
                 RoundNumber = round.RoundNumber,
                 RoundType = round.RoundType,
+                CanReverse = !round.Actions.OfType<ReverseAction>().Any(),
                 Bets = round.Actions.OfType<BetAction>().Select(x => x.ToBetDto()).ToList(),
                 Bids = round.Actions.OfType<BidAction>().Select(x => x.ToBidDto()).ToList(),
                 LatestBid = round.LatestBid?.ToBidDto(),

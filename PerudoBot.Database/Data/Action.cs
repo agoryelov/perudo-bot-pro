@@ -68,4 +68,6 @@ namespace PerudoBot.Database.Data
         [NotMapped]
         public int BetPips => TargetBid.Pips;
     }
+
+    public class ReverseAction : Action { }
 }

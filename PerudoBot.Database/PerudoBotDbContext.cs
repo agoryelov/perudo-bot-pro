@@ -25,6 +25,7 @@ namespace PerudoBot.Database.Data
         public DbSet<BidAction> BidActions { get; set; }
         public DbSet<LiarAction> LiarActions { get; set; }
         public DbSet<BetAction> BetActions { get; set; }
+        public DbSet<ReverseAction> ReverseActions { get; set; }
 
         public DbSet<RoundNote> Notes { get;set; }
 

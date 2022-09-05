@@ -13,7 +13,7 @@
         public const float PITY_ODDS = 1.1f;
         public const float LIAR_ODDS = 1.5f;
         public const float EXACT_ODDS = 5.0f;
-        public const float PEAK_ODDS = 9.0f;
+        public const float PEAK_ODDS = 8.0f;
         public const float LEGIT_ODDS = 2.0f;
 
         public static int MaxBetPerDie(this BetType betType)

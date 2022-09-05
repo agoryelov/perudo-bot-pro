@@ -1,9 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace PerudoBot.Database.Data
 {
     public class PerudoBotDbContext : DbContext
     {
+        private IConfiguration Configuration { get; set; }
+
+        public PerudoBotDbContext(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
         public DbSet<User> Users { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<Player> Players { get; set; }
@@ -68,7 +76,9 @@ namespace PerudoBot.Database.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlite("Data Source=perudobot.db");
+            var connectionString = Configuration.GetConnectionString("Default");
+            var expandedPath = Environment.ExpandEnvironmentVariables(connectionString);
+            options.UseSqlite(expandedPath);
         }
     }
 }

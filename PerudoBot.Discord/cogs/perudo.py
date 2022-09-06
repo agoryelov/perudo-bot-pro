@@ -98,8 +98,7 @@ class Perudo(commands.Cog):
         await asyncio.sleep(1)
 
         if game_driver.ended:
-            game_summary = await game_driver.end_game()
-            await ctx.channel.send(embed=GameSummaryEmbed(game_summary))
+            await game_driver.end_game()
         else:
             round = await game_driver.start_round()
             if game_driver.has_bots: await game_driver.send_bot_updates(round)

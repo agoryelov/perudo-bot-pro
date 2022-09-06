@@ -8,7 +8,7 @@ from discord import Member, Message, TextChannel, User, VoiceClient
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
 from utils import GameState, GameActionError, bot_dice, bot_update, get_mention
-from views import RoundEmbed, RoundView, LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed
+from views import RoundEmbed, RoundView, LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed, GameSummaryEmbed, VictoryEmbed
 from .client import GameClient
 
 class GameDriver():
@@ -95,7 +95,11 @@ class GameDriver():
     async def end_game(self) -> GameSummary:
         await self._end_game_voice()
         summary_data = self.game_client.end_game(self.game_id)
-        return GameSummary(summary_data)
+        game_summary = GameSummary(summary_data)
+
+        winner = self.round.players[game_summary.winning_player_id]
+        await self.send_delayed(embed=VictoryEmbed(winner))
+        await self.send_delayed(embed=GameSummaryEmbed(game_summary))
     
     async def terminate(self):
         if self.voice_client is not None: await self.voice_client.disconnect()

@@ -3,7 +3,7 @@
     public class GameDto : Response
     {
         public int GameId { get; set; }
-        public int WinnningPlayerId { get; set; }
+        public int WinningPlayerId { get; set; }
         public List<PlayerEloChange> EloChanges { get; set; }
         public List<PlayerPointsChange> BetPointsChanges { get; set; }
         public List<GameNote> Notes { get; set; }

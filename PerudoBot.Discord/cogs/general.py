@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from game import GameClient
 from models import LadderInfo, UserProfile
-from utils import GameActionError, parse_achievement_details, parse_user_achievements
+from utils import RattleType, GameActionError, parse_achievement_details, parse_user_achievements, is_url_image
 from views import LadderInfoEmbed, LadderInfoView, UserAchievementsEmbed, AchievementSource, PagedView, UserProfileEmbed
 
 class General(commands.Cog):
@@ -13,7 +13,22 @@ class General(commands.Cog):
     @commands.hybrid_command(name="ping", description="To check latency of bot.", help="To check latency of bot.")
     async def ping(self, ctx: commands.Context):
         await ctx.send(f'Pong! `{round(self.bot.latency * 1000)} ms`')
+    
+    @commands.hybrid_command(name="rattle", description="Set your rattle", help="Set your rattle")
+    async def rattle(self, ctx: commands.Context, type: RattleType, rattle: str):
+        if ctx.interaction is None:
+            await ctx.reply('Use the slash command to set your rattle')
 
+        if not is_url_image(rattle):
+            await ctx.reply('Rattle must be a direct link to an image or gif', ephemeral=True)
+            return
+        
+        try:
+            GameClient.update_rattle(ctx.author.id, rattle, type)
+            await ctx.send(f'{type.name} rattle set.', ephemeral=True)
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
+    
     @commands.hybrid_command(name="profile", description="Check profile of a user", help="Check profile of a user")
     async def profile(self, ctx: commands.Context, member: discord.Member=None):
         if member is None: member = ctx.author

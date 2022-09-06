@@ -1,6 +1,8 @@
+import requests
+
 from typing import Tuple
 from datetime import datetime
-from models import Round, Player, Bet
+from models import Round, Player
 from .constants import BetType
 
 def get_emoji(num : int) -> str:
@@ -86,3 +88,12 @@ def min_bet(type: BetType) -> int:
     if type is BetType.Exact: return 50
     if type is BetType.Peak: return 50
     return 0
+
+def is_url_image(image_url) -> bool:
+    image_formats = ("image/png", "image/jpeg", "image/jpg", "image/gif")
+
+    try: 
+        r = requests.head(image_url)
+        return r.status_code == 200 and r.headers["content-type"] in image_formats
+    except: 
+        return False

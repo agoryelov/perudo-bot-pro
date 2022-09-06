@@ -32,6 +32,8 @@ namespace PerudoBot.Database.Data
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<UserAchievement> UserAchievements { get; set; }
 
+        public DbSet<Rattle> Rattles { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Action>()

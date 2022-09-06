@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PerudoBot.API.DTOs;
 using PerudoBot.API.Services;
 
 namespace PerudoBot.API.Controllers
@@ -70,6 +71,20 @@ namespace PerudoBot.API.Controllers
         public IResult GetUserProfile(ulong discordId)
         {
             var response = _userService.GetUserProfile(discordId);
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
+        }
+
+        [HttpPost]
+        [Route("general/rattles")]
+        public IResult UpdateRattle(RattleUpdate rattleUpdate)
+        {
+            var response = _userService.UpdateRattle(rattleUpdate);
 
             if (!response.RequestSuccess)
             {

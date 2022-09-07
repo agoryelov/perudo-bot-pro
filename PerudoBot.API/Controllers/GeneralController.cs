@@ -80,6 +80,13 @@ namespace PerudoBot.API.Controllers
             return Results.Ok(new { data = response });
         }
 
+        [HttpGet]
+        [Route("general/rattles")]
+        public IResult ListRattles()
+        {
+            return Results.Ok(new { data = _userService.ListRattles() });
+        }
+
         [HttpPost]
         [Route("general/rattles")]
         public IResult UpdateRattle(RattleUpdate rattleUpdate)

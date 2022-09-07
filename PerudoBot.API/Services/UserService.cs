@@ -147,6 +147,12 @@ namespace PerudoBot.API.Services
             return new LadderInfoDto { LadderEntries = ladderEntries };
         }
 
+        public List<Rattle> ListRattles()
+        {
+            if (!_db.Rattles.Any()) return new List<Rattle>();
+            return _db.Rattles.ToList();
+        }
+
         public Response UpdateRattle(RattleUpdate rattleUpdate)
         {
             var user = GetUserFromDiscordId(rattleUpdate.DiscordId);

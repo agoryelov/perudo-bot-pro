@@ -1,5 +1,16 @@
 import discord
-from models import GameSummary
+from models import GameSummary, Player
+from utils import EmbedColor, RattleType
+
+class VictoryEmbed(discord.Embed):
+    def __init__(self, winner: Player):
+        super().__init__()
+        self.description = f":trophy: **{winner.name}** wins with :heart: `{winner.lives}` remaining!"
+        self.color = EmbedColor.Yellow
+
+        winrattle = winner.rattle(RattleType.Win)
+        if winrattle is not None:
+            self.set_image(url=winrattle.content)
 
 class GameSummaryEmbed(discord.Embed):
     def __init__(self, game_summary: GameSummary):

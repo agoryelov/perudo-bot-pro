@@ -17,6 +17,7 @@ namespace PerudoBot.API.Helpers
                 Points = player.User.Points,
                 Name = player.User.Name,
                 Lives = player.Lives,
+                Rattles = player.User.Rattles.Select(x => x.ToRattleDto()).ToList()
             };
 
             if (roundId == null) return playerState;
@@ -27,6 +28,16 @@ namespace PerudoBot.API.Helpers
 
             playerState.Dice = playerHand.Dice.ToIntegerDice();
             return playerState;
+        }
+
+        public static RattleDto ToRattleDto(this Rattle rattle)
+        {
+            return new RattleDto
+            {
+                RattleType = rattle.RattleType,
+                RattleContentType = rattle.RattleContentType,
+                Content = rattle.Content
+            };
         }
 
         public static RoundDto ToRoundDto(this Round round)

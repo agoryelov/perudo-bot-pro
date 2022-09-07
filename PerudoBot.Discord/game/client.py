@@ -26,6 +26,11 @@ class GameClient():
     def get_user_profile(discord_id):
         return GameClient._get(f'{SERVER_PATH}/general/profile/{discord_id}')
 
+    @staticmethod
+    def update_rattle(discord_id, content, type, content_type = 0):
+        payload = { 'DiscordId': discord_id, 'Content': content, 'RattleType': type, 'RattleContentType': content_type }
+        return GameClient._post(f'{SERVER_PATH}/general/rattles', payload=payload)
+
     def add_note(self, game_id, player_id, note_text):
         headers = { 'GAME_ID': str(game_id), 'PLAYER_ID': str(player_id) }
         payload = { 'Text': note_text }
@@ -95,7 +100,7 @@ class GameClient():
     def _get_data(response: dict = None):
         if response is None: 
             raise GameActionError()
-
+        
         body : dict = response.get('value')
         if body is None: 
             raise GameActionError()

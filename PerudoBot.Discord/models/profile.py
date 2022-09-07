@@ -12,3 +12,9 @@ class UserProfile():
         self.elo_rank = json["eloRank"]
         self.recent_games = utils.parse_user_games(json["recentGames"])
         self.recent_achievements = utils.parse_user_achievements(json["recentAchievements"])
+
+class UserGame():
+    def __init__(self, json: dict):
+        self.placing = json['placing']
+        self.net_points = json['netPoints']
+        self.player_count = json['playerCount']

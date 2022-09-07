@@ -206,7 +206,7 @@ namespace PerudoBot.API.Controllers
                 return Results.BadRequest(new { error = response.ErrorMessage });
             }
 
-            return Results.Ok(new { data = "" });
+            return Results.Ok(new { data = response });
         }
     }
 }

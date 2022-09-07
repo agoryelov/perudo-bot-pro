@@ -147,6 +147,41 @@ namespace PerudoBot.API.Services
             return new LadderInfoDto { LadderEntries = ladderEntries };
         }
 
+        public Response UpdateRattle(RattleUpdate rattleUpdate)
+        {
+            var user = GetUserFromDiscordId(rattleUpdate.DiscordId);
+
+            if (user == null)
+            {
+                return Responses.Error("User is not recognized");
+            }
+
+            var rattle = _db.Rattles
+                .Where(x => x.UserId == user.Id)
+                .Where(x => x.RattleType == (int)rattleUpdate.RattleType)
+                .Where(x => x.RattleContentType == (int)rattleUpdate.RattleContentType)
+                .SingleOrDefault();
+
+            if (rattle == null)
+            {
+                _db.Rattles.Add(new Rattle
+                {
+                    UserId = user.Id,
+                    RattleType = (int)rattleUpdate.RattleType,
+                    RattleContentType = (int)rattleUpdate.RattleContentType,
+                    Content = rattleUpdate.Content
+                });
+            }
+            else
+            {
+                rattle.Content = rattleUpdate.Content;
+            }
+
+            _db.SaveChanges();
+
+            return Responses.OK();
+        }
+
         public UserProfileDto GetUserProfile(ulong discordId)
         {
             var user = _db.Users

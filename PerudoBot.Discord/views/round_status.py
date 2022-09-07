@@ -50,8 +50,7 @@ class LiarButton(discord.ui.Button['RoundView']):
         await game_driver.send_delayed(embed=RoundSummaryEmbed(round_summary))
 
         if game_driver.ended:
-            game_summary = await game_driver.end_game()
-            await game_driver.send_delayed(embed=GameSummaryEmbed(game_summary))
+            await game_driver.end_game()
         else:
             round = await game_driver.start_round()
             if game_driver.has_bots: await game_driver.send_bot_updates(round)

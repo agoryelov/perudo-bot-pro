@@ -8,9 +8,18 @@ class GameState(enum.Enum):
 
 class BetType(enum.IntEnum):
     Exact = 0
-    Liar = 1,
-    Peak = 2,
+    Liar = 1
+    Peak = 2
     Legit = 3
+
+class RattleType(enum.IntEnum):
+    Death = 0,
+    Win = 1
+    Taunt = 2
+
+class RattleContentType(enum.IntEnum):
+    Image = 0
+    Sound = 1
 
 class EmbedColor(enum.IntEnum):
     Red = 12199168

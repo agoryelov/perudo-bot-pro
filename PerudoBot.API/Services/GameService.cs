@@ -32,6 +32,7 @@ namespace PerudoBot.API.Services
                 .Where(x => x.Id == gameId)
                 .Include(x => x.Players)
                     .ThenInclude(x => x.User)
+                        .ThenInclude(x => x.Rattles)
                 .Include(x => x.Rounds)
                     .ThenInclude(x => x.Actions)
                 .Include(x => x.Rounds)
@@ -371,7 +372,7 @@ namespace PerudoBot.API.Services
             return new GameDto
             {
                 GameId = _activeGame.Id,
-                WinnningPlayerId = _activeGame.WinningPlayerId,
+                WinningPlayerId = _activeGame.WinningPlayerId,
                 BetPointsChanges = _activeGame.Players
                     .Select(player => player.
                         ToPlayerPointsChange(_userService

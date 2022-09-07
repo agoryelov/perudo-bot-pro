@@ -1,6 +1,6 @@
 import discord
 from models import Liar, Player, RoundSummary
-from utils import get_emoji, SYM_X, EmbedColor, bet_emoji
+from utils import get_emoji, SYM_X, EmbedColor, bet_emoji, RattleType
 from typing import Dict, List
 
 class DefeatEmbed(discord.Embed):
@@ -10,6 +10,10 @@ class DefeatEmbed(discord.Embed):
         winning_player = players[liar.winning_player_id]
         self.description = f":skull: **{losing_player.name}** was defeated by **{winning_player.name}**"
         self.color = EmbedColor.Red
+
+        deathrattle = losing_player.rattle(RattleType.Death)
+        if deathrattle is not None:
+            self.set_image(url=deathrattle.content)
 
 class DamageDealtEmbed(discord.Embed):
     def __init__(self, liar: Liar, players: Dict[int, Player]):
@@ -30,8 +34,14 @@ class LiarCalledEmbed(discord.Embed):
         if show_actual:
             self.description += f"\nThere was actually `{liar.actual_quantity}` {SYM_X} {get_emoji(target_bid.pips)}"
         
+        if show_actual and liar.actual_quantity == target_bid.quantity:
+            winning_player = players[liar.winning_player_id]
+            tauntrattle = winning_player.rattle(RattleType.Taunt)
+            if tauntrattle is not None:
+                self.set_image(url=tauntrattle.content)
+        
         self.color = EmbedColor.Red
-
+    
 class RoundSummaryEmbed(discord.Embed):
     def __init__(self, round_summary: RoundSummary):
         super().__init__(title=f'Round {round_summary.round.round_number} Summary')

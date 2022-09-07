@@ -5,6 +5,7 @@ from typing import List
 class GameSummary():
     def __init__(self, json: dict) -> None:
         self.game_id = json.get('gameId')
+        self.winning_player_id = json.get('winningPlayerId')
         self.betting_changes : list[PlayerPointsChange] = parse_points_changes(json.get('betPointsChanges'))
         self.elo_changes : list[PlayerEloChange] = parse_elo_changes(json.get('eloChanges'))
         self.notes : list[GameNote] = parse_game_notes(json.get('notes'))
@@ -15,7 +16,6 @@ class PlayerEloChange():
         self.name = json.get('name')
         self.starting_elo = json.get('startingElo')
         self.final_elo = json.get('finalElo')
-        pass
 
 class PlayerPointsChange():
     def __init__(self, json: dict) -> None:
@@ -28,12 +28,6 @@ class GameNote():
         self.round_number = json.get('roundNumber')
         self.name = json.get('name')
         self.text = json.get('text')
-
-class UserGame():
-    def __init__(self, json: dict):
-        self.placing = json['placing']
-        self.net_points = json['netPoints']
-        self.player_count = json['playerCount']
 
 def parse_elo_changes(json) -> List[PlayerEloChange]:
     elo_changes = []

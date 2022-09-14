@@ -124,7 +124,10 @@ class RoundView(discord.ui.View):
         self.add_item(BetButton(BetType.Exact, 2, enabled=self.round.any_bids))
         self.add_item(BetButton(BetType.Peak, 2, enabled=self.round.any_bids))
 
-        self.add_item(ReverseButton(2, enabled=self.round.can_reverse))
+        if self.round.any_bids:
+            self.add_item(BetButton(BetType.Legit, 2, enabled=self.round.any_bids))
+        else:
+            self.add_item(ReverseButton(2, enabled=self.round.can_reverse))
 
 class RoundEmbed(discord.Embed):
     def __init__(self, r: Round):

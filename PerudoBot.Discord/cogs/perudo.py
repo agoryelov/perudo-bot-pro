@@ -32,7 +32,8 @@ class Perudo(commands.Cog):
             await ctx.reply("Game already exists, use `/terminate` before starting a new game")
             return
         
-        if not is_slash: await ctx.message.delete()
+        if is_slash: await ctx.interaction.response.defer()
+        else: await ctx.message.delete()
 
         game_setup = await game_driver.create_game()
         game_setup_view = GameSetupView(game_driver)

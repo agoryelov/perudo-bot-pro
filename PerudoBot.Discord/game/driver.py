@@ -48,6 +48,7 @@ class GameDriver():
     async def start_game(self):
         self.game_client.start_game(self.game_id)
         self.game_state = GameState.InProgress
+        self._play_notification('notify_round_start.mp3')
 
     async def start_round(self) -> Round:
         round_data = self.game_client.start_round(self.game_id)
@@ -55,7 +56,6 @@ class GameDriver():
         await self._update_from_round(round)
         await self._send_out_dice(round)
         self.round_message = await self.send_delayed(view=RoundView(self), embed=RoundEmbed(round))
-        self._play_notification('notify_round_start.mp3')
         return round
 
     async def bid_action(self, discord_id, quantity, pips) -> Round:

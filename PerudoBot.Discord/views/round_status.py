@@ -176,6 +176,6 @@ class RoundEmbed(discord.Embed):
         for bid in self.round.bids:
             time = bid.date_created.strftime('%H:%M')
             player = self.round.players[bid.player_id]
-            logs.append(f'`{time}`: {player.name} bids `{bid.quantity}` {SYM_X} {get_emoji(bid.pips)}')
+            logs.append(f'`{time}`: {player.name} bids `{bid.quantity}` {SYM_X} {get_emoji(bid.pips, bid.player_id)}')
         if len(logs) == 0: return 'None'
         return '\n'.join(logs)

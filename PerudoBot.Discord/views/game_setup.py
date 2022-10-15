@@ -38,6 +38,7 @@ class GameSetupView(discord.ui.View):
 
     @discord.ui.button(label='Start', style=discord.ButtonStyle.green)
     async def start(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.game_driver.set_voice_channel(interaction.user)
         if self.game_driver.num_players < 2:
             await interaction.response.send_message("Need at least two players to start", ephemeral=True)
         else:
@@ -45,23 +46,6 @@ class GameSetupView(discord.ui.View):
             self.clear_items()
             await interaction.response.edit_message(view=self)
             self.stop()
-
-    @discord.ui.button(label='Voice', style=discord.ButtonStyle.gray)
-    async def join_voice(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user.voice is None:
-            await interaction.response.send_message('You are not in a voice channel', ephemeral=True)
-            return
-        
-        voice_channel = interaction.user.voice.channel
-        try:
-            voice_client = await voice_channel.connect()
-        except:
-            await interaction.response.send_message(f'Unable to connect to the {voice_channel.name}', ephemeral=True)
-            return
-
-        self.game_driver.voice_client = voice_client
-        button.disabled = True
-        await interaction.response.edit_message(view=self)
 
 class GameSetupEmbed(discord.Embed):
     def __init__(self, game_setup: GameSetup):

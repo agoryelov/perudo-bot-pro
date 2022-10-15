@@ -4,7 +4,7 @@ from typing import Union, Dict
 from os import getenv
 
 import discord
-from discord import Member, Message, TextChannel, User, VoiceClient
+from discord import Member, Message, TextChannel, User, VoiceClient, VoiceChannel
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
 from utils import GameState, GameActionError, bot_dice, bot_update, get_mention
@@ -24,6 +24,7 @@ class GameDriver():
         self.setup_message : Message = None
         self.round_message : Message = None
         self.voice_client : VoiceClient = None
+        self.voice_channel : VoiceChannel = None
         self.bot_channel : TextChannel = None
 
     async def create_game(self) -> GameSetup:
@@ -48,7 +49,7 @@ class GameDriver():
     async def start_game(self):
         self.game_client.start_game(self.game_id)
         self.game_state = GameState.InProgress
-        self._play_notification('notify_round_start.mp3')
+        await self._start_game_voice()
 
     async def start_round(self) -> Round:
         round_data = self.game_client.start_round(self.game_id)
@@ -85,12 +86,6 @@ class GameDriver():
         await self._update_from_round(round_summary.round)
         self._play_notification('notify_long_pop.mp3')
         return round_summary
-
-    async def _end_game_voice(self):
-        if self.voice_client is None: return
-        self._play_notification('notify_game_over.mp3')
-        await asyncio.sleep(5)
-        await self.voice_client.disconnect()
     
     async def end_game(self) -> GameSummary:
         await self._end_game_voice()
@@ -105,6 +100,22 @@ class GameDriver():
         if self.voice_client is not None: await self.voice_client.disconnect()
         self.game_client.terminate_game(self.game_id)
         self.game_state = GameState.Terminated
+    
+    async def _start_game_voice(self):
+        try: self.voice_client = await self.voice_channel.connect()
+        except: pass
+        self._play_notification('notify_round_start.mp3')
+
+    async def _end_game_voice(self):
+        if self.voice_client is None: return
+        self._play_notification('notify_game_over.mp3')
+        await asyncio.sleep(5)
+        await self.voice_client.disconnect()
+
+    def set_voice_channel(self, member: Member):
+        if member.voice is None: return
+        if member.voice.channel is None: return
+        self.voice_channel = member.voice.channel
     
     async def _update_from_setup(self, game_setup: GameSetup):
         self.game_id = game_setup.game_id

@@ -14,6 +14,9 @@ def get_emoji(num : int) -> str:
     if num == 6: return ':six:'
     else: return ':grey_question:'
 
+def get_emoji(num : int, player_id: int = 0) -> str:
+    return get_emoji(num)
+
 def get_unicode(num : int) -> str:
     if num == 1: return '1️⃣'
     if num == 2: return '2️⃣'
@@ -73,7 +76,7 @@ def parse_bid(bid_text: str) -> Tuple[int, int]:
     return int(bid_text[0]), int(bid_text[1])
 
 def deal_dice_message(player: Player):
-    return f'`Your dice`: {" ".join(get_emoji(x) for x in player.dice)}'
+    return f'`Your dice`: {" ".join(get_emoji(x, player.player_id) for x in player.dice)}'
 
 def bet_emoji(type: BetType) -> str:
     if type is BetType.Liar: return '🧊'

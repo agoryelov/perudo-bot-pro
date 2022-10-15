@@ -79,7 +79,7 @@ class RoundSummaryEmbed(discord.Embed):
         player_dice = []
         for player in self.round.players.values():
             if len(player.dice) > 0:
-                player_dice.append(f'`{len(player.dice)}` {player.name} `{player.points} pts` \u200b{" ".join(get_emoji(x) for x in player.dice)}')
+                player_dice.append(f'`{len(player.dice)}` {player.name} `{player.points} pts` \u200b{" ".join(get_emoji(x, player.player_id) for x in player.dice)}')
         return '\n'.join(player_dice)
     
     def get_dice_counts_field(self):

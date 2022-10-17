@@ -1,6 +1,6 @@
 ﻿namespace PerudoBot.API.DTOs
 {
-    public class EquipItem
+    public class ItemUpdate
     {
         public int ItemId { get; set; }
         public ulong DiscordId { get; set; }

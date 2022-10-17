@@ -35,7 +35,7 @@ namespace PerudoBot.API.Services
             return user.ToUserInventoryDto();
         }
 
-        public Response EquipDice(EquipItem equipItem)
+        public Response EquipDice(ItemUpdate equipItem)
         {
             var user = GetUserWithItems(equipItem.DiscordId);
 
@@ -49,6 +49,7 @@ namespace PerudoBot.API.Services
             {
                 user.EquippedDice = null;
                 _db.SaveChanges();
+
                 return Responses.OK();
             }
 
@@ -66,6 +67,56 @@ namespace PerudoBot.API.Services
 
             user.EquippedDice = item;
             _db.SaveChanges();
+
+            return Responses.OK();
+        }
+
+        public Response AddItemToUser(ItemUpdate addItem)
+        {
+            var user = GetUserWithItems(addItem.DiscordId);
+
+            if (user == null)
+            {
+                return Responses.Error("User is not recognized");
+            }
+
+            var item = _db.Items.OfType<DiceItem>().SingleOrDefault(x => x.Id == addItem.ItemId);
+
+            if (item == null)
+            {
+                return Responses.Error("Item is not recognized");
+            }
+
+            user.UserItems.Add(new UserItem
+            {
+                User = user,
+                Item = item
+            });
+
+            _db.SaveChanges();
+
+            return Responses.OK();
+        }
+
+        public Response RemoveItemFromUser(ItemUpdate removeItem)
+        {
+            var user = GetUserWithItems(removeItem.DiscordId);
+
+            if (user == null)
+            {
+                return Responses.Error("User is not recognized");
+            }
+
+            var item = user.UserItems.FirstOrDefault(x => x.Item.Id == removeItem.ItemId);
+
+            if (item == null)
+            {
+                return Responses.Error("User doesn't have this item");
+            }
+
+            user.UserItems.Remove(item);
+            _db.SaveChanges();
+
             return Responses.OK();
         }
     }

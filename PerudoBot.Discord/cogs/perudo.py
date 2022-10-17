@@ -38,6 +38,7 @@ class Perudo(commands.Cog):
         game_setup = await game_driver.create_game()
         game_setup_view = GameSetupView(game_driver)
         game_driver.setup_message = await ctx.send(view=game_setup_view, embed=GameSetupEmbed(game_setup))
+        game_driver.set_voice_channel(ctx.author)
 
         await game_setup_view.wait()
 

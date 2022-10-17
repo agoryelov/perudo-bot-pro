@@ -8,7 +8,7 @@ namespace PerudoBot.API.Helpers
     public static class MapHelpers
     {
         public static PlayerDto ToPlayerDto(this Player player, int? roundId = null)
-        {  
+        {
             var playerState = new PlayerDto
             {
                 PlayerId = player.Id,
@@ -17,6 +17,7 @@ namespace PerudoBot.API.Helpers
                 Points = player.User.Points,
                 Name = player.User.Name,
                 Lives = player.Lives,
+                EquippedDice = player.User.EquippedDice?.Emotes,
                 Rattles = player.User.Rattles.Select(x => x.ToRattleDto()).ToList()
             };
 
@@ -216,6 +217,27 @@ namespace PerudoBot.API.Helpers
                 Placing = game.Players.OrderByDescending(x => x.RoundEliminated).ToList().IndexOf(player) + 1,
                 PlayerCount = game.Players.Count(),
                 NetPoints = game.UserLogs.OfType<PointsLog>().Where(x => x.UserId == user.Id).Sum(x => x.PointsChange)
+            };
+        }
+
+        public static UserInventoryDto ToUserInventoryDto(this User user)
+        {
+            return new UserInventoryDto
+            {
+                Name = user.Name,
+                EquippedDice = user.EquippedDice?.ToDiceItemDto(),
+                DiceItems = user.UserItems.Select(x => x.Item).OfType<DiceItem>().Select(x => x.ToDiceItemDto()).ToList()
+            };
+        }
+
+        public static DiceItemDto ToDiceItemDto(this DiceItem diceItem)
+        {
+            return new DiceItemDto
+            {
+                ItemId = diceItem.Id,
+                ItemType = diceItem.ItemType,
+                ItemName = diceItem.Name,
+                DiceEmotes = diceItem.Emotes
             };
         }
     }

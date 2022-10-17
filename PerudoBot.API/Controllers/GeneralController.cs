@@ -9,11 +9,13 @@ namespace PerudoBot.API.Controllers
     {
         private readonly UserService _userService;
         private readonly AchievementService _achievementService;
+        private readonly ItemService _itemService;
 
-        public GeneralController(UserService userService, AchievementService achievementService)
+        public GeneralController(UserService userService, AchievementService achievementService, ItemService itemService)
         {
             _userService = userService;
             _achievementService = achievementService;
+            _itemService = itemService;
         }
 
         [HttpGet]
@@ -92,6 +94,34 @@ namespace PerudoBot.API.Controllers
         public IResult UpdateRattle(RattleUpdate rattleUpdate)
         {
             var response = _userService.UpdateRattle(rattleUpdate);
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
+        }
+
+        [HttpGet]
+        [Route("general/inventory/{discordId}")]
+        public IResult GetUserInventory(ulong discordId)
+        {
+            var response = _itemService.GetUserInventory(discordId);
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
+        }
+
+        [HttpPost]
+        [Route("general/inventory/equip/dice")]
+        public IResult EquipDice(EquipItem equipItem)
+        {
+            var response = _itemService.EquipDice(equipItem);
 
             if (!response.RequestSuccess)
             {

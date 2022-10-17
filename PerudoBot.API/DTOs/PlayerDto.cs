@@ -8,6 +8,7 @@
         public string Name { get; set; }
         public int Points { get; set; }
         public int Lives { get; set; }
+        public string EquippedDice { get; set; }
         public List<int> Dice { get; set; } = new List<int>();
         public List<RattleDto> Rattles { get; set; }
     }

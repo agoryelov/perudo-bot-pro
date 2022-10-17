@@ -36,7 +36,7 @@ class UserInventoryView(discord.ui.View):
 class UserInventoryEmbed(discord.Embed):
     def __init__(self, inventory: UserInventory):
         super().__init__()
-        self.title = "My Inventory"
+        self.title = f"{inventory.name}'s Inventory"
         self.description = self.get_equipped_dice(inventory.equipped_dice)
 
         sorted_items = sorted(inventory.dice_items, key=lambda x: x.item_name)

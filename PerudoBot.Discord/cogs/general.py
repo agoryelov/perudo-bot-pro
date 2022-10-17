@@ -18,6 +18,7 @@ class General(commands.Cog):
     async def rattle(self, ctx: commands.Context, type: RattleType, rattle: str):
         if ctx.interaction is None:
             await ctx.reply('Use the slash command to set your rattle')
+            return
 
         if not is_url_image(rattle):
             await ctx.reply('Rattle must be a direct link to an image or gif', ephemeral=True)
@@ -41,13 +42,15 @@ class General(commands.Cog):
             await ctx.reply(e.message, ephemeral=True)
     
     @commands.hybrid_command(name="inventory", description="Manage your inventory", help="Manage your inventory")
-    async def inventory(self, ctx: commands.Context, member: discord.Member=None):
-        if member is None: member = ctx.author
+    async def inventory(self, ctx: commands.Context):
         await ctx.defer(ephemeral=True)
         try:
-            inventory_data = GameClient.get_user_inventory(member.id)
+            inventory_data = GameClient.get_user_inventory(ctx.author.id)
             user_inventory = UserInventory(inventory_data)
-            await ctx.send(embed=UserInventoryEmbed(user_inventory), view=UserInventoryView(user_inventory), ephemeral=True)
+            if ctx.interaction is None:
+                await ctx.send(embed=UserInventoryEmbed(user_inventory))
+            else:
+                await ctx.send(embed=UserInventoryEmbed(user_inventory), view=UserInventoryView(user_inventory), ephemeral=True)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
     

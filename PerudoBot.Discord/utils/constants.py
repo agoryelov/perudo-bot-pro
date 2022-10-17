@@ -28,3 +28,4 @@ class EmbedColor(enum.IntEnum):
     Invisible = 3092790
 
 SYM_X = "×"
+EMPTY = "‎"

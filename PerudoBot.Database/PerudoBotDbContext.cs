@@ -34,6 +34,9 @@ namespace PerudoBot.Database.Data
 
         public DbSet<Rattle> Rattles { get; set; }
 
+        public DbSet<Item> Items { get; set; }
+        public DbSet<DiceItem> DiceItems { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Action>()
@@ -41,6 +44,9 @@ namespace PerudoBot.Database.Data
 
             modelBuilder.Entity<UserLog>()
                 .HasDiscriminator(u => u.UserLogType);
+
+            modelBuilder.Entity<Item>()
+                .HasDiscriminator(u => u.ItemType);
 
             modelBuilder.Entity<Achievement>()
                 .HasIndex(a => a.Name)
@@ -75,6 +81,16 @@ namespace PerudoBot.Database.Data
                 .HasMany(x => x.Games)
                 .WithMany(x => x.Users)
                 .UsingEntity<Player>();
+
+            modelBuilder.Entity<UserItem>()
+                .HasOne(x => x.Item)
+                .WithMany(x => x.UserItems)
+                .HasForeignKey(gm => gm.ItemId);
+
+            modelBuilder.Entity<UserItem>()
+                .HasOne(x => x.User)
+                .WithMany(user => user.UserItems)
+                .HasForeignKey(gm => gm.UserId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

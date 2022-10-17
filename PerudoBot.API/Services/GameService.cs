@@ -33,6 +33,10 @@ namespace PerudoBot.API.Services
                 .Include(x => x.Players)
                     .ThenInclude(x => x.User)
                         .ThenInclude(x => x.Rattles)
+                .Include(x => x.Players)
+                    .ThenInclude(x => x.User)
+                        .ThenInclude(x => x.UserItems)
+                            .ThenInclude(x => x.Item)
                 .Include(x => x.Rounds)
                     .ThenInclude(x => x.Actions)
                 .Include(x => x.Rounds)
@@ -238,7 +242,8 @@ namespace PerudoBot.API.Services
 
         public RoundDto GetCurrentRound()
         {
-            return _activeGame.LatestRound.ToRoundDto();
+            var round = _activeGame.LatestRound.ToRoundDto();
+            return round;
         }
 
         public RoundSummaryDto GetCurrentRoundSummary()

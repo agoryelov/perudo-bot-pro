@@ -27,6 +27,15 @@ class GameClient():
         return GameClient._get(f'{SERVER_PATH}/general/profile/{discord_id}')
 
     @staticmethod
+    def get_user_inventory(discord_id):
+        return GameClient._get(f'{SERVER_PATH}/general/inventory/{discord_id}')
+
+    @staticmethod
+    def equip_dice_item(discord_id, item_id = -1):
+        payload = { 'DiscordId': discord_id, 'ItemId': item_id }
+        return GameClient._post(f'{SERVER_PATH}/general/inventory/equip/dice', payload=payload)
+
+    @staticmethod
     def update_rattle(discord_id, content, type, content_type = 0):
         payload = { 'DiscordId': discord_id, 'Content': content, 'RattleType': type, 'RattleContentType': content_type }
         return GameClient._post(f'{SERVER_PATH}/general/rattles', payload=payload)

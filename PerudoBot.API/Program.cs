@@ -11,6 +11,7 @@ builder.Services
     .AddScoped<UserService>()
     .AddScoped<BetService>()
     .AddScoped<EloService>()
+    .AddScoped<ItemService>()
     .AddDbContext<PerudoBotDbContext>()
     .AddControllers();
 

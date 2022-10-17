@@ -4,27 +4,7 @@ from typing import Tuple
 from datetime import datetime
 from models import Round, Player
 from .constants import BetType
-
-def get_emoji(num : int) -> str:
-    if num == 1: return ':one:'
-    if num == 2: return ':two:'
-    if num == 3: return ':three:'
-    if num == 4: return ':four:'
-    if num == 5: return ':five:'
-    if num == 6: return ':six:'
-    else: return ':grey_question:'
-
-def get_emoji(num : int, player_id: int = 0) -> str:
-    return get_emoji(num)
-
-def get_unicode(num : int) -> str:
-    if num == 1: return '1️⃣'
-    if num == 2: return '2️⃣'
-    if num == 3: return '3️⃣'
-    if num == 4: return '4️⃣'
-    if num == 5: return '5️⃣'
-    if num == 6: return '6️⃣'
-    else: return '1️⃣'
+from .items import dice_emote
 
 def get_mention(discord_id: int) -> str:
     return f'<@!{discord_id}>'
@@ -76,7 +56,7 @@ def parse_bid(bid_text: str) -> Tuple[int, int]:
     return int(bid_text[0]), int(bid_text[1])
 
 def deal_dice_message(player: Player):
-    return f'`Your dice`: {" ".join(get_emoji(x, player.player_id) for x in player.dice)}'
+    return f'`Your dice`: {" ".join(dice_emote(x, player.equipped_dice) for x in player.dice)}'
 
 def bet_emoji(type: BetType) -> str:
     if type is BetType.Liar: return '🧊'

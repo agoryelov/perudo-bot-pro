@@ -6,3 +6,4 @@ from .ladder_info import LadderInfoEmbed, LadderInfoView
 from .achievements import UserAchievementsEmbed, AchievementsEmbed, AchievementSource
 from .paginator import PagedView, PageSource
 from .user_profile import UserProfileEmbed
+from .user_inventory import UserInventoryView, UserInventoryEmbed

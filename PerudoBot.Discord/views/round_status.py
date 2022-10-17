@@ -1,12 +1,11 @@
 import discord
 from models import Round
-from utils import get_emoji, get_pip_quantity, next_up_message, deal_dice_message, bet_emoji, min_bet
+from utils import dice_emote, get_pip_quantity, next_up_message, deal_dice_message, bet_emoji, min_bet
 from utils import GameActionError, BetType, SYM_X
 
 from typing import TYPE_CHECKING
 
 from .round_summary import RoundSummaryEmbed
-from .game_summary import GameSummaryEmbed
 
 if TYPE_CHECKING:
     from game import GameDriver
@@ -166,8 +165,9 @@ class RoundEmbed(discord.Embed):
     def get_bets_field(self):
         bets = []
         for bet in self.round.bets:
+            target_player = self.round.players[bet.target_bid.player_id]
             bet_player = self.round.players[bet.player_id]
-            bets.append(f':dollar: {bet_player.name} bets `{bet.bet_amount}` on `{bet.target_bid.quantity}` {SYM_X} {get_emoji(bet.target_bid.pips)}')
+            bets.append(f':dollar: {bet_player.name} bets `{bet.bet_amount}` on `{bet.target_bid.quantity}` {SYM_X} {dice_emote(bet.target_bid.pips, target_player.equipped_dice)}')
         if len(bets) == 0: return 'None'
         return '\n'.join(bets)
 
@@ -176,6 +176,6 @@ class RoundEmbed(discord.Embed):
         for bid in self.round.bids:
             time = bid.date_created.strftime('%H:%M')
             player = self.round.players[bid.player_id]
-            logs.append(f'`{time}`: {player.name} bids `{bid.quantity}` {SYM_X} {get_emoji(bid.pips, bid.player_id)}')
+            logs.append(f'`{time}`: {player.name} bids `{bid.quantity}` {SYM_X} {dice_emote(bid.pips, player.equipped_dice)}')
         if len(logs) == 0: return 'None'
         return '\n'.join(logs)

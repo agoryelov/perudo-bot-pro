@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 
 from game import GameClient
-from models import LadderInfo, UserProfile
+from models import LadderInfo, UserProfile, UserInventory
 from utils import RattleType, GameActionError, parse_achievement_details, parse_user_achievements, is_url_image
-from views import LadderInfoEmbed, LadderInfoView, UserAchievementsEmbed, AchievementSource, PagedView, UserProfileEmbed
+from views import LadderInfoEmbed, LadderInfoView, UserAchievementsEmbed, AchievementSource, PagedView, UserProfileEmbed, UserInventoryEmbed, UserInventoryView
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -37,6 +37,17 @@ class General(commands.Cog):
             profile_data = GameClient.get_user_profile(member.id)
             profile_embed = UserProfileEmbed(UserProfile(profile_data), member)
             await ctx.send(embed=profile_embed)
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
+    
+    @commands.hybrid_command(name="inventory", description="Manage your inventory", help="Manage your inventory")
+    async def inventory(self, ctx: commands.Context, member: discord.Member=None):
+        if member is None: member = ctx.author
+        await ctx.defer(ephemeral=True)
+        try:
+            inventory_data = GameClient.get_user_inventory(member.id)
+            user_inventory = UserInventory(inventory_data)
+            await ctx.send(embed=UserInventoryEmbed(user_inventory), view=UserInventoryView(user_inventory), ephemeral=True)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
     

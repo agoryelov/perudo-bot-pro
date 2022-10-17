@@ -16,6 +16,7 @@ class Player():
         self.dice : List[int] = json.get('dice')
         self.lives : int = json.get('lives')
         self.points : int = json.get('points')
+        self.equipped_dice : str = json.get('equippedDice')
         self.is_eliminated : bool = self.lives <= 0
 
         self._rattles : List[PlayerRattle] = parse_player_rattles(json.get('rattles'))

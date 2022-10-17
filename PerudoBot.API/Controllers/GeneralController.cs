@@ -119,9 +119,37 @@ namespace PerudoBot.API.Controllers
 
         [HttpPost]
         [Route("general/inventory/equip/dice")]
-        public IResult EquipDice(EquipItem equipItem)
+        public IResult EquipDice(ItemUpdate equipItem)
         {
             var response = _itemService.EquipDice(equipItem);
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
+        }
+
+        [HttpPost]
+        [Route("general/inventory/add")]
+        public IResult AddUserItem(ItemUpdate addItem)
+        {
+            var response = _itemService.AddItemToUser(addItem);
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
+        }
+
+        [HttpPost]
+        [Route("general/inventory/remove")]
+        public IResult RemoveUserItem(ItemUpdate removeItem)
+        {
+            var response = _itemService.RemoveItemFromUser(removeItem);
 
             if (!response.RequestSuccess)
             {

@@ -48,11 +48,11 @@ class RoundSummaryEmbed(discord.Embed):
         self.round = round_summary.round
         self.achievements = round_summary.achievements
         self.all_dice = self.get_all_dice()
-
+        self.description = self.get_player_dice_field()
+        
         if len(self.round.bets) > 0:
             self.add_field(name='Bet Results', value=self.get_bet_results_field(), inline=False)
 
-        self.add_field(name='Players', value=self.get_player_dice_field())
         self.add_field(name='Dice', value=self.get_dice_counts_field())
         self.add_field(name='Totals', value=self.get_dice_totals_field())
 
@@ -75,11 +75,17 @@ class RoundSummaryEmbed(discord.Embed):
             bet_results.append(f':dollar: {bet_player.name} **{wins_or_loses} {points_delta}** {odds} points betting {bet_emoji(bet.bet_type)} on `{bet.target_bid.quantity}` {SYM_X} {dice_emote(bet.target_bid.pips)}')
         return '\n'.join(bet_results)
 
-    def get_player_dice_field(self):
+    def get_player_dice_field(self, max_players = 15):
         player_dice = []
         for player in self.round.players.values():
             if len(player.dice) > 0:
                 player_dice.append(f'`{len(player.dice)}` {player.name} `{player.points} pts` \u200b{" ".join(dice_emote(x, player.equipped_dice) for x in player.dice)}')
+
+        player_count = len(player_dice)
+        if player_count > max_players:
+            player_dice = player_dice[:max_players]
+            player_dice.append(f'*{player_count - max_players} more player(s) hidden...*')
+
         return '\n'.join(player_dice)
     
     def get_dice_counts_field(self):

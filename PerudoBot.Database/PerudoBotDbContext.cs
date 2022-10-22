@@ -37,6 +37,12 @@ namespace PerudoBot.Database.Data
         public DbSet<Item> Items { get; set; }
         public DbSet<DiceItem> DiceItems { get; set; }
 
+        public DbSet<Auction> Auctions { get; set; }
+        public DbSet<AuctionPlayer> AuctionPlayers { get; set; }
+        public DbSet<AuctionAction> AuctionActions { get; set; }
+        public DbSet<AuctionBid> AuctionBids { get; set; }
+        public DbSet<AuctionPass> AuctionPasses { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Action>()
@@ -47,6 +53,9 @@ namespace PerudoBot.Database.Data
 
             modelBuilder.Entity<Item>()
                 .HasDiscriminator(u => u.ItemType);
+
+            modelBuilder.Entity<AuctionAction>()
+                .HasDiscriminator(x => x.ActionType);
 
             modelBuilder.Entity<Achievement>()
                 .HasIndex(a => a.Name)
@@ -82,6 +91,11 @@ namespace PerudoBot.Database.Data
                 .WithMany(x => x.Users)
                 .UsingEntity<Player>();
 
+            modelBuilder.Entity<User>()
+                .HasMany(x => x.Auctions)
+                .WithMany(x => x.Users)
+                .UsingEntity<AuctionPlayer>();
+
             modelBuilder.Entity<UserItem>()
                 .HasOne(x => x.Item)
                 .WithMany(x => x.UserItems)
@@ -91,6 +105,8 @@ namespace PerudoBot.Database.Data
                 .HasOne(x => x.User)
                 .WithMany(user => user.UserItems)
                 .HasForeignKey(gm => gm.UserId);
+
+
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

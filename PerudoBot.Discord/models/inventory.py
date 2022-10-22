@@ -4,18 +4,15 @@ class UserInventory():
     def __init__(self, json: dict):
         self.name = json['name']
         self.equipped_dice = json.get('equippedDice')
-        self.dice_items = utils.parse_dice_items(json.get('diceItems'))
+        self.dice_items: list[Item] = utils.parse_list(json.get('diceItems'), Item)
 
         if self.equipped_dice is not None:
-            self.equipped_dice = DiceItem(self.equipped_dice)
+            self.equipped_dice = Item(self.equipped_dice)
 
-class UserItem():
+class Item():
     def __init__(self, json: dict):
-        self.item_id = json['itemId']
-        self.item_name = json['itemName']
-        self.item_type = json['itemType']
-
-class DiceItem(UserItem):
-    def __init__(self, json: dict):
-        super().__init__(json)
-        self.emotes = json['diceEmotes']
+        self.id = json['itemId']
+        self.name = json['itemName']
+        self.type = json['itemType']
+        self.content = json['content']
+        self.price = json['price']

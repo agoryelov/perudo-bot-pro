@@ -9,10 +9,13 @@ namespace PerudoBot.Database.Data
         public string ItemType { get; set; }
         public string Name { get; set; }
         public ICollection<UserItem> UserItems { get; set; }
+        public int Tier { get; set; }
+        public int? Price { get; set; }
+        public bool DropEnabled { get; set; }
+        public string Content { get; set; }
     }
 
     public class DiceItem : Item
     {
-        public string Emotes { get; set; }
     }
 }

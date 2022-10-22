@@ -1,15 +1,14 @@
+from .achievement import UserAchievement
 import utils
-
-from typing import List
 
 class GameSummary():
     def __init__(self, json: dict) -> None:
         self.game_id = json.get('gameId')
         self.winning_player_id = json.get('winningPlayerId')
-        self.betting_changes : list[PlayerPointsChange] = parse_points_changes(json.get('betPointsChanges'))
-        self.elo_changes : list[PlayerEloChange] = parse_elo_changes(json.get('eloChanges'))
-        self.notes : list[GameNote] = parse_game_notes(json.get('notes'))
-        self.achievements = utils.parse_user_achievements(json.get('achievements'))
+        self.betting_changes : list[PlayerPointsChange] = utils.parse_list(json.get('betPointsChanges'), PlayerPointsChange)
+        self.elo_changes : list[PlayerEloChange] = utils.parse_list(json.get('eloChanges'), PlayerEloChange)
+        self.notes : list[GameNote] = utils.parse_list(json.get('notes'), GameNote)
+        self.achievements: list[UserAchievement] = utils.parse_list(json.get('achievements'), UserAchievement)
 
 class PlayerEloChange():
     def __init__(self, json: dict) -> None:
@@ -28,21 +27,3 @@ class GameNote():
         self.round_number = json.get('roundNumber')
         self.name = json.get('name')
         self.text = json.get('text')
-
-def parse_elo_changes(json) -> List[PlayerEloChange]:
-    elo_changes = []
-    for elo_change in json:
-        elo_changes.append(PlayerEloChange(elo_change))
-    return elo_changes
-
-def parse_points_changes(json) -> List[PlayerPointsChange]:
-    points_changes = []
-    for points_change in json:
-        points_changes.append(PlayerPointsChange(points_change))
-    return points_changes
-
-def parse_game_notes(json) -> List[GameNote]:
-    game_notes = []
-    for note in json:
-        game_notes.append(GameNote(note))
-    return game_notes

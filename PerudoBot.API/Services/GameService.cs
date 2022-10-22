@@ -62,11 +62,36 @@ namespace PerudoBot.API.Services
             return _activePlayer;
         }
 
+        private GameSetupDto GetGameSetupDto(Game game)
+        {
+            var recentAuction = _db.Auctions
+                .Where(x => x.State == (int)AuctionState.Ended)
+                .OrderBy(x => x.DateCreated)
+                .LastOrDefault();
+
+            var todayDate = DateTime.UtcNow.ToPST().Date;
+            var auctionDate = recentAuction?.DateCreated.ToPST().Date;
+
+            if (auctionDate >= todayDate)
+            {
+                return game.ToGameSetupDto();
+            }
+
+            var auctionItem = _db.Items.OfType<DiceItem>().GetDailyAuctionItem();
+            return game.ToGameSetupDto(auctionItem);
+        }
+
         public GameSetupDto SetDefaultRoundType(int roundType)
         {
             _activeGame.DefaultRoundType = roundType;
             _db.SaveChanges();
-            return _activeGame.ToGameSetupDto();
+
+            return GetGameSetupDto(_activeGame);
+        }
+
+        public GameSetupDto GetGameSetup()
+        {
+            return GetGameSetupDto(_activeGame);
         }
 
         public GameSetupDto CreateGame(RoundType roundType)
@@ -87,7 +112,7 @@ namespace PerudoBot.API.Services
             _db.Games.Add(game);
             _db.SaveChanges();
 
-            return game.ToGameSetupDto();
+            return GetGameSetupDto(game);
         }
 
         public Response StartGame()
@@ -157,7 +182,7 @@ namespace PerudoBot.API.Services
             _db.Players.Add(player);
             _db.SaveChanges();
 
-            return _activeGame.ToGameSetupDto();
+            return GetGameSetupDto(_activeGame);
         }
 
         public Response AddBidAction(int quantity, int pips)

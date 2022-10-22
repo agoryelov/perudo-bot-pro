@@ -14,6 +14,9 @@ namespace PerudoBot.Database.Data
         [ForeignKey("GameId")]
         public Game Game { get; set; }
         public int? GameId { get; set; }
+
+        public Auction Auction { get; set; }
+        public int? AuctionId { get; set; }
     }
 
     public class EloLog : UserLog

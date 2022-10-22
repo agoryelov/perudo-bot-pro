@@ -17,7 +17,7 @@ namespace PerudoBot.API.Helpers
                 Points = player.User.Points,
                 Name = player.User.Name,
                 Lives = player.Lives,
-                EquippedDice = player.User.EquippedDice?.Emotes,
+                EquippedDice = player.User.EquippedDice?.Content,
                 Rattles = player.User.Rattles.Select(x => x.ToRattleDto()).ToList()
             };
 
@@ -60,13 +60,14 @@ namespace PerudoBot.API.Helpers
             return roundState;
         }
 
-        public static GameSetupDto ToGameSetupDto(this Game game)
+        public static GameSetupDto ToGameSetupDto(this Game game, Item auctionItem = null)
         {
             return new GameSetupDto
             {
                 GameId = game.Id,
                 Players = game.Players.Select(x => x.ToPlayerDto()).ToList(),
-                DefaultRoundType = game.DefaultRoundType
+                DefaultRoundType = game.DefaultRoundType,
+                AuctionItem = auctionItem?.ToItemDto()
             };
         }
 
@@ -79,7 +80,7 @@ namespace PerudoBot.API.Helpers
                 Pips = bid.Pips,
                 Quantity = bid.Quantity,
                 PlayerId = bid.PlayerId,
-                DateCreated = bid.DateCreated.ToString(GameConstants.DATE_FORMAT)
+                DateCreated = bid.DateCreated.ToPST().ToString(GameConstants.DATE_FORMAT)
             };
         }
 
@@ -225,20 +226,78 @@ namespace PerudoBot.API.Helpers
             return new UserInventoryDto
             {
                 Name = user.Name,
-                EquippedDice = user.EquippedDice?.ToDiceItemDto(),
-                DiceItems = user.UserItems.Select(x => x.Item).OfType<DiceItem>().Select(x => x.ToDiceItemDto()).ToList()
+                EquippedDice = user.EquippedDice?.ToItemDto(),
+                DiceItems = user.UserItems.Select(x => x.Item).OfType<DiceItem>().Select(x => x.ToItemDto()).ToList()
             };
         }
 
-        public static DiceItemDto ToDiceItemDto(this DiceItem diceItem)
+        public static ItemDto ToItemDto(this Item item)
         {
-            return new DiceItemDto
+            return new ItemDto
             {
-                ItemId = diceItem.Id,
-                ItemType = diceItem.ItemType,
-                ItemName = diceItem.Name,
-                DiceEmotes = diceItem.Emotes
+                ItemId = item.Id,
+                ItemType = item.ItemType,
+                ItemName = item.Name,
+                Content = item.Content,
+                Price = item.AuctionPrice()
             };
+        }
+
+        public static AuctionActionDto ToAuctionActionDto(this AuctionAction action)
+        {
+            var actionDto = new AuctionActionDto 
+            { 
+                PlayerId = action.AuctionPlayerId,
+                DateCreated = action.DateCreated.ToPST().ToString(GameConstants.DATE_FORMAT)
+            };
+
+            if (action.ActionType == "AuctionBid") actionDto.BidAmount = ((AuctionBid)action).BidAmount;
+            if (action.ActionType == "AuctionPass") actionDto.IsPass = true;
+
+            return actionDto;
+        }
+
+        public static AuctionPlayerDto ToAuctionPlayerDto(this AuctionPlayer player)
+        {
+            return new AuctionPlayerDto
+            {
+                PlayerId = player.Id,
+                Points = player.User.Points,
+                Name = player.User.Name,
+                IsActive = player.IsActive,
+                DiscordId = player.User.DiscordId,
+                GamePlayerId = player.GamePlayerId
+            };
+        }
+
+        public static AuctionDto ToAuctionDto(this Auction auction)
+        {
+            var auctionDto = new AuctionDto
+            {
+                AuctionId = auction.Id,
+                Actions = auction.AuctionActions.Select(x => x.ToAuctionActionDto()).ToList(),
+                Item = auction.AuctionItem.ToItemDto(),
+                Players = auction.AuctionPlayers.Select(x => x.ToAuctionPlayerDto()).ToList(),
+                HighestBid = auction.HighestBid?.ToAuctionActionDto()
+            };
+
+            auctionDto.ActivePlayerCount = auctionDto.Players.Count(x => x.IsActive);
+            auctionDto.BidCount = auctionDto.Actions?.Count(x => !x.IsPass) ?? 0;
+
+            return auctionDto;
+        }
+
+        public static AuctionSummaryDto ToAuctionSummaryDto(this Auction auction)
+        {
+            var summary = new AuctionSummaryDto
+            {
+                Item = auction.AuctionItem.ToItemDto(),
+                FinalPrice = auction.HighestBidAmount(),
+                Winner = auction.ActivePlayers.SingleOrDefault()?.ToAuctionPlayerDto()
+            };
+
+            summary.HasWinner = summary.Winner != null;
+            return summary;
         }
     }
 }

@@ -7,3 +7,5 @@ from .achievements import UserAchievementsEmbed, AchievementsEmbed, AchievementS
 from .paginator import PagedView, PageSource
 from .user_profile import UserProfileEmbed
 from .user_inventory import UserInventoryView, UserInventoryEmbed
+from .auction_status import AuctionView, AuctionEmbed
+from .auction_summary import AuctionSummaryEmbed

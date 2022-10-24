@@ -1,11 +1,12 @@
 import asyncio
+from code import interact
 import discord
 from os import getenv
 from discord.ext import commands
 
 from services import PerudoContext
 from utils import parse_bid, GameActionError
-from views import RoundSummaryEmbed
+from views import RoundSummaryEmbed, GameSetupEmbed, GameSetupView
 
 from bot import PerudoBot
 
@@ -25,8 +26,12 @@ class Perudo(commands.Cog):
         if ctx.interaction is not None: await ctx.interaction.response.defer()
         else: await ctx.message.delete()
 
-        await ctx.game.create_game()
-        ctx.game.set_voice_channel(ctx.author)
+        try:
+            game_setup = await ctx.game.create_game()
+            await ctx.send_setup_message(game_setup)
+
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
 
     @commands.hybrid_command(name="bid", description="Place a bid", help="Place a bid", aliases=['b'])
     async def bid(self, ctx: PerudoContext, *, bid_text: str):

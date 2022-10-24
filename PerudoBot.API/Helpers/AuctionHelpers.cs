@@ -42,8 +42,8 @@ namespace PerudoBot.API.Helpers
             var rng = DailySeededRandom();
             var tierRoll = rng.Next(100);
 
-            if (tierRoll > 90) items = items.Where(x => x.Tier == (int)ItemTier.Epic);
-            else if (tierRoll > 50) items = items.Where(x => x.Tier == (int)ItemTier.Rare);
+            if (tierRoll >= 90) items = items.Where(x => x.Tier == (int)ItemTier.Epic);
+            else if (tierRoll >= 50) items = items.Where(x => x.Tier == (int)ItemTier.Rare);
             else items = items.Where(x => x.Tier == (int)ItemTier.Common);
 
             var itemList = items.ToList();

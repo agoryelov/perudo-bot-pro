@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from bot import PerudoBot
 from models.achievement import AchievementDetails
 
 from services import Client, PerudoContext
@@ -90,5 +91,5 @@ class General(commands.Cog):
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
-async def setup(bot):
+async def setup(bot: PerudoBot):
     await bot.add_cog(General(bot))

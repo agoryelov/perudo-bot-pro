@@ -18,10 +18,10 @@ class GameSetup():
         return { 'ItemId': self.auction_item.id, 'DiscordIds': list(self.discord_players.keys()), 'StartingDiscordId': starting_id }
 
     def can_start_game(self) -> bool:
-        return len(self.discord_players) >= 2
+        return len(self.discord_players) >= utils.MIN_GAME_PLAYERS
     
     def can_start_auction(self, starting_id = None) -> bool:
-        if self.eligible_auction_players < 2:
+        if self.eligible_auction_players < utils.MIN_AUCTION_PLAYERS:
             return False
 
         if starting_id is None:

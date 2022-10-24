@@ -25,10 +25,7 @@ class GameService():
         self.game_setup : GameSetup = None
         self.round : Round = None
 
-        self.setup_message : Message 
-        self.round_message : Message 
         self.bot_channel : TextChannel
-
         self.voice_client : VoiceClient = None
         self.voice_channel : VoiceChannel = None
 
@@ -42,7 +39,7 @@ class GameService():
         setup_data = Client.create_game()
         game_setup = GameSetup(setup_data)
         self._update_from_setup(game_setup)
-        self.setup_message = await self.ctx.send_setup_message(game_setup)
+        return game_setup
 
     async def set_default_round_type(self, round_type) -> GameSetup:
         setup_data = Client.set_default_round_type(self.game_id, round_type)
@@ -51,6 +48,7 @@ class GameService():
         return game_setup
     
     async def add_player(self, user: Union[User, Member]) -> GameSetup:
+        self.set_voice_channel(user)
         name = user.nick or user.name
         setup_data = Client.add_player(self.game_id, user.id, name, user.bot)
         game_setup = GameSetup(setup_data)

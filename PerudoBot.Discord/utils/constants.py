@@ -1,10 +1,5 @@
 import enum
 
-class GameSetupAction(enum.Enum):
-    TimedOut = 0
-    StartGame = 1
-    StartAuction = 2
-
 class GameState(enum.Enum):
     Setup = 0
     InProgress = 1
@@ -32,14 +27,10 @@ class EmbedColor(enum.IntEnum):
     Yellow = 16172079
     Invisible = 3092790
 
-class EmoteType(enum.Enum):
-    Default = 0
-    PerudoBot = 1
-    Custom = 2
-
 SYM_X = "×"
 EMPTY = "‎"
 
-# HEADER_ICON = ':fallen_leaf:'
-# PLAYER_AVATARS = [':detective:', ':beaver:', ':duck:', ':bat:', ':owl:', ':jack_o_lantern:', ':deer:', ':spider:']
-PLAYER_AVATARS = [':apple:',':green_apple:',':tangerine:',':watermelon:',':grapes:',':strawberry:']
+MIN_GAME_PLAYERS = 2
+MIN_AUCTION_PLAYERS = 3
+
+PLAYER_AVATARS = [':apple:',':green_apple:',':tangerine:',':watermelon:',':grapes:',':strawberry:',':kiwi:',':blueberries:']

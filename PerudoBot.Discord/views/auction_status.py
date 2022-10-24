@@ -91,7 +91,7 @@ class AuctionEmbed(discord.Embed):
 
     def get_description(self):
         item = self.auction.item
-        return f'{item.name}\n{dice_preview(item.content)}'
+        return f'{item.name} {format_points(item.price)}\n{dice_preview(item.content)}'
 
     def get_footer(self):
         if self.auction.is_completed or not self.auction.any_bids:

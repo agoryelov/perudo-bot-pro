@@ -6,9 +6,9 @@
         {
             switch (itemTier)
             {
-                case ItemTier.Common: return 1000;
-                case ItemTier.Rare: return 2000;
-                case ItemTier.Epic: return 4000;
+                case ItemTier.Common: return 2000;
+                case ItemTier.Rare: return 4000;
+                case ItemTier.Epic: return 8000;
                 default: throw new ArgumentOutOfRangeException("itemTier");
             }
         }

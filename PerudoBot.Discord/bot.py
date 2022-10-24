@@ -20,10 +20,13 @@ class PerudoBot(commands.Bot):
 
         self.channel_games: dict[int, GameService] = {}
         self.channel_auctions: dict[int, AuctionService] = {}
-        self.active_message: discord.Message
+        self.channel_messages: dict[int, discord.Message] = {}
 
-    async def clear_active_view(self, text = ''):
-        await self.active_message.edit(content=text, view=None)
+    def get_active_message(self, ctx: PerudoContext):
+        return self.channel_messages.get(ctx.channel.id, None)
+
+    def set_active_message(self, ctx: PerudoContext, message: discord.Message):
+        self.channel_messages[ctx.channel.id] = message
     
     def channel_game(self, ctx: PerudoContext):
         if ctx.channel.id not in self.channel_games:

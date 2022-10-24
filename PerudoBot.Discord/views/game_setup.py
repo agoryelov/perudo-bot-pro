@@ -2,7 +2,7 @@ import typing
 import discord
 from discord import SelectOption
 from models import GameSetup
-from utils import GameActionError, GameSetupAction, dice_preview, format_points
+from utils import GameActionError, dice_preview, format_points, MIN_AUCTION_PLAYERS, MIN_GAME_PLAYERS
 
 if typing.TYPE_CHECKING:
     from services import PerudoContext
@@ -22,20 +22,18 @@ class JoinButton(discord.ui.Button['GameSetupView']):
 
 class GameButton(discord.ui.Button['GameSetupView']):
     def __init__(self):
-        super().__init__(label='Start Game', style=discord.ButtonStyle.green)
+        super().__init__(label='Start', style=discord.ButtonStyle.green)
     
     async def callback(self, interaction: discord.Interaction):
-        self.view.game.set_voice_channel(interaction.user)
         if not self.view.setup.can_start_game():
-            await interaction.response.send_message("Need at least two players to start a game", ephemeral=True)
+            await interaction.response.send_message(f"Need at least {MIN_GAME_PLAYERS} players to start a game", ephemeral=True)
             return
         
-        try:
-            self.setup_action = GameSetupAction.StartGame
+        try: 
             round = await self.view.game.start_game()
             if self.view.game.has_bots: await self.view.game.send_bot_updates(round)
 
-            await self.view.ctx.bot.clear_active_view()
+            await self.view.ctx.clear_active_view()
             await self.view.ctx.send_round_message(round)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
@@ -46,22 +44,21 @@ class AuctionButton(discord.ui.Button['GameSetupView']):
     
     async def callback(self, interaction: discord.Interaction):
         if not self.view.setup.can_start_auction(interaction.user.id):
-            await interaction.response.send_message("Need at least two eligible players to start an auction", ephemeral=True)
+            await interaction.response.send_message(f"Need at least {MIN_AUCTION_PLAYERS} eligible players to start an auction", ephemeral=True)
             return
 
         try:
-            self.setup_action = GameSetupAction.StartAuction
             auction_setup = self.view.setup.auction_setup(interaction.user.id)
             auction = await self.view.auction.start_auction(auction_setup)
 
-            await self.view.ctx.bot.clear_active_view()
+            await self.view.ctx.clear_active_view()
             await self.view.ctx.send_auction_message(auction)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
 
 class GameSetupView(discord.ui.View):
     def __init__(self, ctx: 'PerudoContext'):
-        super().__init__(timeout=600)
+        super().__init__(timeout=1200)
         self.ctx = ctx
         self.game = ctx.game
         self.auction = ctx.auction
@@ -84,14 +81,13 @@ class GameSetupView(discord.ui.View):
         await self.ctx.update_setup_message(game_setup, interaction.response.edit_message)
 
     async def on_timeout(self):
-        await self.ctx.game.terminate()
-        await self.ctx.bot.clear_active_view(text='Lobby terminated due to inactivity')
+        pass
 
 class GameSetupEmbed(discord.Embed):
     def __init__(self, game_setup: GameSetup):
         super().__init__()
         self.setup = game_setup
-        self.title = f'Lobby'
+        self.title = f'Game Lobby'
         self.add_field(name=f"Players ({len(self.setup.players)})", value=self.get_setup_players_field(), inline=False)
         self.add_field(name="Game Mode", value=self.setup.round_type, inline=False)
 

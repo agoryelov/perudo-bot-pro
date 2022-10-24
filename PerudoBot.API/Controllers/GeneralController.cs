@@ -118,10 +118,11 @@ namespace PerudoBot.API.Controllers
         }
 
         [HttpPost]
-        [Route("general/inventory/equip/dice")]
+        [Route("general/inventory/equip")]
         public IResult EquipDice(ItemUpdate equipItem)
         {
-            var response = _itemService.EquipDice(equipItem);
+            var user = _userService.GetUserFromDiscordId(equipItem.DiscordId);
+            var response = _itemService.EquipDice(user, equipItem.ItemId);
 
             if (!response.RequestSuccess)
             {
@@ -135,7 +136,8 @@ namespace PerudoBot.API.Controllers
         [Route("general/inventory/add")]
         public IResult AddUserItem(ItemUpdate addItem)
         {
-            var response = _itemService.AddItemToUser(addItem);
+            var user = _userService.GetUserFromDiscordId(addItem.DiscordId);
+            var response = _itemService.AddItemToUser(user, addItem.ItemId);
 
             if (!response.RequestSuccess)
             {
@@ -149,7 +151,8 @@ namespace PerudoBot.API.Controllers
         [Route("general/inventory/remove")]
         public IResult RemoveUserItem(ItemUpdate removeItem)
         {
-            var response = _itemService.RemoveItemFromUser(removeItem);
+            var user = _userService.GetUserFromDiscordId(removeItem.DiscordId);
+            var response = _itemService.RemoveItemFromUser(user, removeItem.ItemId);
 
             if (!response.RequestSuccess)
             {

@@ -4,13 +4,10 @@ from typing import Tuple
 from datetime import datetime
 from models import Round, Player
 from .constants import BetType
-from .items import dice_emote
+from .items import player_emote
 
 def get_mention(discord_id: int) -> str:
     return f'<@!{discord_id}>'
-
-def parse_date(date_string) -> datetime:
-    return datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S%z')
 
 def get_next_bid(quantity, pips) -> Tuple[int, int]:
     if pips > 1 and pips < 6:
@@ -56,7 +53,7 @@ def parse_bid(bid_text: str) -> Tuple[int, int]:
     return int(bid_text[0]), int(bid_text[1])
 
 def deal_dice_message(player: Player):
-    return f'`Your dice`: {" ".join(dice_emote(x, player.equipped_dice) for x in player.dice)}'
+    return f'`Your dice`: {" ".join(player_emote(x, player.equipped_dice) for x in player.dice)}'
 
 def bet_emoji(type: BetType) -> str:
     if type is BetType.Liar: return '🧊'
@@ -80,3 +77,8 @@ def is_url_image(image_url) -> bool:
         return r.status_code == 200 and r.headers["content-type"] in image_formats
     except: 
         return False
+
+def format_points(points) -> str:
+    if points < 10000:
+        return f'`{points} pts`'
+    return f'`{points // 1000}K pts`'

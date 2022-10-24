@@ -6,4 +6,5 @@ from .player import Player
 from .round import Round, RoundSummary
 from .setup import GameSetup
 from .profile import UserProfile, UserGame
-from .inventory import DiceItem, UserInventory
+from .inventory import Item, UserInventory
+from .auction import Auction, AuctionAction, AuctionPlayer, AuctionSummary

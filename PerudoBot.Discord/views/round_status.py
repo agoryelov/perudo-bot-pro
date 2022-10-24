@@ -1,14 +1,13 @@
+import typing
 import discord
 from models import Round
-from utils import dice_emote, get_pip_quantity, next_up_message, deal_dice_message, bet_emoji, min_bet
+from utils import get_pip_quantity, next_up_message, deal_dice_message, bet_emoji, min_bet, format_points, player_emote
 from utils import GameActionError, BetType, SYM_X
-
-from typing import TYPE_CHECKING
 
 from .round_summary import RoundSummaryEmbed
 
-if TYPE_CHECKING:
-    from game import GameDriver
+if typing.TYPE_CHECKING:
+    from services import PerudoContext
 
 class BidButton(discord.ui.Button['RoundView']):
     def __init__(self, quantity: int, pips: int, row: int, pip_used: bool):
@@ -22,12 +21,13 @@ class BidButton(discord.ui.Button['RoundView']):
             self.style = discord.ButtonStyle.gray
     
     async def callback(self, interaction: discord.Interaction):
-        game_driver = self.view.game_driver
+        game_service = self.view.ctx.game
+
         try:
             await interaction.response.defer()
-            round = await game_driver.bid_action(interaction.user.id, self.quantity, self.pips)
-            await game_driver.update_round_message(round)
-            if game_driver.has_bots: await game_driver.send_bot_updates(round)
+            round = await game_service.bid_action(interaction.user.id, self.quantity, self.pips)
+            await self.view.ctx.update_round_message(round)
+            if game_service.has_bots: await game_service.send_bot_updates(round)
         except GameActionError as e:
             if not interaction.user.bot: await interaction.user.send(f"`Bid Failed`: {e.message}")
 
@@ -36,23 +36,25 @@ class LiarButton(discord.ui.Button['RoundView']):
         super().__init__(style=discord.ButtonStyle.red, label='Liar', row=row)
     
     async def callback(self, interaction: discord.Interaction):
-        game_driver = self.view.game_driver
+        game_service = self.view.ctx.game
+
         try:
             await interaction.response.defer()
-            round_summary = await game_driver.liar_action(interaction.user.id)
+            round_summary = await game_service.liar_action(interaction.user.id)
             await interaction.message.edit(view=None)
-            await game_driver.send_liar_result(round_summary)
+            await game_service.send_liar_result(round_summary)
         except GameActionError as e:
             if not interaction.user.bot: await interaction.user.send(f"`Liar Failed`: {e.message}")
             return
 
-        await game_driver.send_delayed(embed=RoundSummaryEmbed(round_summary))
+        await self.view.ctx.send_delayed(embed=RoundSummaryEmbed(round_summary))
 
-        if game_driver.ended:
-            await game_driver.end_game()
+        if game_service.ended:
+            await game_service.end_game()
         else:
-            round = await game_driver.start_round()
-            if game_driver.has_bots: await game_driver.send_bot_updates(round)
+            round = await game_service.start_round()
+            if game_service.has_bots: await game_service.send_bot_updates(round)
+            await self.view.ctx.send_round_message(round)
 
 class DiceButton(discord.ui.Button['RoundView']):
     def __init__(self, row: int,):
@@ -73,10 +75,11 @@ class ReverseButton(discord.ui.Button['RoundView']):
         self.disabled = not enabled
     
     async def callback(self, interaction: discord.Interaction):
-        game_driver = self.view.game_driver
+        game_service = self.view.ctx.game
+
         try:
-            r = await game_driver.reverse_action(interaction.user.id)
-            await game_driver.update_round_message(r, interaction.response.edit_message)
+            r = await game_service.reverse_action(interaction.user.id)
+            await self.view.ctx.update_round_message(r, interaction.response.edit_message)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
 
@@ -87,24 +90,24 @@ class BetButton(discord.ui.Button['RoundView']):
         self.bet_type = bet_type
     
     async def callback(self, interaction: discord.Interaction):
-        game_driver = self.view.game_driver
-        better = game_driver.discord_players[interaction.user.id]
-        existing_bet = discord.utils.get(game_driver.round.bets, player_id=better.player_id)
+        game_service = self.view.ctx.game
+        better = game_service.discord_players[interaction.user.id]
+        existing_bet = discord.utils.get(game_service.round.bets, player_id=better.player_id)
         
         bet_amount = min_bet(self.bet_type) if existing_bet is None else existing_bet.bet_amount * 4
 
         try:
-            r = await game_driver.bet_action(interaction.user.id, bet_amount, self.bet_type)
-            await game_driver.update_round_message(r, interaction.response.edit_message)
+            r = await game_service.bet_action(interaction.user.id, bet_amount, self.bet_type)
+            await self.view.ctx.update_round_message(r, interaction.response.edit_message)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
 
 class RoundView(discord.ui.View):
-    def __init__(self, game_driver: 'GameDriver'):
+    def __init__(self, ctx: 'PerudoContext'):
         super().__init__(timeout=1200)
-        self.round = game_driver.round
-        self.game_driver = game_driver
-
+        self.ctx = ctx
+        self.round = ctx.game.round
+        
         if self.round.latest_bid is None:
             starting_quantity = round(self.round.total_dice / 3) - 1
             latest_bid = starting_quantity, 6
@@ -151,14 +154,14 @@ class RoundEmbed(discord.Embed):
         active_players = []
         for player in self.round.players.values():
             if player.lives > 0:
-                active_players.append(f'`{len(player.dice)}` {player.name} `{player.points} pts`')
+                active_players.append(f'`{len(player.dice)}` {player.avatar} {player.name} {format_points(player.points)}')
         return '\n'.join(active_players)
     
     def get_eliminated_field(self):
         eliminated = []
         for player in self.round.players.values():
             if player.lives == 0:
-                eliminated.append(f':coffin: {player.name} `{player.points} pts`')
+                eliminated.append(f':coffin: {player.name} {format_points(player.points)}')
         if len(eliminated) == 0: return 'None'
         return '\n'.join(eliminated)
 
@@ -167,7 +170,7 @@ class RoundEmbed(discord.Embed):
         for bet in self.round.bets:
             target_player = self.round.players[bet.target_bid.player_id]
             bet_player = self.round.players[bet.player_id]
-            bets.append(f':dollar: {bet_player.name} bets `{bet.bet_amount}` on `{bet.target_bid.quantity}` {SYM_X} {dice_emote(bet.target_bid.pips, target_player.equipped_dice)}')
+            bets.append(f':dollar: {bet_player.name} bets `{bet.bet_amount}` on `{bet.target_bid.quantity}` {SYM_X} {player_emote(bet.target_bid.pips, target_player.equipped_dice)}')
         if len(bets) == 0: return 'None'
         return '\n'.join(bets)
 
@@ -176,6 +179,6 @@ class RoundEmbed(discord.Embed):
         for bid in self.round.bids:
             time = bid.date_created.strftime('%H:%M')
             player = self.round.players[bid.player_id]
-            logs.append(f'`{time}`: {player.name} bids `{bid.quantity}` {SYM_X} {dice_emote(bid.pips, player.equipped_dice)}')
+            logs.append(f'`{time}`: {player.name} bids `{bid.quantity}` {SYM_X} {player_emote(bid.pips, player.equipped_dice)}')
         if len(logs) == 0: return 'None'
         return '\n'.join(logs)

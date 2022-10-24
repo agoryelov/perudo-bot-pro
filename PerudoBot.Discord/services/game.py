@@ -1,87 +1,96 @@
 import asyncio
-from typing import Union, Dict
+import discord
 
 from os import getenv
-
-import discord
-from discord import Member, Message, TextChannel, User, VoiceClient, VoiceChannel
+from typing import Union, Dict, TYPE_CHECKING
+from discord import Member, User, VoiceClient, VoiceChannel, Message, TextChannel
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
 from utils import GameState, GameActionError, bot_dice, bot_update, get_mention
-from views import RoundEmbed, RoundView, LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed, GameSummaryEmbed, VictoryEmbed
-from .client import GameClient
+from views import LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed, GameSummaryEmbed, VictoryEmbed
 
-class GameDriver():
-    def __init__(self, game_channel: discord.TextChannel):
-        self.channel = game_channel
-        self.game_client = GameClient()
+from .client import Client
+
+if TYPE_CHECKING:
+    from .context import PerudoContext
+
+class GameService():
+    def __init__(self, ctx: 'PerudoContext'):
+        self.ctx = ctx
         
-        self.game_state = GameState.Terminated
         self.game_id = 0
+        self.game_state = GameState.Terminated
         self.discord_players : Dict[int, Player] = {}
+
+        self.game_setup : GameSetup = None
         self.round : Round = None
 
-        self.setup_message : Message = None
-        self.round_message : Message = None
+        self.bot_channel : TextChannel
         self.voice_client : VoiceClient = None
         self.voice_channel : VoiceChannel = None
-        self.bot_channel : TextChannel = None
 
-    async def create_game(self) -> GameSetup:
-        setup_data = self.game_client.create_game()
+    async def fetch_setup(self) -> GameSetup:
+        setup_data = Client.fetch_setup(self.game_id)
         game_setup = GameSetup(setup_data)
-        await self._update_from_setup(game_setup)
+        self._update_from_setup(game_setup)
+        return game_setup
+    
+    async def create_game(self) -> GameSetup:
+        setup_data = Client.create_game()
+        game_setup = GameSetup(setup_data)
+        self._update_from_setup(game_setup)
         return game_setup
 
     async def set_default_round_type(self, round_type) -> GameSetup:
-        setup_data = self.game_client.set_default_round_type(self.game_id, round_type)
+        setup_data = Client.set_default_round_type(self.game_id, round_type)
         game_setup = GameSetup(setup_data)
-        await self._update_from_setup(game_setup)
+        self._update_from_setup(game_setup)
         return game_setup
     
     async def add_player(self, user: Union[User, Member]) -> GameSetup:
+        self.set_voice_channel(user)
         name = user.nick or user.name
-        setup_data = self.game_client.add_player(self.game_id, user.id, name, user.bot)
+        setup_data = Client.add_player(self.game_id, user.id, name, user.bot)
         game_setup = GameSetup(setup_data)
-        await self._update_from_setup(game_setup)
+        self._update_from_setup(game_setup)
         return game_setup
 
     async def start_game(self):
-        self.game_client.start_game(self.game_id)
+        Client.start_game(self.game_id)
         self.game_state = GameState.InProgress
         await self._start_game_voice()
+        return await self.start_round()
 
     async def start_round(self) -> Round:
-        round_data = self.game_client.start_round(self.game_id)
+        round_data = Client.start_round(self.game_id)
         round = Round(round_data)
         await self._update_from_round(round)
         await self._send_out_dice(round)
-        self.round_message = await self.send_delayed(view=RoundView(self), embed=RoundEmbed(round))
         return round
 
     async def bid_action(self, discord_id, quantity, pips) -> Round:
-        round_data = self.game_client.bid_action(self.game_id, self._player_id(discord_id), quantity, pips)
+        round_data = Client.bid_action(self.game_id, self._player_id(discord_id), quantity, pips)
         round = Round(round_data)
         await self._update_from_round(round)
         self._play_notification('notify_pop.mp3')
         return round
 
     async def reverse_action(self, discord_id) -> Round:
-        round_data = self.game_client.reverse_action(self.game_id, self._player_id(discord_id))
+        round_data = Client.reverse_action(self.game_id, self._player_id(discord_id))
         round = Round(round_data)
         await self._update_from_round(round)
         self._play_notification('notify_reverse.mp3')
         return round
     
     async def bet_action(self, discord_id, amount, bet_type) -> Round:
-        round_data = self.game_client.bet_action(self.game_id, self._player_id(discord_id), amount, bet_type)
+        round_data = Client.bet_action(self.game_id, self._player_id(discord_id), amount, bet_type)
         round = Round(round_data)
         await self._update_from_round(round)
         self._play_notification('notify_coins.mp3')
         return round
 
     async def liar_action(self, discord_id) -> RoundSummary:
-        summary_data = self.game_client.liar_action(self.game_id, self._player_id(discord_id))
+        summary_data = Client.liar_action(self.game_id, self._player_id(discord_id))
         round_summary = RoundSummary(summary_data)
         await self._update_from_round(round_summary.round)
         self._play_notification('notify_long_pop.mp3')
@@ -89,16 +98,16 @@ class GameDriver():
     
     async def end_game(self) -> GameSummary:
         await self._end_game_voice()
-        summary_data = self.game_client.end_game(self.game_id)
+        summary_data = Client.end_game(self.game_id)
         game_summary = GameSummary(summary_data)
 
         winner = self.round.players[game_summary.winning_player_id]
-        await self.send_delayed(embed=VictoryEmbed(winner))
-        await self.send_delayed(embed=GameSummaryEmbed(game_summary))
+        await self.ctx.send_delayed(embed=VictoryEmbed(winner))
+        await self.ctx.send_delayed(embed=GameSummaryEmbed(game_summary))
     
     async def terminate(self):
         if self.voice_client is not None: await self.voice_client.disconnect()
-        self.game_client.terminate_game(self.game_id)
+        Client.terminate_game(self.game_id)
         self.game_state = GameState.Terminated
     
     async def _start_game_voice(self):
@@ -117,10 +126,11 @@ class GameDriver():
         if member.voice.channel is None: return
         self.voice_channel = member.voice.channel
     
-    async def _update_from_setup(self, game_setup: GameSetup):
+    def _update_from_setup(self, game_setup: GameSetup):
         self.game_id = game_setup.game_id
         self.discord_players = game_setup.discord_players
         self.game_state = GameState.Setup
+        self.game_setup = game_setup
 
     def _play_notification(self, source = 'notify.mp3'):
         if self.voice_client is None: return
@@ -131,31 +141,18 @@ class GameDriver():
             self.voice_client.play(audio_source)
         except: pass
 
-    async def update_round_message(self, round: Round, edit_function = None):
-        edit_function = edit_function or self.round_message.edit
-        recent_history = [message async for message in self.channel.history(limit=2)]
-        if self.round_message in recent_history:
-            await edit_function(view=RoundView(self), embed=RoundEmbed(round))
-        else:
-            await self.round_message.delete()
-            self.round_message = await self.send_delayed(view=RoundView(self), embed=RoundEmbed(round), delay = 0)
-
-    async def send_delayed(self, delay = 0.5, **kwargs):
-        await asyncio.sleep(delay)
-        return await self.channel.send(**kwargs)
-
     async def send_liar_result(self, round_summary: RoundSummary): 
         liar = round_summary.round.liar
         players = round_summary.round.players
         losing_player = players[liar.losing_player_id]
 
-        liar_call_embed = await self.send_delayed(embed=LiarCalledEmbed(liar, players), delay=0)
+        liar_call_embed = await self.ctx.send_delayed(embed=LiarCalledEmbed(liar, players), delay=0)
         await asyncio.sleep(2)
         await liar_call_embed.edit(embed=LiarCalledEmbed(liar, players, show_actual=True))
-        await self.send_delayed(embed=DamageDealtEmbed(liar, players), delay=1)
+        await self.ctx.send_delayed(embed=DamageDealtEmbed(liar, players), delay=1)
         
         if losing_player.lives <= 0:
-            await self.send_delayed(embed=DefeatEmbed(liar, players), delay=1)
+            await self.ctx.send_delayed(embed=DefeatEmbed(liar, players), delay=1)
     
     async def _send_out_dice(self, round: Round):
         for player in round.players.values():
@@ -175,7 +172,7 @@ class GameDriver():
         
         for discord_id, player in self.discord_players.items():
             if not player.is_bot: continue
-            update = bot_update(round, self.channel.id, player.points)
+            update = bot_update(round, self.ctx.channel.id, player.points)
             await self.bot_channel.send(f'{get_mention(discord_id)} update {update}')
     
     async def _send_bot_dice(self, player: Player):
@@ -183,7 +180,7 @@ class GameDriver():
             print("Warning: Bot channel is not accessible")
             return
         
-        await self.bot_channel.send(f'{get_mention(player.discord_id)} deal {bot_dice(player, self.channel.id)}')
+        await self.bot_channel.send(f'{get_mention(player.discord_id)} deal {bot_dice(player, self.ctx.channel.id)}')
     
     def _player_id(self, discord_id):
         if discord_id not in self.discord_players:

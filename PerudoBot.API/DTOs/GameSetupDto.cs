@@ -5,5 +5,6 @@
         public int GameId { get; set; }
         public List<PlayerDto> Players { get; set; }
         public int DefaultRoundType { get; set; }
+        public ItemDto AuctionItem { get; set; }
     }
 }

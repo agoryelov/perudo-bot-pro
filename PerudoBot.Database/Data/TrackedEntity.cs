@@ -11,7 +11,7 @@ namespace PerudoBot.Database.Data
         public DateTime DateCreated { get; set; }
         public TrackedEntity()
         {
-            DateCreated = DateTime.Now;
+            DateCreated = DateTime.UtcNow;
         }
     }
 }

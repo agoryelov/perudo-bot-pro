@@ -1,5 +1,7 @@
 import utils
 
+from models import UserAchievement
+
 class UserProfile():
     def __init__(self, json: dict):
         self.name = json['name']
@@ -10,8 +12,8 @@ class UserProfile():
         self.score_rank = json["scoreRank"]
         self.elo = json['elo']
         self.elo_rank = json["eloRank"]
-        self.recent_games = utils.parse_user_games(json["recentGames"])
-        self.recent_achievements = utils.parse_user_achievements(json["recentAchievements"])
+        self.recent_games: list[UserGame] = utils.parse_list(json["recentGames"], UserGame)
+        self.recent_achievements: list[UserAchievement] = utils.parse_list(json["recentAchievements"], UserGame)
 
 class UserGame():
     def __init__(self, json: dict):

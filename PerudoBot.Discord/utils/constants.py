@@ -29,3 +29,8 @@ class EmbedColor(enum.IntEnum):
 
 SYM_X = "×"
 EMPTY = "‎"
+
+MIN_GAME_PLAYERS = 2
+MIN_AUCTION_PLAYERS = 3
+
+PLAYER_AVATARS = [':apple:',':green_apple:',':tangerine:',':watermelon:',':grapes:',':strawberry:',':kiwi:',':blueberries:']

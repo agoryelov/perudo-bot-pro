@@ -23,5 +23,7 @@ namespace PerudoBot.Database.Data
 
         public ICollection<UserItem> UserItems { get; set; }
         public DiceItem EquippedDice { get; set; }
+
+        public ICollection<Auction> Auctions { get; set; }
     }
 }

@@ -18,7 +18,18 @@ namespace PerudoBot.API.Services
         public User GetUserFromDiscordId(ulong discordId)
         {
             return _db.Users
+                .Include(x => x.UserItems)
+                    .ThenInclude(x => x.Item)
                 .SingleOrDefault(x => x.DiscordId == discordId);
+        }
+
+        public Player GetMostRecentPlayer(User user)
+        {
+            return _db.Players
+                .Include(x => x.User)
+                .Where(x => x.UserId == user.Id)
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefault();
         }
 
         public User GetUserFromDiscordUser(DiscordUser discordUser)
@@ -76,7 +87,13 @@ namespace PerudoBot.API.Services
             UpdatePoints(user, newPoints, PointsLogType.Gambling, game);
         }
 
-        private void UpdatePoints(User user, int points, PointsLogType pointsLogType, Game game = null)
+        public void RemoveAuctionPoints(User user, int points, Auction auction = null)
+        {
+            var newPoints = user.Points - points;
+            UpdatePoints(user, newPoints, PointsLogType.ItemAuction, null, auction);
+        }
+
+        private void UpdatePoints(User user, int points, PointsLogType pointsLogType, Game game = null, Auction auction = null)
         {
             var pointChange = points - user.Points;
             user.Points += pointChange;
@@ -85,6 +102,7 @@ namespace PerudoBot.API.Services
             {
                 UserId = user.Id,
                 GameId = game?.Id,
+                AuctionId = auction?.Id,
                 PointsChange = pointChange,
                 PointsLogTypeId = (int)pointsLogType
             });

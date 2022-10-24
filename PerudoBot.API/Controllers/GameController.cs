@@ -34,7 +34,22 @@ namespace PerudoBot.API.Controllers
 
             return Results.Ok(new { data = response });
         }
- 
+
+        [HttpGet]
+        [Route("game/setup")]
+        [RequireGameInSetup]
+        public IResult CurrentGameSetup()
+        {
+            var response = _gameService.GetGameSetup();
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
+        }
+
         [HttpPost]
         [Route("game/create")]
         public IResult CreateGame()

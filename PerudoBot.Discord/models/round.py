@@ -1,18 +1,20 @@
+from models.achievement import UserAchievement
 from .player import Player
 from .action import Bid, Bet, Bid, Liar
+
 import utils
 
 class Round():
     def __init__(self, json: dict):
-        self.players : dict[int, Player] = utils.parse_players(json.get('players'))
-        self.discord_players : dict[int, Player] = utils.parse_discord_players(json.get('players'))
-        self.bets : list[Bet] = utils.parse_bets(json.get('bets'))
-        self.bids : list[Bid] = utils.parse_bids(json.get('bids'))
-        self.can_reverse : bool = json.get('canReverse')
-        self.action_player_id : int = json.get('activePlayerId')
-        self.round_number : int = json.get('roundNumber')
-        self.round_type : str = json.get('roundType')
-        self.total_dice : int = json.get('totalDiceCount')
+        self.players: dict[int, Player] = utils.parse_players(json.get('players'), Player)
+        self.discord_players: dict[int, Player] = utils.parse_discord_players(json.get('players'))
+        self.bets: list[Bet] = utils.parse_list(json.get('bets'), Bet)
+        self.bids: list[Bid] = utils.parse_list(json.get('bids'), Bid)
+        self.can_reverse: bool = json.get('canReverse')
+        self.action_player_id: int = json.get('activePlayerId')
+        self.round_number: int = json.get('roundNumber')
+        self.round_type: str = json.get('roundType')
+        self.total_dice: int = json.get('totalDiceCount')
         self.active_player_count: int = json.get('activePlayerCount')
         
         latest_bid = json.get('latestBid')
@@ -46,5 +48,5 @@ class Round():
 class RoundSummary():
     def __init__(self, json: dict):
         self.round = Round(json.get('round'))
-        self.achievements = utils.parse_user_achievements(json.get('achievements'))
+        self.achievements: list[UserAchievement] = utils.parse_list(json.get('achievements'), UserAchievement)
         

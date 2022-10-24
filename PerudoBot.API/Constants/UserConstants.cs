@@ -9,6 +9,7 @@
     {
         Gambling = 0,
         PassiveIncome = 1,
+        ItemAuction = 2
     }
 
     public enum RattleType

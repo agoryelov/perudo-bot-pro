@@ -126,4 +126,4 @@ class AuctionEmbed(discord.Embed):
             else:
                 logs.append(f'`{time}`: {player.name} bids :dollar: `{action.bid_amount}`')
         if len(logs) == 0: return 'None'
-        return '\n'.join(logs)
+        return '\n'.join(logs[-10:])

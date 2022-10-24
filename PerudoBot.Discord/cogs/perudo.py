@@ -66,7 +66,7 @@ class Perudo(commands.Cog):
             if is_slash: await ctx.reply('Liar called', ephemeral=True)
             else: await ctx.message.delete()
             
-            await ctx.bot.clear_active_view()
+            await ctx.clear_active_view()
             await ctx.game.send_liar_result(round_summary)
 
         except GameActionError as e:

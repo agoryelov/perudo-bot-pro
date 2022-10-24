@@ -53,9 +53,12 @@ class AuctionService():
     async def _update_from_auction(self, auction: Auction):
         self.auction = auction
 
-    def get_player(self, discord_id):
+    def get_max_bid(self, discord_id):
+        player_points, max_points = 0, 0
         for player in self.auction.players.values():
-            if player.discord_id == discord_id:
-                return player
-        return None
-    
+            if not player.is_active: continue
+            if player.discord_id == discord_id: 
+                player_points = player.points
+            else: 
+                max_points = max(max_points, player.points)
+        return min(player_points, max_points + 10)

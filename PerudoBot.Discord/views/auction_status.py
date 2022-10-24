@@ -36,8 +36,8 @@ class EverythingButton(discord.ui.Button['AuctionView']):
         auction_service = self.view.ctx.auction
         try:
             await interaction.response.defer()
-            player = auction_service.get_player(interaction.user.id)
-            auction = await auction_service.auction_bid(interaction.user.id, player.points)
+            max_bid = auction_service.get_max_bid(interaction.user.id)
+            auction = await auction_service.auction_bid(interaction.user.id, max_bid)
             await self.view.ctx.update_auction_message(auction)
 
             if auction.is_completed:

@@ -1,4 +1,3 @@
-import random
 import utils
 
 from typing import Dict
@@ -47,11 +46,9 @@ class AuctionPlayer():
         self.game_player_id = json.get('gamePlayerId')
 
         if self.game_player_id is not None:
-            random.seed(self.game_player_id)
+            self.avatar = utils.player_avatar(self.game_player_id)
         else:
-            random.seed(self.player_id)
-
-        self.avatar = random.choice(utils.PLAYER_AVATARS)
+            self.avatar = utils.player_avatar(self.player_id)
 
 class AuctionAction():
     def __init__(self, json: dict):

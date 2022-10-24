@@ -1,9 +1,8 @@
 import requests
 
 from typing import Tuple
-from datetime import datetime
 from models import Round, Player
-from .constants import BetType
+from .constants import BetType, PLAYER_AVATARS
 from .items import player_emote
 
 def get_mention(discord_id: int) -> str:
@@ -82,3 +81,8 @@ def format_points(points) -> str:
     if points < 10000:
         return f'`{points} pts`'
     return f'`{points // 1000}K pts`'
+
+def player_avatar(player_id):
+    num_avatars = len(PLAYER_AVATARS)
+    avatar_index = player_id % num_avatars
+    return PLAYER_AVATARS[avatar_index]

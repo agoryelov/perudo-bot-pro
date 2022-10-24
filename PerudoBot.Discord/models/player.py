@@ -1,6 +1,5 @@
 import discord
 import utils
-import random
 
 class PlayerRattle():
     def __init__(self, json: dict):
@@ -20,9 +19,8 @@ class Player():
         self.equipped_dice: str = json.get('equippedDice')
         self.is_eliminated: bool = self.lives <= 0
 
-        random.seed(self.player_id)
         if self.is_bot: self.avatar = ':robot:'
-        else: self.avatar = random.choice(utils.PLAYER_AVATARS)
+        else: self.avatar = utils.player_avatar(self.player_id)
 
         self._rattles: list[PlayerRattle] = utils.parse_list(json.get('rattles'), PlayerRattle)
 

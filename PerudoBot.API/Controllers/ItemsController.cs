@@ -41,7 +41,7 @@ namespace PerudoBot.API.Controllers
         }
 
         [HttpDelete]
-        [Route("item/{itemId}")]
+        [Route("items/{itemId}")]
         public IResult DeleteItem(int itemId)
         {
             var item = _db.Items.SingleOrDefault(x => x.Id == itemId);

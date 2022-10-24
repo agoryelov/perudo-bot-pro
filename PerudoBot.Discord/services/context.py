@@ -54,4 +54,4 @@ class PerudoContext(commands.Context):
     
     async def send_delayed(self, delay = 0.5, **kwargs):
         await asyncio.sleep(delay)
-        return await self.send(**kwargs)
+        return await self.channel.send(**kwargs)

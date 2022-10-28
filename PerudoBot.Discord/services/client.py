@@ -4,7 +4,10 @@ from utils import GameActionError
 import urllib3
 urllib3.disable_warnings()
 
+from dotenv import load_dotenv
 from os import getenv
+
+load_dotenv()
 
 SERVER_PATH = getenv('SERVER_PATH', 'https://localhost:7068')
 

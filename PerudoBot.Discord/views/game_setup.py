@@ -102,5 +102,5 @@ class GameSetupEmbed(discord.Embed):
         return '\n'.join(setup_players)
 
     def get_daily_auction(self):
-        item = self.setup.auction_item
+        item = self.setup.daily_auction.item
         return f'{item.name} {format_points(item.price)}\n{dice_preview(item.content)}'

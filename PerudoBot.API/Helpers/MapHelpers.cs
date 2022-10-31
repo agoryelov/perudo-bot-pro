@@ -60,14 +60,14 @@ namespace PerudoBot.API.Helpers
             return roundState;
         }
 
-        public static GameSetupDto ToGameSetupDto(this Game game, Item auctionItem = null)
+        public static GameSetupDto ToGameSetupDto(this Game game, Auction dailyAuction = null)
         {
             return new GameSetupDto
             {
                 GameId = game.Id,
                 Players = game.Players.Select(x => x.ToPlayerDto()).ToList(),
                 DefaultRoundType = game.DefaultRoundType,
-                AuctionItem = auctionItem?.ToItemDto()
+                AuctionSetup = dailyAuction?.ToAuctionSetupDto()
             };
         }
 
@@ -285,6 +285,15 @@ namespace PerudoBot.API.Helpers
             auctionDto.BidCount = auctionDto.Actions?.Count(x => !x.IsPass) ?? 0;
 
             return auctionDto;
+        }
+
+        public static AuctionSetupDto ToAuctionSetupDto(this Auction auction)
+        {
+            return new AuctionSetupDto
+            {
+                AuctionId = auction.Id,
+                Item = auction.AuctionItem.ToItemDto()
+            };
         }
 
         public static AuctionSummaryDto ToAuctionSummaryDto(this Auction auction)

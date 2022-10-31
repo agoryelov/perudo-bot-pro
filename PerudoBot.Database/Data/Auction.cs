@@ -6,6 +6,7 @@ namespace PerudoBot.Database.Data
     {
         public int Id { get; set; }
         public int State { get; set; }
+        public int Day { get; set; }
 
         [ForeignKey("AuctionItemId")]
         public Item AuctionItem { get; set; }

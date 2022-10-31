@@ -6,6 +6,7 @@ namespace PerudoBot.API.Helpers
 {
     public static class AuctionHelpers
     {
+
         public static bool IsValidFollowUp(this AuctionBid previousBid, int bidAmount, int itemPrice)
         {
             if (bidAmount < itemPrice) return false;
@@ -35,27 +36,9 @@ namespace PerudoBot.API.Helpers
             return ((ItemTier)item.Tier).DefaultPrice();
         }
 
-        public static DiceItem GetDailyAuctionItem(this IQueryable<DiceItem> items)
+        public static int AuctionDay(this DateTime date)
         {
-            items = items.Where(x => x.DropEnabled);
-
-            var rng = DailySeededRandom();
-            var tierRoll = rng.Next(100);
-
-            if (tierRoll >= 90) items = items.Where(x => x.Tier == (int)ItemTier.Epic);
-            else if (tierRoll >= 50) items = items.Where(x => x.Tier == (int)ItemTier.Rare);
-            else items = items.Where(x => x.Tier == (int)ItemTier.Common);
-
-            var itemList = items.ToList();
-            var itemRoll = rng.Next(itemList.Count);
-            return itemList[itemRoll];
-        }
-
-        private static Random DailySeededRandom()
-        {
-            var date = DateTime.UtcNow.ToPST();
-            var seed = date.Year * 1000 + date.DayOfYear;
-            return new Random(seed);
+            return date.Year * 1000 + date.DayOfYear;
         }
 
         public static DateTime ToPST(this DateTime dateTime)

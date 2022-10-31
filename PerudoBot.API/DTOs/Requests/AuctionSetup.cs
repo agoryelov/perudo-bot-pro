@@ -2,7 +2,7 @@
 {
     public class AuctionSetup
     {
-        public int ItemId { get; set; }
+        public int AuctionId { get; set; }
         public List<ulong> DiscordIds { get; set; }
         public ulong StartingDiscordId { get; set; }
     }

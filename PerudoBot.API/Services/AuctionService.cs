@@ -35,6 +35,52 @@ namespace PerudoBot.API.Services
             return _activeAuction;
         }
 
+        private Auction CreateDailyAuction(int auctionDay)
+        {
+            var recentItems = _db.Auctions
+                .Where(x => x.State == (int)AuctionState.Ended)
+                .OrderByDescending(x => x.Day).Take(5)
+                .Select(x => x.AuctionItemId)
+                .ToList();
+
+            var itemPool = _db.Items
+                .Where(x => x.DropEnabled)
+                .Select(x => x.Id)
+                .ToList();
+
+            itemPool = itemPool.Except(recentItems).ToList();
+
+            var rng = new Random();
+            var randomIndex = rng.Next(itemPool.Count);
+
+            var randomItem = _db.Items.SingleOrDefault(x => x.Id == itemPool[randomIndex]);
+
+            return new Auction
+            {
+                Day = auctionDay,
+                State = (int)AuctionState.Setup,
+                AuctionPlayers = new List<AuctionPlayer>(),
+                AuctionActions = new List<AuctionAction>(),
+                AuctionItem = randomItem,
+            };
+        }
+
+        public Auction GetDailyAuction()
+        {
+            var auctionDay = DateTime.Now.AuctionDay();
+            var dailyAuction = _db.Auctions.Include(x => x.AuctionItem).FirstOrDefault(x => x.Day == auctionDay);
+
+            if (dailyAuction == null)
+            {
+                dailyAuction = CreateDailyAuction(auctionDay);
+
+                _db.Auctions.Add(dailyAuction);
+                _db.SaveChanges();
+            }
+
+            return dailyAuction;
+        }
+
         private AuctionPlayer CreateAuctionPlayer(ulong discordId)
         {
             var user = _db.Users.SingleOrDefault(x => x.DiscordId == discordId);
@@ -51,18 +97,7 @@ namespace PerudoBot.API.Services
 
         public Response StartAuction(AuctionSetup setup)
         {
-            var auctionItem = _db.Items.SingleOrDefault(x => x.Id == setup.ItemId);
-
-            _activeAuction = new Auction
-            {
-                State = (int) AuctionState.InProgress,
-                AuctionPlayers = new List<AuctionPlayer>(),
-                AuctionActions = new List<AuctionAction>(),
-                AuctionItem = auctionItem
-            };
-
-            _db.Auctions.Add(_activeAuction);
-            _db.SaveChanges();
+            LoadActiveAuction(setup.AuctionId);
 
             foreach (var discordId in setup.DiscordIds)
             {
@@ -80,8 +115,10 @@ namespace PerudoBot.API.Services
                 return Responses.Error("Not enough eligible users to start an auction");
             }
 
+            _activeAuction.State = (int) AuctionState.InProgress;
+
             var startingUser = _userService.GetUserFromDiscordId(setup.StartingDiscordId);
-            var response = AddAuctionBid(startingUser, auctionItem.AuctionPrice());
+            var response = AddAuctionBid(startingUser, _activeAuction.AuctionItem.AuctionPrice());
 
             return response;
         }

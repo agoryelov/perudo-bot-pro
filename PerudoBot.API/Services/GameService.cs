@@ -15,14 +15,22 @@ namespace PerudoBot.API.Services
         private readonly BetService _betService;
         private readonly EloService _eloService;
         private readonly UserService _userService;
+        private readonly AuctionService _auctionService;
         private readonly AchievementService _achievementService;
 
-        public GameService(PerudoBotDbContext context, BetService betService, EloService eloService, UserService userService, AchievementService achievementService)
+        public GameService(
+            PerudoBotDbContext context, 
+            BetService betService, 
+            EloService eloService, 
+            UserService userService, 
+            AuctionService auctionService, 
+            AchievementService achievementService)
         {
             _db = context;
             _betService = betService;
             _eloService = eloService;
             _userService = userService;
+            _auctionService = auctionService;
             _achievementService = achievementService;
         }
 
@@ -64,21 +72,14 @@ namespace PerudoBot.API.Services
 
         private GameSetupDto GetGameSetupDto(Game game)
         {
-            var recentAuction = _db.Auctions
-                .Where(x => x.State == (int)AuctionState.Ended)
-                .OrderBy(x => x.DateCreated)
-                .LastOrDefault();
+            var dailyAuction = _auctionService.GetDailyAuction();
 
-            var todayDate = DateTime.UtcNow.ToPST().Date;
-            var auctionDate = recentAuction?.DateCreated.ToPST().Date;
-
-            if (auctionDate >= todayDate)
+            if (dailyAuction.State != (int) AuctionState.Setup)
             {
                 return game.ToGameSetupDto();
             }
 
-            var auctionItem = _db.Items.OfType<DiceItem>().GetDailyAuctionItem();
-            return game.ToGameSetupDto(auctionItem);
+            return game.ToGameSetupDto(dailyAuction);
         }
 
         public GameSetupDto SetDefaultRoundType(int roundType)

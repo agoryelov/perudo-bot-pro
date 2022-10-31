@@ -11,6 +11,12 @@
         public AuctionActionDto HighestBid { get; set; }
     }
 
+    public class AuctionSetupDto : Response
+    {
+        public int AuctionId { get; set; }
+        public ItemDto Item { get; set; }
+    }
+
     public class AuctionPlayerDto
     {
         public string Name { get; set; }

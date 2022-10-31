@@ -7,4 +7,4 @@ from .round import Round, RoundSummary
 from .setup import GameSetup
 from .profile import UserProfile, UserGame
 from .inventory import Item, UserInventory
-from .auction import Auction, AuctionAction, AuctionPlayer, AuctionSummary
+from .auction import Auction, AuctionSetup, AuctionAction, AuctionPlayer, AuctionSummary

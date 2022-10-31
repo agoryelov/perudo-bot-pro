@@ -36,6 +36,11 @@ class Auction():
         if self.any_bids: return self.highest_bid.bid_amount
         else: return self.item.price
 
+class AuctionSetup():
+    def __init__(self, json: dict):
+        self.id : int = json.get('auctionId')
+        self.item = Item(json.get('item'))
+
 class AuctionPlayer():
     def __init__(self, json: dict):
         self.name = json.get('name')

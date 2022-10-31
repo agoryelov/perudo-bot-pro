@@ -7,8 +7,9 @@
             switch (itemTier)
             {
                 case ItemTier.Common: return 2000;
-                case ItemTier.Rare: return 4000;
-                case ItemTier.Epic: return 8000;
+                case ItemTier.Rare: return 3000;
+                case ItemTier.Epic: return 5000;
+                case ItemTier.Legendary: return 8000;
                 default: throw new ArgumentOutOfRangeException("itemTier");
             }
         }
@@ -18,7 +19,8 @@
     {
         Common = 0,
         Rare = 1,
-        Epic = 2
+        Epic = 2,
+        Legendary = 3
     }
 
     public enum AuctionState

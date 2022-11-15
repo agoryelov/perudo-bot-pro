@@ -13,7 +13,7 @@ class BetType(enum.IntEnum):
     Legit = 3
 
 class RattleType(enum.IntEnum):
-    Death = 0,
+    Death = 0
     Win = 1
     Taunt = 2
 
@@ -26,6 +26,12 @@ class EmbedColor(enum.IntEnum):
     White = 16777215
     Yellow = 16172079
     Invisible = 3092790
+
+class MessageType(enum.IntEnum):
+    Setup = 0
+    Auction = 1
+    Round = 2
+    Bets = 3
 
 SYM_X = "×"
 EMPTY = "‎"

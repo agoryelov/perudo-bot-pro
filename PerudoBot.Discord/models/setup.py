@@ -9,7 +9,8 @@ class GameSetup():
         self.discord_players : dict[int, Player] = utils.parse_discord_players(json.get('players'))
         self.round_type : str = utils.parse_round_type(json.get('defaultRoundType'))
         self.game_id : int = json.get('gameId')
-        self.show_auction = json.get('auctionSetup') is not None
+        # self.show_auction = json.get('auctionSetup') is not None
+        self.show_auction = False
 
         if self.show_auction:
             self.daily_auction : AuctionSetup = AuctionSetup(json.get('auctionSetup'))

@@ -8,6 +8,7 @@
 
     public class BidDto : ActionDto
     {
+        public int BidId { get; set; }
         public int Quantity { get; set; }
         public int Pips { get; set; }
         public string DateCreated { get; set; }

@@ -1,12 +1,10 @@
 import asyncio
-from code import interact
 import discord
-from os import getenv
 from discord.ext import commands
 
 from services import PerudoContext
-from utils import parse_bid, GameActionError
-from views import RoundSummaryEmbed, GameSetupEmbed, GameSetupView
+from utils import parse_bid, GameActionError, MessageType
+from views import RoundSummaryEmbed
 
 from bot import PerudoBot
 
@@ -16,9 +14,6 @@ class Perudo(commands.Cog):
 
     @commands.hybrid_command(name="new", description="Create a new game", help="Create a new game")
     async def new(self, ctx: PerudoContext):
-        if getenv('BOT_CHANNEL', None) is not None:
-            ctx.game.bot_channel = await self.bot.fetch_channel(getenv('BOT_CHANNEL'))
-
         if ctx.game.in_setup or ctx.game.in_progress:
             await ctx.reply("Game already exists, use `/terminate` before starting a new game")
             return
@@ -52,6 +47,11 @@ class Perudo(commands.Cog):
 
             await ctx.update_round_message(round)
             if ctx.game.has_bots: await ctx.game.send_bot_updates(round)
+
+            if ctx.game.round.any_bets:
+                await asyncio.sleep(3)
+                round = await ctx.game.current_round()
+                await ctx.update_bets_message(round)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
@@ -66,7 +66,8 @@ class Perudo(commands.Cog):
             if is_slash: await ctx.reply('Liar called', ephemeral=True)
             else: await ctx.message.delete()
             
-            await ctx.clear_active_view()
+            await ctx.clear_message(type=MessageType.Round)
+            await ctx.clear_message(type=MessageType.Bets)
             await ctx.game.send_liar_result(round_summary)
 
         except GameActionError as e:
@@ -108,6 +109,23 @@ class Perudo(commands.Cog):
             else: await ctx.message.delete()
 
             await ctx.update_setup_message(game_setup)
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
+
+    @commands.hybrid_command(name="resume", description="Resume an existing game", help="Resume an existing game")
+    async def resume(self, ctx: PerudoContext, game_id = None):
+        if ctx.game.game_id == 0 and game_id is None:
+            await ctx.reply("Unable to resume this game", ephemeral=True)
+            return
+        
+        if ctx.interaction is None: await ctx.message.delete()
+        if game_id is None: game_id = ctx.game
+
+        try:
+            round = await ctx.game.resume_game(game_id)
+            if ctx.game.has_bots: await ctx.game.send_bot_updates(round)
+            await ctx.send_round_message(round)
+            if round.any_bets: await ctx.send_bets_message(round)            
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 

@@ -25,9 +25,23 @@ class GameService():
         self.game_setup : GameSetup = None
         self.round : Round = None
 
-        self.bot_channel : TextChannel
+        self.bot_channel = ctx.bot.bot_channel
         self.voice_client : VoiceClient = None
         self.voice_channel : VoiceChannel = None
+
+    async def resume_game(self, game_id) -> Round:
+        self.game_id = game_id
+        round_data = Client.resume_game(self.game_id)
+        round = Round(round_data)
+        await self._update_from_round(round)
+        await self._send_out_dice(round)
+        return round
+
+    async def current_round(self) -> Round:
+        round_data = Client.current_round(self.game_id)
+        round = Round(round_data)
+        await self._update_from_round(round)
+        return round
 
     async def fetch_setup(self) -> GameSetup:
         setup_data = Client.fetch_setup(self.game_id)
@@ -82,8 +96,8 @@ class GameService():
         self._play_notification('notify_reverse.mp3')
         return round
     
-    async def bet_action(self, discord_id, amount, bet_type) -> Round:
-        round_data = Client.bet_action(self.game_id, self._player_id(discord_id), amount, bet_type)
+    async def bet_action(self, discord_id, amount, bet_type, target_id) -> Round:
+        round_data = Client.bet_action(self.game_id, self._player_id(discord_id), amount, bet_type, target_id)
         round = Round(round_data)
         await self._update_from_round(round)
         self._play_notification('notify_coins.mp3')
@@ -166,7 +180,7 @@ class GameService():
         self.game_state = GameState.InProgress if not round.is_final else GameState.Ended
 
     async def send_bot_updates(self, round):
-        if self.bot_channel is None:
+        if self.ctx.bot.bot_channel is None:
             print("Warning: Bot channel is not accessible")
             return
         

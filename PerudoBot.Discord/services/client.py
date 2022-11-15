@@ -44,6 +44,10 @@ class Client():
         headers = { 'GAME_ID': str(game_id) }
         return Client._post(f'{SERVER_PATH}/game/roundtype/{round_type}', headers=headers)
 
+    def resume_game(game_id):
+        headers = { 'GAME_ID': str(game_id) }
+        return Client._get(f'{SERVER_PATH}/game/resume', headers=headers)
+
     def current_round(game_id):
         headers = { 'GAME_ID': str(game_id) }
         return Client._get(f'{SERVER_PATH}/game/round', headers=headers)
@@ -76,9 +80,9 @@ class Client():
         headers = { 'GAME_ID': str(game_id) }
         return Client._post(f'{SERVER_PATH}/game/newround', headers=headers)
 
-    def bet_action(game_id, player_id, amount : int, bet_type: int):
+    def bet_action(game_id, player_id, amount : int, bet_type: int, target_id: int):
         headers = { 'GAME_ID': str(game_id), 'PLAYER_ID': str(player_id) }
-        payload = { 'Amount': amount, 'Type': bet_type }
+        payload = { 'Amount': amount, 'Type': bet_type, 'TargetBidId': target_id }
         return Client._post(f'{SERVER_PATH}/game/bet', headers=headers, payload=payload)
 
     def reverse_action(game_id, player_id):

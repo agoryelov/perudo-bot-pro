@@ -9,3 +9,4 @@ from .user_profile import UserProfileEmbed
 from .user_inventory import UserInventoryView, UserInventoryEmbed
 from .auction_status import AuctionView, AuctionEmbed
 from .auction_summary import AuctionSummaryEmbed
+from .bets_status import BetsEmbed, BetsView

@@ -15,7 +15,7 @@ class RaiseButton(discord.ui.Button['AuctionView']):
     
     async def callback(self, interaction: discord.Interaction):
         auction_service = self.view.ctx.auction
-
+        
         try:
             await interaction.response.defer()
             highest_bid = auction_service.auction.current_amount

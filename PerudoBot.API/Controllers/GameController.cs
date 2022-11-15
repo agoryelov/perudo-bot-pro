@@ -21,9 +21,24 @@ namespace PerudoBot.API.Controllers
         }
 
         [HttpGet]
+        [Route("game/resume")]
+        [RequireExistingGame]
+        public IResult ResumeGame()
+        {
+            var response = _gameService.ResumeGame();
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
+        }
+
+        [HttpGet]
         [Route("game/round")]
         [RequireExistingGame]
-        public IResult CurrentRoundState()
+        public IResult CurrentRound()
         {
             var response = _gameService.GetCurrentRound();
 
@@ -129,7 +144,7 @@ namespace PerudoBot.API.Controllers
             var game = _gameService.GetActiveGame();
             var player = _gameService.GetActivePlayer();
 
-            var response = _betService.Bet(game, player, bet.Amount, bet.Type);
+            var response = _betService.Bet(game, player, bet.Amount, bet.Type, bet.TargetBidId);
             if (!response.RequestSuccess)
             {
                 return Results.BadRequest(new { error = response.ErrorMessage });

@@ -24,6 +24,10 @@ class Round():
         self.liar : Liar = Liar(liar) if liar is not None else None
     
     @property
+    def is_completed(self) -> bool:
+        return self.liar is not None
+    
+    @property
     def is_final(self) -> bool:
         return self.active_player_count == 1
     

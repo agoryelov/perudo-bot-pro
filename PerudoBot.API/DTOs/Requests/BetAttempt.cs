@@ -6,5 +6,6 @@ namespace PerudoBot.API.DTOs
     {
         public BetType Type { get; set; }
         public int Amount { get; set; }
+        public int TargetBidId { get; set; }
     }
 }

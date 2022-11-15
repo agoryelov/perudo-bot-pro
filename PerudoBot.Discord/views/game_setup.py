@@ -2,7 +2,7 @@ import typing
 import discord
 from discord import SelectOption
 from models import GameSetup
-from utils import GameActionError, dice_preview, format_points, MIN_AUCTION_PLAYERS, MIN_GAME_PLAYERS
+from utils import GameActionError, dice_preview, format_points, MIN_AUCTION_PLAYERS, MIN_GAME_PLAYERS, MessageType
 
 if typing.TYPE_CHECKING:
     from services import PerudoContext
@@ -33,7 +33,7 @@ class GameButton(discord.ui.Button['GameSetupView']):
             round = await self.view.game.start_game()
             if self.view.game.has_bots: await self.view.game.send_bot_updates(round)
 
-            await self.view.ctx.clear_active_view()
+            await self.view.ctx.clear_message(type=MessageType.Setup)
             await self.view.ctx.send_round_message(round)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
@@ -51,7 +51,7 @@ class AuctionButton(discord.ui.Button['GameSetupView']):
             auction_setup = self.view.setup.auction_setup(interaction.user.id)
             auction = await self.view.auction.start_auction(auction_setup)
 
-            await self.view.ctx.clear_active_view()
+            await self.view.ctx.clear_message(type=MessageType.Setup)
             await self.view.ctx.send_auction_message(auction)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)

@@ -272,6 +272,24 @@ namespace PerudoBot.API.Services
             return round;
         }
 
+        public RoundDto ResumeGame()
+        {
+            if (_activeGame.State != (int) GameState.InProgress)
+            {
+                return new RoundDto { ErrorMessage = "Game is not in progress" };
+            }
+
+            var round = _activeGame.LatestRound.ToRoundDto();
+            if (round.Liar == null) return round;
+
+            if (round.ActivePlayerCount <= 1)
+            {
+                return new RoundDto { ErrorMessage = "Game is not in progress" };
+            }
+
+            return StartNewRound();
+        }
+
         public RoundSummaryDto GetCurrentRoundSummary()
         {
             return new RoundSummaryDto

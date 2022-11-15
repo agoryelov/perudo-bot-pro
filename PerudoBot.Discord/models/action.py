@@ -9,6 +9,7 @@ class Action():
 class Bid(Action):
     def __init__(self, json: dict):
         super().__init__(json)
+        self.id = json.get('bidId')
         self.quantity = json.get('quantity')
         self.pips = json.get('pips')
         self.date_created = utils.parse_date(json.get('dateCreated'))

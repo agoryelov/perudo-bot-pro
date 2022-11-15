@@ -35,6 +35,11 @@ namespace PerudoBot.API.Services
 
             var currentRound = game.LatestRound;
 
+            if (currentRound.IsCompleted)
+            {
+                return new RoundDto { RequestSuccess = false, ErrorMessage = "Round is completed" };
+            }
+
             var targetBid = _db.BidActions.SingleOrDefault(x => x.Id == targetBidId);
 
             if (targetBid == null)

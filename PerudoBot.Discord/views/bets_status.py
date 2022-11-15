@@ -18,10 +18,8 @@ class BetButton(discord.ui.Button['BetsView']):
         existing_bet = discord.utils.get(game_service.round.bets, player_id=better.player_id)
         
         bet_amount = min_bet(self.bet_type) if existing_bet is None else existing_bet.bet_amount * 4
-        target_id = game_service.round.latest_bid.id
-
         try:
-            r = await game_service.bet_action(interaction.user.id, bet_amount, self.bet_type, target_id)
+            r = await game_service.bet_action(interaction.user.id, bet_amount, self.bet_type, self.view.target_id)
             await self.view.ctx.update_bets_message(r, interaction.response.edit_message)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
@@ -31,12 +29,14 @@ class BetsView(discord.ui.View):
         super().__init__(timeout=1200)
         self.ctx = ctx
         self.round = ctx.game.round
+        self.target_id = ctx.game.round.latest_bid.id
 
-        self.add_item(BetButton(BetType.Liar))
-        self.add_item(BetButton(BetType.Exact))
-        self.add_item(BetButton(BetType.Peak))
-        self.add_item(BetButton(BetType.Legit))
-
+        if not self.round.is_completed:
+            self.add_item(BetButton(BetType.Liar))
+            self.add_item(BetButton(BetType.Exact))
+            self.add_item(BetButton(BetType.Peak))
+            self.add_item(BetButton(BetType.Legit))
+        
 class BetsEmbed(discord.Embed):
     def __init__(self, r: Round):
         super().__init__()

@@ -36,6 +36,21 @@ namespace PerudoBot.API.Controllers
         }
 
         [HttpGet]
+        [Route("game/round")]
+        [RequireExistingGame]
+        public IResult CurrentRound()
+        {
+            var response = _gameService.GetCurrentRound();
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
+        }
+
+        [HttpGet]
         [Route("game/setup")]
         [RequireGameInSetup]
         public IResult CurrentGameSetup()

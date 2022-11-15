@@ -37,6 +37,12 @@ class GameService():
         await self._send_out_dice(round)
         return round
 
+    async def current_round(self) -> Round:
+        round_data = Client.current_round(self.game_id)
+        round = Round(round_data)
+        await self._update_from_round(round)
+        return round
+
     async def fetch_setup(self) -> GameSetup:
         setup_data = Client.fetch_setup(self.game_id)
         game_setup = GameSetup(setup_data)

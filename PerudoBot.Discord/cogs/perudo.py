@@ -46,8 +46,12 @@ class Perudo(commands.Cog):
             else: await ctx.message.delete()
 
             await ctx.update_round_message(round)
-            if ctx.game.round.any_bets: await ctx.update_bets_message(round)
             if ctx.game.has_bots: await ctx.game.send_bot_updates(round)
+
+            if ctx.game.round.any_bets:
+                await asyncio.sleep(3)
+                round = await ctx.game.current_round()
+                await ctx.update_bets_message(round)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 

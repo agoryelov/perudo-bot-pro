@@ -48,6 +48,10 @@ class Client():
         headers = { 'GAME_ID': str(game_id) }
         return Client._get(f'{SERVER_PATH}/game/resume', headers=headers)
 
+    def current_round(game_id):
+        headers = { 'GAME_ID': str(game_id) }
+        return Client._get(f'{SERVER_PATH}/game/round', headers=headers)
+
     def fetch_setup(game_id):
         headers = { 'GAME_ID': str(game_id) }
         return Client._get(f'{SERVER_PATH}/game/setup', headers=headers)

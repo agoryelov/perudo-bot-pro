@@ -1,3 +1,4 @@
+import asyncio
 import typing
 import discord
 from models import Round
@@ -27,8 +28,12 @@ class BidButton(discord.ui.Button['RoundView']):
             await interaction.response.defer()
             round = await game_service.bid_action(interaction.user.id, self.quantity, self.pips)
             await self.view.ctx.update_round_message(round)
-            if game_service.round.any_bets: await self.view.ctx.update_bets_message(round)
             if game_service.has_bots: await game_service.send_bot_updates(round)
+
+            if game_service.round.any_bets:
+                await asyncio.sleep(3)
+                round = await game_service.current_round()
+                await self.view.ctx.update_bets_message(round)
         except GameActionError as e:
             if not interaction.user.bot: await interaction.user.send(f"`Bid Failed`: {e.message}")
 

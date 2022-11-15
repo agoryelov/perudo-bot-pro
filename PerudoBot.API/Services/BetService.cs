@@ -34,13 +34,7 @@ namespace PerudoBot.API.Services
             }
 
             var currentRound = game.LatestRound;
-
-            if (currentRound.IsCompleted)
-            {
-                return new RoundDto { RequestSuccess = false, ErrorMessage = "Round is completed" };
-            }
-
-            var targetBid = _db.BidActions.SingleOrDefault(x => x.Id == targetBidId);
+            var targetBid = _db.BidActions.SingleOrDefault(x => x.Id == targetBidId && x.RoundId == currentRound.Id);
 
             if (targetBid == null)
             {
@@ -52,6 +46,7 @@ namespace PerudoBot.API.Services
                 return new RoundDto { RequestSuccess = false, ErrorMessage = "You can't bet on your own bid" };
             }
 
+            
             var allowedBetAmount = MaxBetAmount(currentRound, betType);
 
             if (allowedBetAmount <= 0)

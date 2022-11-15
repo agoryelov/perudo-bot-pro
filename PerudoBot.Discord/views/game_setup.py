@@ -35,6 +35,7 @@ class GameButton(discord.ui.Button['GameSetupView']):
 
             await self.view.ctx.clear_message(type=MessageType.Setup)
             await self.view.ctx.send_round_message(round)
+            await self.view.ctx.send_bets_message(round)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
 

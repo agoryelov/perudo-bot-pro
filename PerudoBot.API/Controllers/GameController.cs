@@ -180,7 +180,22 @@ namespace PerudoBot.API.Controllers
                 return Results.BadRequest(new { error = response.ErrorMessage });
             }            
 
-            return Results.Ok(new { data = _gameService.GetCurrentRoundSummary() });
+            return Results.Ok(new { data = _gameService.GetCurrentRound() });
+        }
+
+        [HttpGet]
+        [Route("game/roundsummary")]
+        [RequireExistingGame]
+        public IResult RoundSummary()
+        {
+            var response = _gameService.GetCurrentRoundSummary();
+
+            if (!response.RequestSuccess)
+            {
+                return Results.BadRequest(new { error = response.ErrorMessage });
+            }
+
+            return Results.Ok(new { data = response });
         }
 
         [HttpPost]

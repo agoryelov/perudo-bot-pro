@@ -16,6 +16,10 @@ class PerudoContext(commands.Context):
         super().__init__(**kwargs)
 
     @property
+    def is_slash(self) -> bool:
+        return self.interaction is not None
+    
+    @property
     def game(self):
         return self.bot.channel_game(self)
 
@@ -69,4 +73,4 @@ class PerudoContext(commands.Context):
     
     async def send_delayed(self, delay = 0.5, **kwargs):
         await asyncio.sleep(delay)
-        return await self.send(**kwargs)
+        return await self.channel.send(**kwargs)

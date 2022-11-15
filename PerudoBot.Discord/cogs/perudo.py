@@ -18,13 +18,15 @@ class Perudo(commands.Cog):
             await ctx.reply("Game already exists, use `/terminate` before starting a new game")
             return
         
-        if ctx.interaction is not None: await ctx.interaction.response.defer()
+        if ctx.is_slash: await ctx.interaction.response.defer(ephemeral=True)
         else: await ctx.message.delete()
 
         try:
             game_setup = await ctx.game.create_game()
+            game_setup.game_id
             await ctx.send_setup_message(game_setup)
 
+            if ctx.is_slash: await ctx.reply(f'Created lobby #{game_setup.game_id}', ephemeral=True)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
@@ -36,54 +38,44 @@ class Perudo(commands.Cog):
             return
         quantity, pips = parsed_bid
 
-        is_slash = ctx.interaction is not None
-
         try:
             await ctx.defer(ephemeral=True)
             round = await ctx.game.bid_action(ctx.author.id, quantity, pips)
 
-            if is_slash: await ctx.reply('Bid placed', ephemeral=True)
+            if ctx.is_slash: await ctx.reply('Bid placed', ephemeral=True)
             else: await ctx.message.delete()
 
             await ctx.update_round_message(round)
+            await ctx.update_bets_message(round)  
             if ctx.game.has_bots: await ctx.game.send_bot_updates(round)
-
-            if ctx.game.round.any_bets:
-                await asyncio.sleep(3)
-                round = await ctx.game.current_round()
-                await ctx.update_bets_message(round)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
     @commands.hybrid_command(name="liar", description="Call liar", help="Call liar")
     async def liar(self, ctx: PerudoContext):
-        is_slash = ctx.interaction is not None
+        await ctx.defer(ephemeral=True)
+
+        if ctx.is_slash: await ctx.reply('Liar called', ephemeral=True)
+        else: await ctx.message.delete()
 
         try:
-            await ctx.defer(ephemeral=True)
-            round_summary = await ctx.game.liar_action(ctx.author.id)
-
-            if is_slash: await ctx.reply('Liar called', ephemeral=True)
-            else: await ctx.message.delete()
+            round = await ctx.game.liar_action(ctx.author.id)
+            await ctx.game.send_liar_result(round)
             
-            await ctx.clear_message(type=MessageType.Round)
-            await ctx.clear_message(type=MessageType.Bets)
-            await ctx.game.send_liar_result(round_summary)
-
+            round_summary = await ctx.game.round_summary()
+            await ctx.send_delayed(embed=RoundSummaryEmbed(round_summary))
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
             return
 
-        await asyncio.sleep(1)
-        await ctx.channel.send(embed=RoundSummaryEmbed(round_summary))
-        await asyncio.sleep(1)
-
         if ctx.game.ended:
             await ctx.game.end_game()
         else:
+            await asyncio.sleep(2)
             round = await ctx.game.start_round()
             if ctx.game.has_bots: await ctx.game.send_bot_updates(round)
             await ctx.send_round_message(round)
+            await ctx.send_bets_message(round)
 
     @commands.hybrid_command(name="terminate", description="Terminate current game", help="Terminate current game")
     async def terminate(self, ctx: PerudoContext):        
@@ -96,7 +88,6 @@ class Perudo(commands.Cog):
     @commands.hybrid_command(name="add", description="Add player to the game", help="Add player to the game", aliases=['a'])
     async def add(self, ctx: PerudoContext, user: discord.Member = None):
         if user is None: user = ctx.author
-        is_slash = ctx.interaction is not None
 
         if not ctx.game.in_setup:
             await ctx.reply("No game setup, make sure you are in the right channel", ephemeral=True)
@@ -105,7 +96,7 @@ class Perudo(commands.Cog):
         try:
             game_setup = await ctx.game.add_player(user)
 
-            if is_slash: await ctx.reply(f'Added {user.name} to the game', ephemeral=True)
+            if ctx.is_slash: await ctx.reply(f'Added {user.name} to the game', ephemeral=True)
             else: await ctx.message.delete()
 
             await ctx.update_setup_message(game_setup)
@@ -118,14 +109,18 @@ class Perudo(commands.Cog):
             await ctx.reply("Unable to resume this game", ephemeral=True)
             return
         
-        if ctx.interaction is None: await ctx.message.delete()
+        if ctx.is_slash: await ctx.interaction.response.defer(ephemeral=True)
+        else: await ctx.message.delete()
+    
         if game_id is None: game_id = ctx.game
 
         try:
             round = await ctx.game.resume_game(game_id)
             if ctx.game.has_bots: await ctx.game.send_bot_updates(round)
             await ctx.send_round_message(round)
-            if round.any_bets: await ctx.send_bets_message(round)            
+            await ctx.send_bets_message(round)
+
+            if ctx.is_slash: await ctx.reply(f'Resumed game #{game_id}', ephemeral=True)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 

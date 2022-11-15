@@ -8,9 +8,10 @@ if typing.TYPE_CHECKING:
     from services import PerudoContext
 
 class BetButton(discord.ui.Button['BetsView']):
-    def __init__(self, bet_type: BetType):
+    def __init__(self, bet_type: BetType, enabled: bool):
         super().__init__(style=discord.ButtonStyle.grey, emoji=bet_emoji(bet_type))
         self.bet_type = bet_type
+        self.disabled = not enabled
     
     async def callback(self, interaction: discord.Interaction):
         game_service = self.view.ctx.game
@@ -29,20 +30,21 @@ class BetsView(discord.ui.View):
         super().__init__(timeout=1200)
         self.ctx = ctx
         self.round = ctx.game.round
-        self.target_id = ctx.game.round.latest_bid.id
 
-        if not self.round.is_completed:
-            self.add_item(BetButton(BetType.Liar))
-            self.add_item(BetButton(BetType.Exact))
-            self.add_item(BetButton(BetType.Peak))
-            self.add_item(BetButton(BetType.Legit))
+        if self.round.any_bids: self.target_id = ctx.game.round.latest_bid.id
+        self.add_item(BetButton(bet_type=BetType.Liar, enabled=self.round.any_bids))
+        self.add_item(BetButton(bet_type=BetType.Exact, enabled=self.round.any_bids))
+        self.add_item(BetButton(bet_type=BetType.Peak, enabled=self.round.any_bids))
+        self.add_item(BetButton(bet_type=BetType.Legit, enabled=self.round.any_bids))
         
 class BetsEmbed(discord.Embed):
     def __init__(self, r: Round):
         super().__init__()
         self.round = r
         self.add_field(name="Bets", value=self.get_bets_field(), inline=False)
-        self.set_footer(text=f'Betting on: {r.latest_bid.quantity} x {r.latest_bid.pips}')
+
+        if r.any_bids:
+            self.set_footer(text=f'Betting on: {r.latest_bid.quantity} x {r.latest_bid.pips}')
 
     def get_bets_field(self):
         bets = []

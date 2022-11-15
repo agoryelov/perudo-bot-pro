@@ -3,10 +3,10 @@ import discord
 
 from os import getenv
 from typing import Union, Dict, TYPE_CHECKING
-from discord import Member, User, VoiceClient, VoiceChannel, Message, TextChannel
+from discord import Member, User, VoiceClient, VoiceChannel
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
-from utils import GameState, GameActionError, bot_dice, bot_update, get_mention
+from utils import MessageType, GameState, GameActionError, bot_dice, bot_update, get_mention
 from views import LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed, GameSummaryEmbed, VictoryEmbed
 
 from .client import Client
@@ -103,12 +103,18 @@ class GameService():
         self._play_notification('notify_coins.mp3')
         return round
 
-    async def liar_action(self, discord_id) -> RoundSummary:
-        summary_data = Client.liar_action(self.game_id, self._player_id(discord_id))
-        round_summary = RoundSummary(summary_data)
-        await self._update_from_round(round_summary.round)
+    async def liar_action(self, discord_id) -> Round:
+        round_data = Client.liar_action(self.game_id, self._player_id(discord_id))
+        round = Round(round_data)
+        await self._update_from_round(round)
         self._play_notification('notify_long_pop.mp3')
-        return round_summary
+        return round
+
+    async def round_summary(self) -> RoundSummary:
+        summary_data = Client.round_summary(self.game_id)
+        summary = RoundSummary(summary_data)
+        await self._update_from_round(summary.round)
+        return summary
     
     async def end_game(self) -> GameSummary:
         await self._end_game_voice()
@@ -155,13 +161,15 @@ class GameService():
             self.voice_client.play(audio_source)
         except: pass
 
-    async def send_liar_result(self, round_summary: RoundSummary): 
-        liar = round_summary.round.liar
-        players = round_summary.round.players
+    async def send_liar_result(self, round: Round): 
+        liar = round.liar
+        players = round.players
         losing_player = players[liar.losing_player_id]
 
+        await self.ctx.clear_message(type=MessageType.Round)
         liar_call_embed = await self.ctx.send_delayed(embed=LiarCalledEmbed(liar, players), delay=0)
-        await asyncio.sleep(2)
+        await asyncio.sleep(3)
+        await self.ctx.clear_message(type=MessageType.Bets)
         await liar_call_embed.edit(embed=LiarCalledEmbed(liar, players, show_actual=True))
         await self.ctx.send_delayed(embed=DamageDealtEmbed(liar, players), delay=1)
         

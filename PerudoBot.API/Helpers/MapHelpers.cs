@@ -76,6 +76,7 @@ namespace PerudoBot.API.Helpers
             if (bid == null) return null;
             return new BidDto
             {
+                BidId = bid.Id,
                 ActionType = bid.ActionType,
                 Pips = bid.Pips,
                 Quantity = bid.Quantity,

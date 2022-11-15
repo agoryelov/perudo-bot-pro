@@ -76,9 +76,9 @@ class Client():
         headers = { 'GAME_ID': str(game_id) }
         return Client._post(f'{SERVER_PATH}/game/newround', headers=headers)
 
-    def bet_action(game_id, player_id, amount : int, bet_type: int):
+    def bet_action(game_id, player_id, amount : int, bet_type: int, target_id: int):
         headers = { 'GAME_ID': str(game_id), 'PLAYER_ID': str(player_id) }
-        payload = { 'Amount': amount, 'Type': bet_type }
+        payload = { 'Amount': amount, 'Type': bet_type, 'TargetBidId': target_id }
         return Client._post(f'{SERVER_PATH}/game/bet', headers=headers, payload=payload)
 
     def reverse_action(game_id, player_id):

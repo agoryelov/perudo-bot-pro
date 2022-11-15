@@ -82,8 +82,8 @@ class GameService():
         self._play_notification('notify_reverse.mp3')
         return round
     
-    async def bet_action(self, discord_id, amount, bet_type) -> Round:
-        round_data = Client.bet_action(self.game_id, self._player_id(discord_id), amount, bet_type)
+    async def bet_action(self, discord_id, amount, bet_type, target_id) -> Round:
+        round_data = Client.bet_action(self.game_id, self._player_id(discord_id), amount, bet_type, target_id)
         round = Round(round_data)
         await self._update_from_round(round)
         self._play_notification('notify_coins.mp3')

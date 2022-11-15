@@ -2,7 +2,7 @@ import typing
 import discord
 from models import Round
 from utils import get_pip_quantity, next_up_message, deal_dice_message, bet_emoji, min_bet, format_points, player_emote
-from utils import GameActionError, BetType, SYM_X
+from utils import GameActionError, BetType, SYM_X, MessageType
 
 from .round_summary import RoundSummaryEmbed
 
@@ -27,6 +27,7 @@ class BidButton(discord.ui.Button['RoundView']):
             await interaction.response.defer()
             round = await game_service.bid_action(interaction.user.id, self.quantity, self.pips)
             await self.view.ctx.update_round_message(round)
+            if game_service.round.any_bets: await self.view.ctx.update_bets_message(round)
             if game_service.has_bots: await game_service.send_bot_updates(round)
         except GameActionError as e:
             if not interaction.user.bot: await interaction.user.send(f"`Bid Failed`: {e.message}")
@@ -41,7 +42,8 @@ class LiarButton(discord.ui.Button['RoundView']):
         try:
             await interaction.response.defer()
             round_summary = await game_service.liar_action(interaction.user.id)
-            await interaction.message.edit(view=None)
+            await self.view.ctx.clear_message(type=MessageType.Round)
+            await self.view.ctx.clear_message(type=MessageType.Bets)
             await game_service.send_liar_result(round_summary)
         except GameActionError as e:
             if not interaction.user.bot: await interaction.user.send(f"`Liar Failed`: {e.message}")
@@ -90,15 +92,14 @@ class BetButton(discord.ui.Button['RoundView']):
         self.bet_type = bet_type
     
     async def callback(self, interaction: discord.Interaction):
-        game_service = self.view.ctx.game
-        better = game_service.discord_players[interaction.user.id]
-        existing_bet = discord.utils.get(game_service.round.bets, player_id=better.player_id)
-        
-        bet_amount = min_bet(self.bet_type) if existing_bet is None else existing_bet.bet_amount * 4
+        game_service = self.view.ctx.game 
+        bet_amount = min_bet(self.bet_type)
+        target_id = game_service.round.latest_bid.id
 
         try:
-            r = await game_service.bet_action(interaction.user.id, bet_amount, self.bet_type)
+            r = await game_service.bet_action(interaction.user.id, bet_amount, self.bet_type, target_id)
             await self.view.ctx.update_round_message(r, interaction.response.edit_message)
+            await self.view.ctx.send_bets_message(r)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)
 
@@ -122,14 +123,15 @@ class RoundView(discord.ui.View):
         self.add_item(LiarButton(0))
         self.add_item(DiceButton(1))
 
-        self.add_item(BetButton(BetType.Liar, 2, enabled=self.round.any_bids))
-        self.add_item(BetButton(BetType.Exact, 2, enabled=self.round.any_bids))
-        self.add_item(BetButton(BetType.Peak, 2, enabled=self.round.any_bids))
+        if not self.round.any_bets:
+            self.add_item(BetButton(BetType.Liar, 2, enabled=self.round.any_bids))
+            self.add_item(BetButton(BetType.Exact, 2, enabled=self.round.any_bids))
+            self.add_item(BetButton(BetType.Peak, 2, enabled=self.round.any_bids))
 
-        if self.round.any_bids:
-            self.add_item(BetButton(BetType.Legit, 2, enabled=self.round.any_bids))
-        else:
-            self.add_item(ReverseButton(2, enabled=self.round.can_reverse))
+            if self.round.any_bids:
+                self.add_item(BetButton(BetType.Legit, 2, enabled=self.round.any_bids))
+            else:
+                self.add_item(ReverseButton(2, enabled=self.round.can_reverse))
 
 class RoundEmbed(discord.Embed):
     def __init__(self, r: Round):
@@ -140,8 +142,8 @@ class RoundEmbed(discord.Embed):
         if self.round.any_eliminated:
             self.add_field(name="Eliminated", value=self.get_eliminated_field())
 
-        if self.round.any_bets:
-            self.add_field(name="Bets", value=self.get_bets_field(), inline=False)
+        # if self.round.any_bets:
+        #     self.add_field(name="Bets", value=self.get_bets_field(), inline=False)
 
         if self.round.any_bids:
             self.add_field(name="Game Log", value=self.get_gamelog_field(), inline=False)

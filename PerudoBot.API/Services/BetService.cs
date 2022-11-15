@@ -16,7 +16,7 @@ namespace PerudoBot.API.Services
             _userService = userService;
         }
 
-        public RoundDto Bet(Game game, Player player, int betAmount, BetType betType)
+        public RoundDto Bet(Game game, Player player, int betAmount, BetType betType, int targetBidId)
         {
             if (player.User.Points <= 0)
             {
@@ -35,12 +35,14 @@ namespace PerudoBot.API.Services
 
             var currentRound = game.LatestRound;
 
-            if (currentRound.IsCompleted)
+            var targetBid = _db.BidActions.SingleOrDefault(x => x.Id == targetBidId);
+
+            if (targetBid == null)
             {
-                return new RoundDto { RequestSuccess = false, ErrorMessage = "Round is completed" };
+                return new RoundDto { RequestSuccess = false, ErrorMessage = "You can't bet on this bid" };
             }
 
-            if (currentRound.LatestBid.PlayerId == player.Id)
+            if (targetBid.PlayerId == player.Id)
             {
                 return new RoundDto { RequestSuccess = false, ErrorMessage = "You can't bet on your own bid" };
             }
@@ -63,14 +65,14 @@ namespace PerudoBot.API.Services
             {
                 _userService.RemoveBetPoints(player.User, betAmount, game);
 
-                var betAction = BetOnLatestAction(currentRound, player, betAmount, betType);
+                var betAction = BetOnAction(currentRound, player, betAmount, betType, targetBid);
                 currentRound.Actions.Add(betAction);
 
                 _db.SaveChanges();
                 return currentRound.ToRoundDto();
             }
 
-            if (existingBet.TargetBidId != currentRound.LatestBid.Id)
+            if (existingBet.TargetBidId != targetBid.Id)
             {
                 return new RoundDto { RequestSuccess = false, ErrorMessage = "You can only bet once per round" };
             }
@@ -95,14 +97,13 @@ namespace PerudoBot.API.Services
         //    if (prevBets > 0) bet.BetOdds = 1 + ((bet.BetOdds - 1) * 0.5);
         //}
 
-        private BetAction BetOnLatestAction(Round currentRound, Player player, int betAmount, BetType betType)
+        private BetAction BetOnAction(Round currentRound, Player player, int betAmount, BetType betType, BidAction action)
         {
             var playerHand = currentRound.PlayerHands.SingleOrDefault(x => x.PlayerId == player.Id);
 
             var playerDice = new List<int>();
             if (playerHand != null) playerDice = playerHand.Dice.ToIntegerDice();
 
-            var currentBid = currentRound.LatestBid;
             var gameDice = currentRound.PlayerHands.GetAllDice();
 
             var bet = new BetAction
@@ -110,7 +111,7 @@ namespace PerudoBot.API.Services
                 PlayerId = player.Id,
                 ParentActionId = currentRound.LatestAction?.Id,
                 RoundId = currentRound.Id,
-                TargetBid = currentBid,
+                TargetBid = action,
                 BetAmount = betAmount,
                 BetType = (int)betType
             };

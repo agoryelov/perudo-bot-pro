@@ -1,12 +1,11 @@
 import asyncio
-from code import interact
 import discord
 from os import getenv
 from discord.ext import commands
 
 from services import PerudoContext
-from utils import parse_bid, GameActionError
-from views import RoundSummaryEmbed, GameSetupEmbed, GameSetupView
+from utils import parse_bid, GameActionError, MessageType
+from views import RoundSummaryEmbed
 
 from bot import PerudoBot
 
@@ -51,6 +50,7 @@ class Perudo(commands.Cog):
             else: await ctx.message.delete()
 
             await ctx.update_round_message(round)
+            if ctx.game.round.any_bets: await ctx.update_bets_message(round)
             if ctx.game.has_bots: await ctx.game.send_bot_updates(round)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
@@ -66,7 +66,8 @@ class Perudo(commands.Cog):
             if is_slash: await ctx.reply('Liar called', ephemeral=True)
             else: await ctx.message.delete()
             
-            await ctx.clear_active_view()
+            await ctx.clear_message(type=MessageType.Round)
+            await ctx.clear_message(type=MessageType.Bets)
             await ctx.game.send_liar_result(round_summary)
 
         except GameActionError as e:

@@ -21,11 +21,11 @@ namespace PerudoBot.API.Controllers
         }
 
         [HttpGet]
-        [Route("game/round")]
+        [Route("game/resume")]
         [RequireExistingGame]
-        public IResult CurrentRoundState()
+        public IResult ResumeGame()
         {
-            var response = _gameService.GetCurrentRound();
+            var response = _gameService.ResumeGame();
 
             if (!response.RequestSuccess)
             {

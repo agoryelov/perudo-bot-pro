@@ -25,9 +25,17 @@ class GameService():
         self.game_setup : GameSetup = None
         self.round : Round = None
 
-        self.bot_channel : TextChannel
+        self.bot_channel = ctx.bot.bot_channel
         self.voice_client : VoiceClient = None
         self.voice_channel : VoiceChannel = None
+
+    async def resume_game(self, game_id) -> Round:
+        self.game_id = game_id
+        round_data = Client.resume_game(self.game_id)
+        round = Round(round_data)
+        await self._update_from_round(round)
+        await self._send_out_dice(round)
+        return round
 
     async def fetch_setup(self) -> GameSetup:
         setup_data = Client.fetch_setup(self.game_id)
@@ -166,7 +174,7 @@ class GameService():
         self.game_state = GameState.InProgress if not round.is_final else GameState.Ended
 
     async def send_bot_updates(self, round):
-        if self.bot_channel is None:
+        if self.ctx.bot.bot_channel is None:
             print("Warning: Bot channel is not accessible")
             return
         

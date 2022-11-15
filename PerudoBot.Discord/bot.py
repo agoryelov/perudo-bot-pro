@@ -18,6 +18,7 @@ class PerudoChannel():
         self.channel_auction = AuctionService(ctx)
 
         self._channel_messages: dict[MessageType, discord.Message] = {}
+        
 
     def get_message(self, type: MessageType) -> discord.Message:
         return self._channel_messages.get(type)
@@ -32,6 +33,7 @@ class PerudoBot(commands.Bot):
         self.owner_id = OWNER_ID
         self.extns = ['cogs.general', 'cogs.perudo']
 
+        self.bot_channel: discord.TextChannel
         self._perudo_channels: dict[int, PerudoChannel] = {}
 
     def perudo_channel(self, ctx: PerudoContext):
@@ -58,6 +60,7 @@ class PerudoBot(commands.Bot):
         await self.tree.sync(guild=SYNC_GUILD)
 
     async def on_ready(self):
+        self.bot_channel = await self.fetch_channel(getenv('BOT_CHANNEL'))
         print(f'{self.user.name} has connected to Discord!')
 
     async def get_context(self, origin, /, *, cls=PerudoContext) -> PerudoContext:

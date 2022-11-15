@@ -44,9 +44,9 @@ class Client():
         headers = { 'GAME_ID': str(game_id) }
         return Client._post(f'{SERVER_PATH}/game/roundtype/{round_type}', headers=headers)
 
-    def current_round(game_id):
+    def resume_game(game_id):
         headers = { 'GAME_ID': str(game_id) }
-        return Client._get(f'{SERVER_PATH}/game/round', headers=headers)
+        return Client._get(f'{SERVER_PATH}/game/resume', headers=headers)
 
     def fetch_setup(game_id):
         headers = { 'GAME_ID': str(game_id) }

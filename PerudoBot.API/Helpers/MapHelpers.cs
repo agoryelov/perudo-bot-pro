@@ -309,5 +309,14 @@ namespace PerudoBot.API.Helpers
             summary.HasWinner = summary.Winner != null;
             return summary;
         }
+
+        public static ItemDropDto ToItemDropDto(this ItemDrop itemDrop)
+        {
+            return new ItemDropDto
+            {
+                Item = itemDrop.Item.ToItemDto(),
+                Name = itemDrop.Player.User.Name
+            };
+        }
     }
 }

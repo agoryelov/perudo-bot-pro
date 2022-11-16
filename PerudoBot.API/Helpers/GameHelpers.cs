@@ -5,8 +5,6 @@ namespace PerudoBot.API.Helpers
 {
     public static class GameHelpers
     {
-        private static Random _random = new Random();
-
         public static IEnumerable<Game> Completed(this ICollection<Game> games)
         {
             return games.Where(x => x.State == (int)GameState.Ended);
@@ -108,19 +106,6 @@ namespace PerudoBot.API.Helpers
             if (previousQuantity > followUpQuantity) return false;
             if (previousQuantity == followUpQuantity && previousBid.Pips >= pips) return false;
             return true;
-        }
-
-        public static ICollection<Player> Shuffle(this ICollection<Player> players)
-        {
-            var shuffledPlayers = players.OrderBy(x => _random.Next()).ToList();
-            var turnOrder = 0;
-            foreach (var gamePlayer in shuffledPlayers)
-            {
-                gamePlayer.TurnOrder = turnOrder;
-                turnOrder += 1;
-            }
-
-            return shuffledPlayers;
         }
 
         public static ICollection<Player> Reverse(this ICollection<Player> players)

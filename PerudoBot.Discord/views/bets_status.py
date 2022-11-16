@@ -41,7 +41,7 @@ class BetsEmbed(discord.Embed):
     def __init__(self, r: Round):
         super().__init__()
         self.round = r
-        self.add_field(name="Bets", value=self.get_bets_field(), inline=False)
+        self.description = self.get_bets_field()
 
         if r.any_bids:
             self.set_footer(text=f'Betting on: {r.latest_bid.quantity} x {r.latest_bid.pips}')

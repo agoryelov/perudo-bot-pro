@@ -7,7 +7,7 @@ from discord import Member, User, VoiceClient, VoiceChannel
 
 from models import Player, Round, GameSetup, RoundSummary, GameSummary
 from utils import MessageType, GameState, GameActionError, bot_dice, bot_update, get_mention
-from views import LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed, GameSummaryEmbed, VictoryEmbed
+from views import LiarCalledEmbed, DamageDealtEmbed, DefeatEmbed, GameSummaryEmbed, VictoryEmbed, ItemDropEmbed
 
 from .client import Client
 
@@ -124,6 +124,9 @@ class GameService():
         winner = self.round.players[game_summary.winning_player_id]
         await self.ctx.send_delayed(embed=VictoryEmbed(winner))
         await self.ctx.send_delayed(embed=GameSummaryEmbed(game_summary))
+
+        for drop in game_summary.item_drops:
+            await self.ctx.send_delayed(embed=ItemDropEmbed(drop))
     
     async def terminate(self):
         if self.voice_client is not None: await self.voice_client.disconnect()

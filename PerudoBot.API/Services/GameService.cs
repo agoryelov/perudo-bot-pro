@@ -15,6 +15,7 @@ namespace PerudoBot.API.Services
         private readonly BetService _betService;
         private readonly EloService _eloService;
         private readonly UserService _userService;
+        private readonly ItemService _itemService;
         private readonly AuctionService _auctionService;
         private readonly AchievementService _achievementService;
 
@@ -23,6 +24,7 @@ namespace PerudoBot.API.Services
             BetService betService, 
             EloService eloService, 
             UserService userService, 
+            ItemService itemService,
             AuctionService auctionService, 
             AchievementService achievementService)
         {
@@ -30,6 +32,7 @@ namespace PerudoBot.API.Services
             _betService = betService;
             _eloService = eloService;
             _userService = userService;
+            _itemService = itemService;
             _auctionService = auctionService;
             _achievementService = achievementService;
         }
@@ -391,10 +394,9 @@ namespace PerudoBot.API.Services
 
             _eloService.UpdateElo(_activeGame);
             _achievementService.CheckGameAchievements(_activeGame);
+            _itemService.ResolveGameItemDrops(_activeGame);
 
             _db.SaveChanges();
-
-            var roundState = _activeGame.LatestRound.ToRoundDto();
 
             return Responses.OK();
         }
@@ -439,7 +441,11 @@ namespace PerudoBot.API.Services
                     .Where(x => x.Round.GameId == _activeGame.Id)
                     .Select(x => x.ToGameNote())
                     .ToList(),
-                Achievements = _achievementService.GetNewAchievements()
+                Achievements = _achievementService.GetNewAchievements(),
+                ItemDrops = _db.ItemDrops
+                    .Where(x => x.GameId == _activeGame.Id)
+                    .Select(x => x.ToItemDropDto())
+                    .ToList()
             };
         }
 

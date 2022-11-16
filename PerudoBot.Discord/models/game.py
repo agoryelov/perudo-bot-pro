@@ -1,4 +1,5 @@
 from .achievement import UserAchievement
+from .inventory import Item
 import utils
 
 class GameSummary():
@@ -9,6 +10,7 @@ class GameSummary():
         self.elo_changes : list[PlayerEloChange] = utils.parse_list(json.get('eloChanges'), PlayerEloChange)
         self.notes : list[GameNote] = utils.parse_list(json.get('notes'), GameNote)
         self.achievements: list[UserAchievement] = utils.parse_list(json.get('achievements'), UserAchievement)
+        self.item_drops: list[ItemDrop] = utils.parse_list(json.get('itemDrops'), ItemDrop)
 
 class PlayerEloChange():
     def __init__(self, json: dict) -> None:
@@ -27,3 +29,8 @@ class GameNote():
         self.round_number = json.get('roundNumber')
         self.name = json.get('name')
         self.text = json.get('text')
+
+class ItemDrop():
+    def __init__(self, json: dict) -> None:
+        self.item = Item(json.get('item'))
+        self.name = json.get('name')

@@ -8,6 +8,7 @@
         public List<PlayerPointsChange> BetPointsChanges { get; set; }
         public List<GameNote> Notes { get; set; }
         public List<UserAchievementDto> Achievements { get; set; }
+        public List<ItemDropDto> ItemDrops { get; set; }
     }
 
     public class PlayerPointsChange {
@@ -30,5 +31,11 @@
         public int RoundNumber { get; set; }
         public string Name { get; set; }
         public string Text { get; set; }
+    }
+
+    public class ItemDropDto
+    {
+        public string Name { get; set; }
+        public ItemDto Item { get; set; } 
     }
 }

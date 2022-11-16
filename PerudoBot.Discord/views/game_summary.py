@@ -1,6 +1,12 @@
 import discord
-from models import GameSummary, Player
+from models import GameSummary, Player, ItemDrop
 from utils import EmbedColor, RattleType
+
+class ItemDropEmbed(discord.Embed):
+    def __init__(self, drop: ItemDrop):
+        super().__init__()
+        self.description = f":gift: **{drop.name}** receives **{drop.item.name}**"
+        self.color = EmbedColor.Yellow
 
 class VictoryEmbed(discord.Embed):
     def __init__(self, winner: Player):

@@ -36,6 +36,7 @@ namespace PerudoBot.Database.Data
 
         public DbSet<Item> Items { get; set; }
         public DbSet<DiceItem> DiceItems { get; set; }
+        public DbSet<ItemDrop> ItemDrops { get; set; }
 
         public DbSet<Auction> Auctions { get; set; }
         public DbSet<AuctionPlayer> AuctionPlayers { get; set; }
@@ -105,8 +106,6 @@ namespace PerudoBot.Database.Data
                 .HasOne(x => x.User)
                 .WithMany(user => user.UserItems)
                 .HasForeignKey(gm => gm.UserId);
-
-
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

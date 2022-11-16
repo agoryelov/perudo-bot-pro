@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PerudoBot.API.Constants;
 using PerudoBot.API.DTOs;
 using PerudoBot.API.Helpers;
 using PerudoBot.Database.Data;
@@ -105,6 +106,51 @@ namespace PerudoBot.API.Services
             _db.SaveChanges();
 
             return Responses.OK();
+        }
+
+        public void ResolveGameItemDrops(Game game)
+        {
+            if (game.Players.Count < 4) return;
+
+            (int, int)[] tierProbs = {
+                ((int)ItemTier.Common, 60),
+                ((int)ItemTier.Rare, 30),
+                ((int)ItemTier.Epic, 10)
+            };
+
+            var player = game.RandomPlayerWeighted();
+            var item = RandomItem(tierProbs);
+
+            player.User.UserItems.Add(new UserItem
+            {
+                User = player.User,
+                Item = item
+            });
+
+            _db.ItemDrops.Add(new ItemDrop
+            {
+                Game = game,
+                Player = player,
+                Item = item
+            });
+
+            _db.SaveChanges();
+        }
+
+        private Item RandomItem((int, int)[] tierProbs)
+        {
+            var tier = RandomHelpers.PickItemWeighted(tierProbs);
+            var itemPool = _db.DiceItems.Where(x => x.Tier == tier && x.DropEnabled).ToList();
+
+            if (itemPool.Count == 0)
+            {
+                return _db.DiceItems.FirstOrDefault();
+            }
+
+            var rng = new Random();
+            var itemIndex = rng.Next(itemPool.Count);
+
+            return itemPool[itemIndex];
         }
     }
 }

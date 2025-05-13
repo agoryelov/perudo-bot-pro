@@ -89,7 +89,7 @@ class GameSetupEmbed(discord.Embed):
     def __init__(self, game_setup: GameSetup):
         super().__init__()
         self.setup = game_setup
-        self.title = f'Game Lobby'
+        self.title = f'Game {game_setup.game_id} Lobby'
         self.add_field(name=f"Players ({len(self.setup.players)})", value=self.get_setup_players_field(), inline=False)
         self.add_field(name="Game Mode", value=self.setup.round_type, inline=False)
 

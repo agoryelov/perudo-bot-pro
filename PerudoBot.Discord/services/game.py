@@ -97,8 +97,13 @@ class GameService():
         self._play_notification('notify_reverse.mp3')
         return round
     
-    async def bet_action(self, discord_id, amount, bet_type, target_id) -> Round:
-        round_data = Client.bet_action(self.game_id, self._player_id(discord_id), amount, bet_type, target_id)
+    async def bet_action(self, discord_id, amount, bet_type) -> Round:
+        if not self.round.any_bids:
+            raise GameActionError("Can't bet right now")
+        
+        target_bid = self.round.latest_bid
+        bid_player = self._player_id(discord_id)
+        round_data = Client.bet_action(self.game_id, bid_player, amount, bet_type, target_bid.id)
         round = Round(round_data)
         await self._update_from_round(round)
         self._play_notification('notify_coins.mp3')
@@ -134,6 +139,9 @@ class GameService():
         Client.terminate_game(self.game_id)
         self.game_state = GameState.Terminated
     
+    async def add_note(self, discord_id, text):
+        Client.add_note(self.game_id, self._player_id(discord_id), text)
+
     async def _start_game_voice(self):
         try: self.voice_client = await self.voice_channel.connect()
         except: pass

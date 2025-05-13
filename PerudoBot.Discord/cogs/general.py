@@ -74,7 +74,7 @@ class General(commands.Cog):
             await self.achievements_summary(ctx)
 
     @commands.hybrid_command(name="recent", description="Recent games", help="Recent games")
-    async def recent(self, ctx: PerudoContext, member: discord.Member=None):
+    async def recent(self, ctx: PerudoContext):
         try:
             log_data = Client.get_game_log()
             game_log = GameLog(log_data)

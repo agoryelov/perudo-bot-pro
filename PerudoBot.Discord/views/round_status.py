@@ -102,9 +102,9 @@ class BetButton(discord.ui.Button['BetsView']):
         better = game_service.discord_players[interaction.user.id]
         existing_bet = discord.utils.get(game_service.round.bets, player_id=better.player_id)
         
-        bet_amount = min_bet(self.bet_type) if existing_bet is None else existing_bet.bet_amount * 4
+        bet_amount = min_bet(self.bet_type) if existing_bet is None else existing_bet.bet_amount * 3
         try:
-            r = await game_service.bet_action(interaction.user.id, bet_amount, self.bet_type, self.view.target_id)
+            r = await game_service.bet_action(interaction.user.id, bet_amount, self.bet_type)
             await self.view.ctx.update_bets_message(r, interaction.response.edit_message)
         except GameActionError as e:
             await interaction.response.send_message(e.message, ephemeral=True)

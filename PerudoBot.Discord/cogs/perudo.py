@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 
 from services import PerudoContext
-from utils import parse_bid, GameActionError, MessageType
+from utils import parse_bid, parse_bet_type, GameActionError
 from views import RoundSummaryEmbed
 
 from bot import PerudoBot
@@ -27,6 +27,32 @@ class Perudo(commands.Cog):
             await ctx.send_setup_message(game_setup)
 
             if ctx.is_slash: await ctx.reply(f'Created lobby #{game_setup.game_id}', ephemeral=True)
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
+    
+    @commands.hybrid_command(name="bet", description="Place a bet", help="Place a bet", )
+    async def bet(self, ctx: PerudoContext, type: str, bet_amount: int):
+        bet_type = parse_bet_type(type)
+        if bet_type == -1:
+            await ctx.reply("Invalid bet type", ephemeral=True)
+            return
+        
+        if not ctx.game.in_progress:
+            await ctx.reply("No active game", ephemeral=True)
+            return
+        
+        if ctx.author.id not in ctx.game.discord_players:
+            await ctx.reply("You are not in this game", ephemeral=True)
+            return
+
+        try:
+            await ctx.defer(ephemeral=True)
+            round = await ctx.game.bet_action(ctx.author.id, bet_amount, bet_type)
+
+            if ctx.is_slash: await ctx.reply('Bet placed', ephemeral=True)
+            else: await ctx.message.delete()
+
+            await ctx.update_bets_message(round)
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 
@@ -82,6 +108,18 @@ class Perudo(commands.Cog):
         try:
             await ctx.game.terminate()
             await ctx.reply(f'Terminated game {ctx.game.game_id}')
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
+
+    @commands.hybrid_command(name="note", description="Add new note", help="Add new note")
+    async def note(self, ctx: PerudoContext, *, text: str):
+        if not ctx.game.in_progress:
+            await ctx.reply("No active game", ephemeral=True)
+            return
+        
+        try:
+            await ctx.game.add_note(ctx.author.id, text)
+            await ctx.reply(f'Note added: {text}')
         except GameActionError as e:
             await ctx.reply(e.message, ephemeral=True)
 

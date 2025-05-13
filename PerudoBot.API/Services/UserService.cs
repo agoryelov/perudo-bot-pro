@@ -60,7 +60,7 @@ namespace PerudoBot.API.Services
                 IsBot = discordUser.IsBot,
                 Name = discordUser.Name,
                 Elo = 1200,
-                Points = 1000
+                Points = 200
             };
 
             _db.Users.Add(user);

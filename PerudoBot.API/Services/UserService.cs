@@ -230,6 +230,19 @@ namespace PerudoBot.API.Services
             return userProfile;
         }
 
+        public GameLogDto RecentGames(int count = 25)
+        {
+            var recentGames = _db.Games
+                    .OrderByDescending(x => x.DateCreated)
+                    .Take(count)
+                    .ToList();
+
+            return new GameLogDto
+            {
+                LogEntries = recentGames.Select(x => x.ToLogEntryDto()).ToList()
+            };
+        }
+
         private void CalculateUserRanks(UserProfileDto userProfile)
         {
             foreach (var user in _db.Users)

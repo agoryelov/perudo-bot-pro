@@ -83,6 +83,14 @@ namespace PerudoBot.API.Controllers
         }
 
         [HttpGet]
+        [Route("general/gamelog")]
+        public IResult GetGameLog()
+        {
+            var test = _userService.RecentGames();
+            return Results.Ok(new { data = test, foo = "bar" });
+        }
+
+        [HttpGet]
         [Route("general/rattles")]
         public IResult ListRattles()
         {

@@ -31,7 +31,8 @@ class GameButton(discord.ui.Button['GameSetupView']):
         
         try: 
             round = await self.view.game.start_game()
-            if self.view.game.has_bots: await self.view.game.send_bot_updates(round)
+            if self.view.game.has_bots:
+                await self.view.game.send_bot_updates(round)
 
             await self.view.ctx.clear_message(type=MessageType.Setup)
             await self.view.ctx.send_round_message(round)

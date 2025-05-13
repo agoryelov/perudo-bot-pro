@@ -8,12 +8,13 @@
         public const int RECENT_GAMES = 5;
         public const int RECENT_ACHIEVEMENTS = 3;
         public const string DATE_FORMAT = "yyyy-MM-ddTHH:mm:sszzz";
+        public const string SHORT_DATE_FORMAT = "yyyy-MM-dd";
 
         public const float ZERO_ODDS = 1.0f;
         public const float PITY_ODDS = 1.1f;
         public const float LIAR_ODDS = 1.5f;
-        public const float EXACT_ODDS = 5.0f;
-        public const float PEAK_ODDS = 8.0f;
+        public const float EXACT_ODDS = 3.0f;
+        public const float PEAK_ODDS = 5.0f;
         public const float LEGIT_ODDS = 2.0f;
 
         public static int MaxBetPerDie(this BetType betType)

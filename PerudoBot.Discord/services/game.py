@@ -72,7 +72,8 @@ class GameService():
     async def start_game(self):
         Client.start_game(self.game_id)
         self.game_state = GameState.InProgress
-        await self._start_game_voice()
+        # TODO: Re-add sounds effects
+        # await self._start_game_voice()
         return await self.start_round()
 
     async def start_round(self) -> Round:
@@ -191,7 +192,7 @@ class GameService():
         self.game_state = GameState.InProgress if not round.is_final else GameState.Ended
 
     async def send_bot_updates(self, round):
-        if self.ctx.bot.bot_channel is None:
+        if self.bot_channel is None:
             print("Warning: Bot channel is not accessible")
             return
         

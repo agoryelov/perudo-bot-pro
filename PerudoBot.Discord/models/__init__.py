@@ -8,3 +8,4 @@ from .setup import GameSetup
 from .profile import UserProfile, UserGame
 from .inventory import Item, UserInventory
 from .auction import Auction, AuctionSetup, AuctionAction, AuctionPlayer, AuctionSummary
+from .game_log import GameLog

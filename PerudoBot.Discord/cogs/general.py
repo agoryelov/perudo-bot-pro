@@ -4,9 +4,9 @@ from bot import PerudoBot
 from models.achievement import AchievementDetails
 
 from services import Client, PerudoContext
-from models import LadderInfo, UserProfile, UserInventory
+from models import LadderInfo, UserProfile, UserInventory, GameLog
 from utils import RattleType, GameActionError, is_url_image, parse_list
-from views import LadderInfoEmbed, LadderInfoView, UserAchievementsEmbed, AchievementSource, PagedView, UserProfileEmbed, UserInventoryEmbed, UserInventoryView
+from views import LadderInfoEmbed, LadderInfoView, UserAchievementsEmbed, AchievementSource, PagedView, UserProfileEmbed, UserInventoryEmbed, UserInventoryView, GameLogEmbed
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -72,6 +72,15 @@ class General(commands.Cog):
             await self.achievements_user(ctx, member.id)
         else:
             await self.achievements_summary(ctx)
+
+    @commands.hybrid_command(name="recent", description="Recent games", help="Recent games")
+    async def recent(self, ctx: PerudoContext, member: discord.Member=None):
+        try:
+            log_data = Client.get_game_log()
+            game_log = GameLog(log_data)
+            await ctx.send(embed=GameLogEmbed(game_log))
+        except GameActionError as e:
+            await ctx.reply(e.message, ephemeral=True)
 
     async def achievements_user(self, ctx: PerudoContext, discrod_id):
         try:

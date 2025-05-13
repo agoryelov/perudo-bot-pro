@@ -20,6 +20,9 @@ class Client():
 
     def get_ladder_info():
         return Client._get(f'{SERVER_PATH}/general/ladder')
+    
+    def get_game_log():
+        return Client._get(f'{SERVER_PATH}/general/gamelog')
 
     def get_user_profile(discord_id):
         return Client._get(f'{SERVER_PATH}/general/profile/{discord_id}')

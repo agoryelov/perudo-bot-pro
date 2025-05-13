@@ -318,5 +318,15 @@ namespace PerudoBot.API.Helpers
                 Name = itemDrop.Player.User.Name
             };
         }
+
+        public static LogEntryDto ToLogEntryDto(this Game game)
+        {
+            return new LogEntryDto
+            {
+                GameId = game.Id,
+                GameState = ((GameState) game.State).ToString(),
+                GameDate = game.DateCreated.ToPST().ToString(GameConstants.SHORT_DATE_FORMAT),
+            };
+        }
     }
 }

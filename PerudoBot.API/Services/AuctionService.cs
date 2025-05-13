@@ -21,6 +21,16 @@ namespace PerudoBot.API.Services
             _userService = userService;
         }
 
+        public bool IsAvailable()
+        {
+            var itemPool = _db.Items
+               .Where(x => x.DropEnabled)
+               .Select(x => x.Id)
+               .ToList();
+
+            return itemPool.Count > 5;
+        }
+
         public Auction LoadActiveAuction(int auctionId)
         {
             _activeAuction = _db.Auctions

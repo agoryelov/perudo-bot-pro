@@ -75,9 +75,14 @@ namespace PerudoBot.API.Services
 
         private GameSetupDto GetGameSetupDto(Game game)
         {
+            if (!_auctionService.IsAvailable())
+            {
+                return game.ToGameSetupDto();
+            }
+
             var dailyAuction = _auctionService.GetDailyAuction();
 
-            if (dailyAuction.State != (int) AuctionState.Setup)
+            if (dailyAuction.State != (int)AuctionState.Setup)
             {
                 return game.ToGameSetupDto();
             }

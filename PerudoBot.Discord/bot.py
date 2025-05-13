@@ -33,7 +33,7 @@ class PerudoBot(commands.Bot):
         self.owner_id = OWNER_ID
         self.extns = ['cogs.general', 'cogs.perudo']
 
-        self.bot_channel: discord.TextChannel
+        self.bot_channel: discord.TextChannel = None
         self._perudo_channels: dict[int, PerudoChannel] = {}
 
     def perudo_channel(self, ctx: PerudoContext):
@@ -56,11 +56,15 @@ class PerudoBot(commands.Bot):
         return self.perudo_channel(ctx).channel_auction
 
     async def setup_hook(self):
+        for ext in self.extns:
+            await self.load_extension(ext)
+
         self.tree.copy_global_to(guild=SYNC_GUILD)
         await self.tree.sync(guild=SYNC_GUILD)
 
     async def on_ready(self):
-        self.bot_channel = await self.fetch_channel(getenv('BOT_CHANNEL'))
+        if getenv('BOT_CHANNEL'):
+            self.bot_channel = await self.fetch_channel(getenv('BOT_CHANNEL'))
         print(f'{self.user.name} has connected to Discord!')
 
     async def get_context(self, origin, /, *, cls=PerudoContext) -> PerudoContext:
@@ -71,8 +75,4 @@ class PerudoBot(commands.Bot):
         await self.invoke(ctx)
 
     async def on_command_error(self, ctx: PerudoContext, error: commands.CommandError):
-        if isinstance(error, commands.CommandInvokeError):
-            original = error.original
-            print('In %s:', ctx.command.qualified_name, exc_info=original)   
-        else:
-            print('In %s:', ctx.command, exc_info=error)
+        print(f'In {ctx.command}: {error}')
